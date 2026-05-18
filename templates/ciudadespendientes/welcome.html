@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div id="content">
+    <div style="background-color: #ffffff55; padding-bottom: 20px;">
+        <br>
+        {% if organization %}
+        <h3 class="my-2" style="text-align: center;">
+            <b>{{ organization.name|upper }}</b>
+        </h3>
+        {% else %}
+        <h3 class="my-2" style="text-align: center;">
+            <b>APLICACIONES</b>
+        </h3>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+        <h4 class="my-2" style="text-align: center;">
+            ¡Hola {{ user.get_shortname|title }}!
+        </h4>
+        {% endif %}
+    </div>
+    <div class="container mt-5 mb-5" style="background-color: rgba(255, 255, 255, 0);">
+        <div class="row mt-4 d-flex justify-content-center align-items-center">
+            <!-- FLUJOS DE STRAVA -->
+            <div class="col-12 col-md-6 mb-4">
+                <div class="card card-hover h-100">
+                    <div class="card-header p-0 mx-3 mt-3 position-relative z-index-1">
+                        <a href="{% url 'buscar' %}" class="d-block blur-shadow-image">
+                            <img src="{% static 'ciudadespendientes/images/strava_data.png' %}"
+                                class="img-fluid border-radius-md" style="border-radius:0.5rem;" loading="lazy"
+                                alt="Strava Data">
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <span class="text-gradient text-primary text-uppercase text-xs font-weight-bold"></span>
+                        <a href="{% url 'buscar' %}" class="card-title mt-1 h5 d-block text-darker"
+                            style="text-decoration: none; font-weight: bold;">FLUJOS DE STRAVA</a>
+                        <p class="card-description">¡Revisa los flujos de viajes en bicicleta dentro de tu
+                            ciudad!
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CIUDADES AMIGABLES -->
+            <div class="col-12 col-md-6 mb-4">
+                <div class="card card-hover h-100">
+                    <div class="card-header p-0 mx-3 mt-3 position-relative z-index-1">
+                        <a href="/404" class="d-block blur-shadow-image">
+                            <img src="{% static 'ciudadespendientes/images/friendly_city.png' %}"
+                                class="img-fluid border-radius-md" style="border-radius:0.5rem;" loading="lazy"
+                                alt="Friendly City">
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <span class="text-gradient text-primary text-uppercase text-xs font-weight-bold"></span>
+                        <a href="/404" class="card-title mt-1 h5 d-block text-darker"
+                            style="text-decoration: none; font-weight: bold;">CIUDADES AMIGABLES</a>
+                        <p class="card-description">¿Qué tan amigable es tu ciudad según las velocidades
+                            máximas de circulación?
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

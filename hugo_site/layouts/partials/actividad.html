@@ -1,0 +1,111 @@
+<style>
+  .form-container {
+    max-width: 100%;
+    overflow: hidden;
+    text-align: center;
+    position: relative;
+    padding-bottom: 100%;
+    height: 0;
+  }
+
+  .form-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  .modal-content {
+    background-color: #fff;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 100%;
+    max-width: 850px;
+    position: relative;
+  }
+
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  .close:hover,
+  .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+</style>
+
+<a href="https://docs.google.com/forms/d/e/1FAIpQLScg0zvzKa-sc_hjZh4frfRCXSJiot6x9OXPqdblnR0tLlIC0A/viewform?usp=header"
+  target="_blank">
+  <button class="button btn" style="align-items: center;">
+    <b>REGÍSTRATE EN EL DESAFÍO ARAUCANÍA PROFUNDA</b>
+  </button>
+</a>
+<br><br>
+
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+
+    <div class="container" style="font-size:medium">
+      <h1><strong>¡Nos vamos a Lonquimay!</strong></h1>
+      <br>
+      <a href="/desafio"><img src="/img/actividades/2026/araucania-profunda/araucaniaprofunda.webp" width="65%"></a>
+      <br><br>
+      <h4><strong>Lugar: <a href="https://maps.app.goo.gl/DiRk8txvjhdYbGdH9" target="_blank">Lonquimay, Región de la
+            Araucanía</a></strong></p>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLScg0zvzKa-sc_hjZh4frfRCXSJiot6x9OXPqdblnR0tLlIC0A/viewform?usp=header"
+          target="_blank">
+          <button class="button btn" style="align-items: center">
+            <b>REGÍSTRATE</b>
+          </button>
+        </a>
+        <button id="openModal" style="display:none"><b></b></button>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  var modal = document.getElementById('modal');
+  var btnOpenModal = document.getElementById('openModal');
+  var btnCloseModal = document.getElementsByClassName('close')[0];
+
+  btnOpenModal.onclick = function () {
+    modal.style.display = 'block';
+  };
+
+  btnCloseModal.onclick = function () {
+    modal.style.display = 'none';
+  };
+
+  window.onclick = function (event) {
+    if (event.target == modal) {
+      modal.style.display = 'none';
+    }
+  };
+
+  window.onload = function () {
+    modal.style.display = 'block';
+  };
+
+</script>

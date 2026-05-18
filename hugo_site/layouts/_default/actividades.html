@@ -1,0 +1,19 @@
+{{ define "main" }}
+
+    {{ partial "header" .}}
+
+    <div class="container">
+        <h3 class="my-5"><b>{{ .Title }}</b></h3>
+        <div class="panel">
+            <div class="gallery-container">
+                <div class="row mt-7">
+                    {{ .Content }}            
+                    {{ range .Pages }}
+                        {{ partial "listado-actividades" . }}
+                    {{ end }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+{{ end }}

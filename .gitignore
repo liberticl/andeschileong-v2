@@ -1,0 +1,23 @@
+.env
+.python-version
+db.sqlite3
+/static
+Nginx
+docker-compose.yml
+docker-compose.dev.yml
+nginx.conf
+debug.log
+.flake8
+rebuild.sh
+
+*__pycache__*
+*migrations/
+ciudadespendientes/migrations/__pycache__/__init__.cpython-311.pyc
+ciudadespendientes/data
+*.log
+*cpython*
+counter.html
+
+# Hugo
+/hugo_site/public
+/hugo_site/resources

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5 pt-5 mb-5">
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h1 style="font-family: 'Urbanist', sans-serif; font-weight: 700;">INTRANET</h1>
+            <p class="text-muted">Panel de control de Andes Chile ONG</p>
+        </div>
+    </div>
+    
+    <div class="row justify-content-center">
+        <!-- Tarjeta para Administrar Sitio -->
+        <div class="col-md-6 mb-4">
+            <a href="{% url 'hugo_activity_list' %}" class="text-decoration-none d-block h-100" style="color: inherit;">
+                <div class="card shadow-sm h-100 border-0" style="border-radius: 15px; overflow: hidden;">
+                    <div class="card-body text-center p-5">
+                        <i class="fa fa-globe mb-3" style="font-size: 4rem; color: #2241a8;"></i>
+                        <h3 class="card-title font-weight-bold text-dark" style="font-family: 'Urbanist', sans-serif;">Administrar Sitio</h3>
+                        <p class="card-text text-muted">Añade o edita las Actividades que aparecen en el portal andeschileong.cl.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Agrega más tarjetas aquí en el futuro -->
+    </div>
+</div>
+{% endblock %}

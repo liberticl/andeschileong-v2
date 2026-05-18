@@ -1,0 +1,42 @@
+{{ define "main" }}
+
+    {{ partial "header" .}}
+
+    <div class="container">
+        <h3 class="my-5"><b>{{ .Title }}</b></h3>
+        <div class="blogpost">
+            {{ .Content }}
+            <br>
+            <br>
+        </div>
+        <div class="panel">
+            <div class="gallery-container">
+                <div class="row mt-7">
+                {{ range .Pages }}
+                    <div class="col-md-4 col-lg-3 mb-5">
+                        <div class=card>
+                            {{if isset .Params "featured_image" }}        
+                                <div class="card-header p-0 mx-3 mt-3 position-relative z-index-1">
+                                    <a
+                                        href="{{.RelPermalink}}"
+                                        class="d-block blur-shadow-image"><img
+                                            src='{{ index .Params "featured_image" }}'
+                                            class="img-fluid border-radius-md" style="border-radius:0.5rem;" loading=lazy>
+                                    </a>
+                                </div>
+                            {{ end }}
+                            <div class=card-body><span
+                                    class="text-gradient text-primary text-uppercase text-xs font-weight-bold"></span>
+                                <a href="{{.RelPermalink}}"
+                                    class="card-title mt-3 h5 d-block text-darker">{{ .Title }}</a>
+                                <p class="card-description mb-4">{{ .Description }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {{ end }}
+            </div>
+            </div>
+        </div>
+    </div>
+
+{{ end }}

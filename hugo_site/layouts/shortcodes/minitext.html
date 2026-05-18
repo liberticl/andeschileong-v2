@@ -1,0 +1,19 @@
+{{ $dnsa := safeHTML "Desde el año 2019, debido a la cercanía del Día Mundial Sin Autos (celebrado el 22 de Septiembre) con las Fiestas Patrias en Chile, el gobierno decide implementar el <b>Día Nacional Sin Autos el último viernes del mes de Septiembre</b> buscando aumentar el impacto que busca significar esta fecha a nivel mundial, que es reducir la cantidad de emisiones y demostrar que tanto las ciudades a escala humana como el movilizarse en formas alternativas al vehículo particular son posibles." }}
+{{ $injuv := safeHTML "Esta publicación se enmarca en el contexto del fondo <b>Creamos 2022</b> de INJUV, adjudicado por <i>Francisco Vergara</i> con el proyecto <b>Cicletadas temáticas para Valparaíso y Viña del Mar</b>." }}
+{{ $fmb := safeHTML "El Foro Mundial de la Bicicleta (FMB) es un foro de ciclo-activismo, en donde se discuten problemáticas en relación con la movilidad en bicicleta y al planeamiento de ciudades para las personas. Se realiza desde el 2011 una vez al año en distintas ciudades del mundo. Surge como respuesta al arrollamiento intencional de un automovilista contra los participantes de una Masa Crítica (cicletada) de Porto Alegre que ocurrió el 25 de febrero de 2011. Lo ocurrido fue registrado en vídeo generando manifestaciones de solidaridad en diversas ciudades del mundo y fomentando la discusión sobre la violencia en el tránsito. La primera edición del FMB tuvo lugar exactamente en el primer aniversario del atentado en la ciudad brasilera de Porto Alegre." }}
+{{ $ciudadespendientes := safeHTML "En ciudades con grandes diferencias de altura, donde las personas habitan sus cerros y quebradas, las soluciones de movilidad urbana parecen quedar tan pendientes como las que dan forma a los caminos que recorremos..."}}
+
+<p style="font-size:15px; margin-bottom:0rem; line-height:22px"> 
+    {{ with .Get 0 }}
+        {{ if eq . "dnsa"}}
+            {{ $dnsa }}
+        {{ else if eq . "injuv"}}
+            {{ $injuv }}
+        {{ else if eq . "ciudadespendientes"}}
+            {{ $ciudadespendientes }}
+        {{ else if eq . "fmb"}}
+            {{ $fmb }}
+        {{ end }}
+    {{ end }}
+</p>
+<hr>

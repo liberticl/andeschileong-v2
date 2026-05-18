@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5 pt-5 mb-5 text-center">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-danger rounded-3" style="border-width: 2px;">
+                <div class="card-body p-5">
+                    <i class="fa fa-exclamation-triangle text-danger mb-4" style="font-size: 5rem;"></i>
+                    <h2 class="font-weight-bold" style="font-family: 'Urbanist', sans-serif;">¿Estás seguro?</h2>
+                    <p class="lead text-muted mt-3 mb-4">
+                        Estás a punto de eliminar la actividad: <br>
+                        <strong>"{{ object.title }}"</strong> <br>
+                        <small>({{ object.date|date:"d M Y" }})</small>
+                    </p>
+                    <div class="bg-light p-3 rounded mb-4 text-start">
+                        <small class="text-danger">
+                            <i class="fa fa-info-circle me-1"></i> Esta acción borrará el archivo asociado y reconstruirá la página web. Se perderá el contenido de forma permanente.
+                        </small>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <a href="{% url 'hugo_activity_list' %}" class="btn btn-outline-secondary btn-lg rounded-pill px-4 shadow-sm">Cancelar</a>
+                        <button type="submit" class="btn btn-danger btn-lg rounded-pill shadow-sm px-4 ms-2">Sí, eliminar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

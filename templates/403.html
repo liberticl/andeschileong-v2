@@ -1,0 +1,20 @@
+{% extends 'base.html' %} <!-- Hereda de base.html -->
+{% load static %}
+
+{% block content %}
+<div id="content" style="padding: 50px 0;">
+    <div class="container text-center">
+        <div class="page-not-found">
+            <img src="{% static 'ciudadespendientes/logo_andes.png' %}" alt="Responsive image" width="30%" class="mb-4">
+            <h1 style="font-size: 4rem; font-weight: bold; color: #f39c12;">403</h1>
+            <h3>Acceso Denegado</h3>
+            <p class="text-muted mb-4">Lo sentimos, no tienes los permisos necesarios para ver esta información.</p>
+            <button type="button" class="btn btn-lg px-3"
+                style="border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);"
+                onclick="window.location.href='{% url 'welcome' %}'">
+                <i class="fa fa-bicycle fa-2"></i> Volver al Inicio
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

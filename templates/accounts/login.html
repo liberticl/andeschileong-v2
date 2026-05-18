@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="login" style="z-index: 10; position: relative;">
+    <div class="login-container">
+        <h3 class="mt-3" style="text-align: center"><b>Iniciar Sesión</b></h3>
+        <br>
+        <form method="post">
+            {% csrf_token %}
+            <div style="display: flex; align-items: center; padding-bottom: 5px;">
+                <label for="username" style="width: 100px;">Usuario</label>
+                {{ form.username }}
+            </div>
+            <div style="display: flex; align-items: center;">
+                <label for="password" style="width: 100px;">Contraseña</label>
+                {{ form.password }}
+            </div>
+            <br>
+            <div style="text-align: center;">
+                <input type="submit" class="btn btn-primary" value="ENTRAR">
+            </div>
+        </form>
+    </div>
+</div>
+<div class="container"
+    style="letter-spacing: 0.5px; text-align: center; padding: 20px; margin-top: -160px; margin-bottom: 130px; z-index: 10; position: relative; background-color: #ffffffbb">
+    <h4 style="color: #000000d0;">
+            En ciudades con grandes diferencias de altura, donde las personas habitan sus cerros y quebradas, las
+            soluciones de movilidad urbana parecen quedar tan pendientes como las que dan forma a los caminos que
+            recorremos.
+    </h4>
+</div>
+{% endblock %}

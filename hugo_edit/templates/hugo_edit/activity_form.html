@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+<style>
+    .CodeMirror,
+    .CodeMirror-scroll {
+        min-height: 400px;
+        border-radius: 0 0 10px 10px;
+        font-family: Consolas, monospace;
+    }
+
+    .editor-toolbar {
+        background-color: #f8f9fa;
+        border-radius: 10px 10px 0 0;
+        border-bottom: none;
+    }
+</style>
+
+<div class="container mt-3 pt-3 mb-3">
+    <div class="row mb-3">
+        <div class="col-12">
+            <h2 style="font-family: 'Urbanist', sans-serif; font-weight: 700;">
+                {% if object %}EDITAR ACTIVIDAD{% else %}NUEVA ACTIVIDAD{% endif %}
+            </h2>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row g-3 text-start">
+                <div class="col-md-8">
+                    <label class="form-label fw-bold w-100">{{ form.title.label }}</label>
+                    {{ form.title }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold w-100">{{ form.date.label }}</label>
+                    {{ form.date }}
+                </div>
+
+                <div class="col-md-12 mt-3">
+                    <label class="form-label fw-bold mb-0 w-100">{{ form.description.label }}</label>
+                    <small class="text-secondary d-block mb-2 w-100" style="line-height: 1.2;">{{ form.description.help_text }}</small>
+                    {{ form.description }}
+                </div>
+
+                <div class="col-md-6 mt-3">
+                    <label class="form-label fw-bold mb-0 w-100">{{ form.featured_image.label }}</label>
+                    <small class="text-secondary d-block mb-2 w-100" style="line-height: 1.2;">{{ form.featured_image.help_text }}</small>
+                    {{ form.featured_image }}
+                </div>
+                <div class="col-md-6 mt-3">
+                    <label class="form-label fw-bold mb-0 w-100">{{ form.tags.label }}</label>
+                    <small class="text-secondary d-block mb-2 w-100" style="line-height: 1.2;">{{ form.tags.help_text }}</small>
+                    {{ form.tags }}
+                </div>
+
+                <div class="col-12 mt-4">
+                    <label class="form-label fw-bold mb-3">{{ form.content.label }}</label>
+                    <!-- El ID de este campo será 'id_content' automáticamente y lo inyectaremos en SimpleMDE -->
+                    {{ form.content }}
+                </div>
+            </div>
+
+            <div class="text-end pt-3 pb-5">
+                <button type="button" class="btn btn-lg px-5 shadow-sm" onclick="window.location.href='{% url 'hugo_activity_list' %}'">Cancelar</button>
+                <button type="submit" class="btn btn-lg px-5 shadow-sm">
+                    <i class="fa fa-save me-2"></i> Guardar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var contentField = document.getElementById("id_content");
+        if (contentField) {
+            contentField.required = false;
+            new SimpleMDE({
+                element: contentField,
+                spellChecker: false,
+                forceSync: true,
+                placeholder: "Escribe tu contenido aquí en formato Markdown...",
+            });
+        }
+    });
+</script>
+{% endblock %}

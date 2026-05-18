@@ -1,0 +1,15 @@
+{{ $Color := .Get 0 }}
+{{ $Text := .Get 1 }}
+
+<style>
+    .important-bar {
+        border: 1px solid {{ $Color }};
+        background: {{ $Color }}55 ;
+        padding: 10px 20px 10px 26px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+        overflow: hidden;
+        position: relative;
+      }
+</style>
+<div class="important-bar">{{ $Text }} </div>

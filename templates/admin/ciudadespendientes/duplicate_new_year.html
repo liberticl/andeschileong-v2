@@ -1,0 +1,40 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls l10n %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+    &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+    &rsaquo; Duplicar a nuevo año
+</div>
+{% endblock %}
+
+{% block content %}
+<form action="" method="post">{% csrf_token %}
+    <p>Seleccionó <strong>{{ queryset.count }}</strong> colecciones de datos. Escriba el nuevo año para el cual desea
+        duplicarlos:</p>
+
+    <div>
+        <label for="new_year">Nuevo año:</label>
+        <select name="new_year" id="new_year" required>
+            <option value="">Seleccione...</option>
+            {% for value, label in years %}
+            <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    {% for obj in queryset %}
+    <input type="hidden" name="_selected_action" value="{{ obj.pk|unlocalize }}" />
+    {% endfor %}
+
+    <div>
+        <br>
+        <input type="hidden" name="action" value="duplicate_with_new_year" />
+        <input type="hidden" name="apply" value="1" />
+        <input type="submit" value="Duplicar colecciones" class="default" />
+        <a href="." class="button cancel-link">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

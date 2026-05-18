@@ -1,0 +1,24 @@
+{{ define "main" }}
+  <!-- Header -->
+  {{ partial "header" . }}
+
+  <div class="container">
+    <h3 class="my-5"><b>{{ .Title }}</b></h3>
+    <div class="panel">
+      <div class="panel-body">
+        {{ range .Data.Pages }}
+          <div class="row mb-2">
+            <div style="text-align: center">
+              <h5 style="text-align: center">
+                <b><a href="{{ .RelPermalink }}">{{ .Title | markdownify }}</a></b>
+              </h5>
+              <h6 style="text-align: center">
+                {{ .Date.Format "02/01/2006" }}
+              </h6>
+            </div>
+          </div>
+        {{ end }}
+      </div>
+    </div>
+  </div>
+{{ end }}

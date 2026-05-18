@@ -1,0 +1,84 @@
+baseURL = "https://andeschileong.cl/"
+languageCode = "es-CL"
+title = "Andes Chile ONG"
+# Enable comments by entering your Disqus shortname
+disqusShortname = ""
+# Enable Google Analytics by entering your tracking code
+googleAnalytics = ""
+theme = "hugo-sustain"
+buildFuture = true
+
+[permalinks]
+  post = "/:day de /:month del /:year:/slug"
+
+[params]
+  avatar = "img/logo_andes.png"
+  author = "Andes Chile ONG"
+  description = "Movilidad Urbana"
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+    [markup.goldmark.renderHooks]
+      [markup.goldmark.renderHooks.link]
+        enableDefault = true
+
+
+
+
+  # Custom assets can be linked with their paths relative to static/
+  custom_css = ["/css/component.css"]
+  custom_js  = ["/js/grid.js"]
+
+[params.social]
+  Email         = "equipo@andeschileong.cl"
+  Twitter       = "andes_chile_ong"
+  Instagram     = "andeschileong"
+  Facebook      = "andeschileong"
+  Youtube       = "UCKMpFfSYuYlhVpJuyhtNEsA"
+
+## Main Menu
+[[menu.main]]
+  name = "inicio"
+  weight = 50
+  identifier = "inicio"
+  url = "/"
+[[menu.main]]
+  name = "nosotros"
+  identifier = "nosotros"
+  weight = 100
+  url = "/nosotros/"
+[[menu.main]]
+  name = "actividades"
+  identifier = "actividades"
+  weight = 200
+  url = "/actividades/"
+[[menu.main]]
+  name = "noticias"
+  weight = 300
+  identifier = "noticias"
+  url = "/noticias/"
+[[menu.main]]
+  name = "estudios"
+  weight = 400
+  identifier = "estudios"
+  url = "/estudios/"
+
+# [[menu.main]]
+#   name = "registra tu local"
+#   weight = 500
+#   identifier = "registro"
+#   url = "/registro/"
+
+# [[menu.main]]
+# name = "Ciudades Pendientes"
+# weight = 600
+# identifier = "cp-web"
+# url = "https://v2.ciudadespendientes.cl/"
+
+[[menu.main]]
+name = "Aplicaciones"
+weight = 700
+identifier = "apps"
+url = "/apps/"

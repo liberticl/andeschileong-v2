@@ -1,0 +1,11 @@
+{{ $webPage := .Get 0 }}
+{{ $text := .Get 1 }}
+{{ $pos := .Get 2 }}
+
+<div style="text-align: {{ $pos }}">
+    <a href="{{ $webPage }}" target="_blank">
+        <button class="button btn" style="align-items: center">
+            <b>{{ $text }}</b>
+        </button>
+    </a>
+</div>

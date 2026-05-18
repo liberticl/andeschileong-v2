@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="es-CL">
+
+<head>
+    {% include 'head.html' %}
+    {{ headers | safe }}
+</head>
+
+<body>
+    <div class="navigation">
+        {% include 'navbar.html' %}
+    </div>
+    <div class="map-container">
+        {{ deckgl | safe }}
+        <div class="btn btn-back" onclick="window.location.href='{% url 'buscar' %}?{{ query_string }}'">
+            Modificar búsqueda
+        </div>
+        <div class="layer-controls">
+            {% for layer in layers %}
+            <label>
+                <input type="checkbox" id="toggle-{{ layer.id }}" {{ layer.visible }}> {{ layer.label }}
+            </label>
+            <br>
+            {% endfor %}
+        </div>
+        <div class="legend">
+            {% for layer in layers %}
+            <div style="display: flex; align-items: center; margin-right: 10px;">
+                <span style="text-align:center">
+                    <i
+                        style="display: inline-block; width: 50px; height: 5px; background: {{ layer.id }}; margin-right: 5px;"></i>
+                    <br>
+                    {{ layer.stats }}
+                    <br>
+                    ({{ layer.label }})
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="{% static 'ciudadespendientes/js/mapa.js' %}"></script>
+</body>
+
+</html>

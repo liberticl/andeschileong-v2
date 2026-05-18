@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<!-- Loading Overlay -->
+<div id="loading-overlay"
+  style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.85); z-index: 1050; align-items: center; justify-content: center; flex-direction: column; backdrop-filter: blur(5px);">
+  <div class="spinner-border text-primary" role="status" style="width: 4rem; height: 4rem; border-width: 0.3em;">
+    <span class="visually-hidden">Cargando...</span>
+  </div>
+  <h4 class="mt-4" style="color: #333; font-weight: bold;">Procesando polígonos y rutas...</h4>
+  <p class="text-muted">Esto tomará unos segundos.</p>
+</div>
+
+<div id="content">
+  <div class="container" style="padding: 20px;">
+    <h3 class="mt-3"><b>Buscador de flujo según año y comuna</b></h3>
+    <br>
+    <form id="buscar-form" method="POST" action="{% url 'buscar' %}">
+      {% csrf_token %}
+      {{ comunas|json_script:"zones-data" }}
+      <div class="row gx-4 gx-lg-5">
+        <!-- Columna 1: País y Región -->
+        <div class="col-md-4 text-start mb-4 mb-md-0">
+          <div class="form-container h-100">
+            <h5><label for="pais-select">País:</label></h5>
+            <select id="pais-select" class="form-select mb-4" style="border-radius: 8px;">
+              <option value="">Seleccione un país</option>
+            </select>
+
+            <h5><label for="region-select">Región o Provincia:</label></h5>
+            <select id="region-select" class="form-select mb-3" disabled style="border-radius: 8px;">
+              <option value="">Seleccione una región</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Columna 2: Comunas/Zonas -->
+        <div class="col-md-4 text-start mb-4 mb-md-0">
+          <div class="form-container h-100">
+            <h5><label>Comunas o Sectores:</label></h5>
+            <div id="comunas-container"
+              style="max-height: 250px; min-height: 153px; overflow-y: auto; opacity: 0.5; pointer-events: none; border: 1px solid #ddd; padding: 15px; border-radius: 8px; background-color: #fafafa;">
+              <p class="text-muted small m-0">Seleccione una región primero.</p>
+            </div>
+            {% if not comunas %}
+            <p style="color: red; margin-top: 10px;">No tienes permiso para visualización.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Columna 3: Años disponibles -->
+        <div class="col-md-4 text-start">
+          <div class="form-container h-100">
+            <h5><label>Años:</label></h5>
+            <div id="años-container"
+              style="max-height: 250px; min-height: 153px; overflow-y: auto; opacity: 0.5; pointer-events: none; border: 1px solid #ddd; padding: 15px; border-radius: 8px; background-color: #fafafa;">
+              <p class="text-muted small m-0">Seleccione comunas primero.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <br>
+      <div style="text-align: center; padding-bottom: 30px;">
+        <button type="submit" id="submit-btn" class="btn" disabled>VER MAPA</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="{% static 'ciudadespendientes/js/buscar.js' %}"></script>
+{% endblock %}

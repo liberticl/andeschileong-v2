@@ -1,0 +1,8 @@
+*.log
+andeschileong/__pycache__
+ciudadespendientes/__pycache__
+ciudadespendientes/codes/__pycache__
+.env
+static
+db.sqlite3
+.python-version

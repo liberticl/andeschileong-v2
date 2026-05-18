@@ -1,0 +1,78 @@
+<a href="https://forms.gle/cBmEHmubHo7WVWUUA" target="_blank" class="button btn"><strong>INSCRIPCIÓN PREVIA AL
+        REFUGIO
+        CICLISTA 2025</strong></a>
+
+<button id="openModal" style="display:none"><b></b></button>
+
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <div class="container" style="font-size:medium">
+            <h3><strong>¡Tenemos Refugio Ciclista 2025!</strong></h3>
+            <h4><strong>Dirección: <a href="https://maps.app.goo.gl/KJzHqVoCv2TMQaZP7" target="_blank">Avenida Argentina
+                        747,
+                        Valparaíso<br></a></strong></h4>
+            <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3344.243570885249!2d-71.60474062307095!3d-33.05005377712132!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9689e0c3da17c643%3A0x403d27ba72bed813!2sInstituto%20Superior%20de%20Comercio%20Francisco%20Araya%20Bennett!5e0!3m2!1ses-419!2scl!4v1764534748054!5m2!1ses-419!2scl"
+                width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <br>
+            <div class="contenedor-columnas">
+
+                <div class="columna">
+                    <h5><strong>Servicios disponibles</strong></h5>
+                    <ul>
+                        <li>Registro de ingreso por seguridad.</li>
+                        <li>Guardería de bicicletas.</li>
+                        <li>Baños y zona de descanso.</li>
+                        <li>Zona de carga para dispositivos electrónicos.</li>
+                        <li>Venta de alimentos (a cargo de terceros).</li>
+                        <li>Duchas (desde las 8 AM).</li>
+                    </ul>
+                </div>
+
+                <div class="columna">
+                    <h5><strong>Reglamento</strong></h5>
+                    <ol>
+                        <li>Mantener un ambiente de respeto.</li>
+                        <li>Se prohíbe la ingesta de drogas y alcohol.</li>
+                        <li>Usar espacios solo para su fin designado.</li>
+                        <li>No merodear en la zona de guardería.</li>
+                        <li>Cuida tu entorno.</li>
+                    </ol>
+                </div>
+
+            </div>
+            <a href="https://forms.gle/cBmEHmubHo7WVWUUA" target="_blank" class="button btn"><strong>COMPLETA LA
+                    INSCRIPCIÓN
+                    PREVIA</strong></a>
+            <button id="openModal" style="display:none"><b></b></button>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    var modal = document.getElementById('modal');
+    var btnOpenModal = document.getElementById('openModal');
+    var btnCloseModal = document.getElementsByClassName('close')[0];
+
+    btnOpenModal.onclick = function () {
+        modal.style.display = 'block';
+    };
+
+    btnCloseModal.onclick = function () {
+        modal.style.display = 'none';
+    };
+
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    };
+
+    window.onload = function () {
+        modal.style.display = 'block';
+    };
+
+</script>

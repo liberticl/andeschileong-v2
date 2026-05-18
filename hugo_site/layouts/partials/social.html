@@ -1,0 +1,23 @@
+<div class="social">
+  <ul class="social-links">
+    {{ with .Site.Params.Social.Email }}
+      <li><a href="mailto:{{ . }}"><i class="fa fa-envelope"></i></a></li>
+    {{ end }}
+
+    {{ with .Site.Params.Social.Twitter }}
+      <li><a href="https://twitter.com/{{ . }}"><i class="fa fa-twitter"></i></a></li>
+    {{ end }}
+
+    {{ with .Site.Params.Social.Instagram }}
+      <li><a href="https://instagram.com/{{ . }}"><i class="fa fa-instagram"></i></a></li>
+    {{ end }}
+
+    {{ with .Site.Params.Social.Facebook }}
+      <li><a href="https://facebook.com/{{ . }}"><i class="fa fa-facebook"></i></a></li>
+    {{ end }}
+
+    {{ with .Site.Params.Social.Youtube }}
+      <li><a href="https://youtube.com/channel/{{ . }}"><i class="fa fa-youtube"></i></a></li>
+    {{ end }}
+  </ul>
+</div>

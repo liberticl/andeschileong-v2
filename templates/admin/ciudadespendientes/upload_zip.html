@@ -1,0 +1,32 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+    &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+    &rsaquo; Subir ZIP a MongoDB
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <fieldset class="module aligned">
+            <h2>Importar datos Geoespaciales (.ZIP) a MongoDB</h2>
+            <div class="form-row">
+                <div>
+                    <label class="required" for="zip_file">Archivo ZIP:</label>
+                    <input type="file" name="zip_file" id="zip_file" accept=".zip" required />
+                    <p class="help">Sube el archivo ZIP que contiene la forma Shapefile y el archivo CSV del export.</p>
+                </div>
+            </div>
+        </fieldset>
+        <div class="submit-row">
+            <input type="submit" value="Subir e Importar" class="default" />
+        </div>
+    </form>
+</div>
+{% endblock %}

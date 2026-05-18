@@ -5,7 +5,6 @@ db.sqlite3
 Nginx
 docker-compose.yml
 docker-compose.dev.yml
-nginx.conf
 debug.log
 .flake8
 rebuild.sh

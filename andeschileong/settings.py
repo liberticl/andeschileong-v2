@@ -64,7 +64,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'andeschileong.urls'
 
 CSRF_COOKIE_SECURE = True
-CSRF_TRUSTED_ORIGINS = ['https://v2.ciudadespendientes.cl']
+CSRF_TRUSTED_ORIGINS = ['https://v2.ciudadespendientes.cl', 'https://andeschileong-v2-production.up.railway.app']
 
 TEMPLATES = [
     {

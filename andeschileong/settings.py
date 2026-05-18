@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-v&+z-v1e*+zt(qy!1%r*0ub^venalwn+x2wkl^tnsmumc13nx6
 DEBUG = os.environ.get('DEBUG').capitalize() == 'True' if os.environ.get('DEBUG') else False  # noqa
 
 ALLOWED_HOSTS = ['v2.ciudadespendientes.cl',
-                 'ciudadespendientes-v2-production.up.railway.app',
+                 'andeschileong-v2-production.up.railway.app',
                  'localhost']
 
 

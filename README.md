@@ -106,3 +106,64 @@ El archivo de configuración asocia con gran protagonismo una arquitectura de do
 El proyecto incluye un manejador de contenido estático apoyado en Hugo, ofreciendo alta velocidad en la entrega del sitio web de la fundación.
 - **`hugo_site/`**: Contiene el proyecto de Hugo en sí (las plantillas, los layouts y el contenido en Markdown). Al ejecutar el comando `hugo` aquí dentro, se generan los archivos estáticos listos para ser servidos.
 - **`hugo_edit/`**: Aplicación de Django diseñada para integrar la compilación y ofrecer un puente lógico. El comando de administración (`python manage.py sync_hugo`) asegura que el sitio de Hugo recién compilado se estructure y empaquete adecuadamente para ser despachado por Django y Nginx.
+
+### 5. Sistema de Límites Geográficos Locales (`GeoRegionBoundary`)
+
+El proyecto almacena polígonos de comunas chilenas directamente en PostgreSQL para evitar consultas externas lentas a OpenStreetMap.
+
+**Modelo `GeoRegionBoundary` (`ciudadespendientes/models.py`):**
+- `name`: Nombre de la comuna
+- `region`: Región a la que pertenece (16 regiones chilenas)
+- `country`: País (Chile por defecto)
+- `osm_id`: Código de referencia del catastro
+- `geojson`: Polígono en formato GeoJSON (almacenado como JSONField)
+- `source`: Fuente de los datos (github, osm, manual)
+
+**Flujo de consulta de polígonos:**
+
+```
+StravaData.get_polygon()
+    │
+    ├── 1. Buscar en BD local (GeoRegionBoundary)
+    │       └── Si existe → retornar polígono local
+    │
+    └── 2. Si no existe → buscar en OpenStreetMap
+            └── polygons.openstreetmap.fr
+```
+
+**Comando para descargar límites geográficos:**
+
+```bash
+# Descargar todas las comunas de Chile (346 comunas, ~16 regiones)
+python manage.py download_chile_boundaries --source github
+
+# Reemplazar todos los datos existentes
+python manage.py download_chile_boundaries --source github --clear
+```
+
+**Fuente de datos:** Repositorio `caracena/chile-geojson` con datos oficiales del Instituto Geográfico Militar (IGM) y SUBDERE.
+
+**Uso en la aplicación:**
+- Al buscar datos de Strava, primero se consulta la BD local
+- Si la comuna no tiene polígono almacenado, se busca en OSM
+- Esto reduce la latencia y evita dependencia de servicios externos
+
+### 6. API de Geocodificación (`external_apis.py`)
+
+Funciones para geocodificación con estrategia "local first":
+
+- `get_osm_relation(place)`: Busca relación administrativa en Nominatim
+- `get_place_polygon(place)`: Obtiene polígono de un lugar (local → OSM)
+- `get_local_polygon(place_name, country)`: Busca en BD local por nombre
+
+**Ejemplo de uso:**
+```python
+from ciudadespendientes.external_apis import get_place_polygon
+
+# Buscar polígono de Valparaíso
+result = get_place_polygon("Valparaíso")
+if result:
+    gdf, center_coords = result
+    # gdf: GeoDataFrame con el polígono
+    # center_coords: (lat, lon) del centro
+```

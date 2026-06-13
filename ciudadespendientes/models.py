@@ -90,7 +90,7 @@ class Zone(models.Model):
 
         if ans.status_code != 200:
             return []
-        
+
         data = ans.json()
         mapped = [el.get('id') for el in data.get('elements', [])]
 
@@ -118,6 +118,47 @@ class Zone(models.Model):
 pre_save.connect(Zone.before_save, sender=Zone)
 
 
+class GeoRegionBoundary(models.Model):
+    """
+        Almacena los polígonos geográficos de comunas y regiones de Chile.
+        Permite consultar límites locales antes de ir a OSM.
+    """
+    name = models.CharField(
+        "Nombre", max_length=100,
+        help_text="Nombre de la comuna o región.")
+    region = models.CharField(
+        "Región", max_length=50, choices=choices.REGIONS, blank=True,
+        help_text="Región a la que pertenece.")
+    country = models.CharField(
+        "País", max_length=20, choices=choices.COUNTRIES, default='Chile',
+        help_text="País al que pertenece.")
+    osm_id = models.CharField(
+        "ID OSM", max_length=15, blank=True,
+        help_text="Identificador OpenStreetMap para referencia.")
+    geojson = models.JSONField(
+        "GeoJSON", help_text="Geometría del polígono en formato GeoJSON.")
+    source = models.CharField(
+        "Fuente", max_length=50, default='manual',
+        help_text="Fuente de los datos: manual, catastro, osm, etc.")
+    last_updated = models.DateTimeField(
+        "Última actualización", auto_now=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.region} ({self.country})"
+
+    class Meta:
+        verbose_name = u'límite geográfico'
+        verbose_name_plural = u'Límites Geográficos'
+        unique_together = ('name', 'country', 'region')
+
+    def get_geometry(self):
+        """Retorna la geometría como GeoDataFrame de GeoPandas."""
+        import geopandas as gpd
+        from shapely.geometry import shape
+        geom = shape(self.geojson)
+        return gpd.GeoDataFrame([{'geometry': geom}], crs="epsg:4326")
+
+
 class StravaData(models.Model):
     """
         Representa un conjunto de datos cargados en MongoDB para
@@ -143,16 +184,67 @@ class StravaData(models.Model):
         return f"{self.sector} - {self.get_month_display()} {self.year}"
 
     def get_polygon(self, save=True):
+        """
+        Obtiene el polígono de la zona. Primero consulta la BD local,
+        si no existe busca en OpenStreetMap.
+        """
+        # 1. Intentar obtener desde la BD local (GeoRegionBoundary)
+        local_boundary = self.get_local_boundary()
+        if local_boundary:
+            gdf = local_boundary.get_geometry()
+            gdf = gdf.explode(index_parts=False)
+            if save:
+                self.save()
+            return {'success': True, 'polygon': gdf, 'source': 'local'}
+
+        # 2. Si no está en local, buscar en OSM
         osm_id = self.sector.osm_id
         url = f'http://polygons.openstreetmap.fr/get_geojson.py?id={osm_id}&params=0'  # noqa
-        ans = requests.get(url, timeout=10)
-        if ans.status_code != 200:
-            return {'success': False, 'polygon': None}
-        if save:
-            self.save()
-        gdf = gpd.read_file(ans.text)
-        gdf = gdf.explode(index_parts=False)
-        return {'success': True, 'polygon': gdf}
+        try:
+            ans = requests.get(url, timeout=10)
+            if ans.status_code != 200:
+                return {'success': False, 'polygon': None, 'source': 'osm_failed'}
+            if save:
+                self.save()
+            gdf = gpd.read_file(ans.text)
+            gdf = gdf.explode(index_parts=False)
+            return {'success': True, 'polygon': gdf, 'source': 'osm'}
+        except requests.RequestException:
+            return {'success': False, 'polygon': None, 'source': 'osm_error'}
+
+    def get_local_boundary(self):
+        """
+        Busca el polígono en la BD local por nombre de comuna y región.
+        Retorna el GeoRegionBoundary o None si no existe.
+        """
+        from ciudadespendientes.models import GeoRegionBoundary
+        sector = self.sector
+
+        # Buscar por nombre exacto de comuna
+        boundary = GeoRegionBoundary.objects.filter(
+            name__iexact=sector.name,
+            country=sector.country
+        ).first()
+
+        if boundary:
+            return boundary
+
+        # Si no encuentra por nombre exacto, buscar por región si es zona regional
+        if sector.zone_type == 'Zona Regional' and sector.region:
+            boundary = GeoRegionBoundary.objects.filter(
+                region__iexact=sector.region,
+                country=sector.country
+            ).first()
+            if boundary:
+                return boundary
+
+        # Buscar por coincidencia parcial del nombre
+        boundary = GeoRegionBoundary.objects.filter(
+            name__icontains=sector.name,
+            country=sector.country
+        ).first()
+
+        return boundary
 
     def get_sector_coords(self):
         lat, lon = map(float, self.sector.coords.split(','))

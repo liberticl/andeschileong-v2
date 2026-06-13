@@ -158,6 +158,7 @@ Editor Markdown: SimpleMDE (CDN) en el campo `content`.
 |---|---|---|
 | `Zone` | ciudadespendientes | Zonas geográficas (país, comuna, regional, particular) con OSM ID y coordenadas |
 | `StravaData` | ciudadespendientes | Colecciones de datos Strava por zona/año/mes, flag `on_mongo` |
+| `GeoRegionBoundary` | ciudadespendientes | Límites geográficos de comunas chilenas (polígonos GeoJSON en BD local) |
 | `Account` | accounts | Custom user (email = username), zonas, permisos, organizaciones |
 | `Organization` | accounts | Organizaciones adscritas a la plataforma |
 | `Permission` | accounts | Permisos granulares (ej: `view_strava_data`) |
@@ -187,6 +188,7 @@ Editor Markdown: SimpleMDE (CDN) en el campo `content`.
 Organization ──M2M──→ Account ──M2M──→ Zone
                           │                 │
                           │                 └── StravaData (sector FK → Zone)
+                          │                       └── get_polygon() → GeoRegionBoundary (local) → OSM (fallback)
                           │
 Permission ──M2M──→ Account
                           │
@@ -287,6 +289,11 @@ python manage.py collectstatic
 # Sincronizar Hugo
 python manage.py sync_hugo
 
+# Descargar límites geográficos de Chile (comunas)
+# Solo necesario en primera instalación o para actualizar datos geográficos
+python manage.py download_chile_boundaries --source github
+python manage.py download_chile_boundaries --source github --clear  # Reemplazar todos
+
 # Desarrollo
 python manage.py runserver
 
@@ -304,13 +311,15 @@ docker-compose logs -f
 |---|---|
 | `andeschileong/settings.py` | Configuración principal (DBs, apps, Hugo, colores capas) |
 | `andeschileong/urls.py` | URL routing principal |
-| `ciudadespendientes/models.py` | Zone, StravaData |
+| `ciudadespendientes/models.py` | Zone, StravaData, GeoRegionBoundary |
 | `ciudadespendientes/views.py` | show_data, color_ride_map, welcome, find |
 | `ciudadespendientes/utils.py` | Funciones geo, MongoDB, DeckGL HTML |
 | `ciudadespendientes/mongodb.py` | Pipelines de agregación MongoDB |
 | `ciudadespendientes/classifier.py` | Clasificación de flujos (SECTRA, general) |
 | `ciudadespendientes/choices.py` | Constantes: regiones, países, meses, años |
 | `ciudadespendientes/admin.py` | Admin con upload ZIP a MongoDB |
+| `ciudadespendientes/external_apis.py` | Geocodificación (local first → OSM fallback) |
+| `ciudadespendientes/management/commands/download_chile_boundaries.py` | Descarga polígonos comunas Chile |
 | `accounts/models.py` | Account, Organization, Permission |
 | `measuring/models.py` | Device, TrafficCount |
 | `measuring/views.py` | API IoT TrafficCountAPIView |

@@ -12,6 +12,26 @@ from . import choices
 from .utils import upload_data
 
 
+@admin.register(models.GeoRegionBoundary)
+class GeoRegionBoundaryAdmin(admin.ModelAdmin):
+    """
+        Sitio administrativo para límites geográficos
+    """
+    list_display = ('name', 'region', 'country', 'source', 'last_updated')
+    list_filter = ('country', 'region', 'source')
+    search_fields = ('name', 'region', 'country')
+    readonly_fields = ('last_updated',)
+    fieldsets = (
+        ('Información Geográfica', {
+            'fields': ('name', 'region', 'country', 'osm_id')}),
+        ('Datos', {
+            'fields': ('geojson', 'source', 'last_updated')}),
+    )
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).order_by('country', 'region', 'name')
+
+
 @admin.register(models.Zone)
 class ZoneAdmin(admin.ModelAdmin):
     """

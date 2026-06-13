@@ -16,6 +16,7 @@ ciudadespendientes/data
 *.log
 *cpython*
 counter.html
+docs
 
 # Hugo
 /hugo_site/public

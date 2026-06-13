@@ -140,9 +140,10 @@ class Account(PermissionsMixin, AbstractBaseUser):
                 Prefetch('sector', queryset=StravaData.objects.filter(on_mongo=True))
             ).all()
             qs = StravaData.objects.filter(on_mongo=True, sector__in=user_zones).select_related('sector')
-            
+
         sectors_info = []
         seen = set()
+        sector_years = {}
         for strava in qs:
             sec = strava.sector
             if sec.id not in seen:
@@ -152,9 +153,15 @@ class Account(PermissionsMixin, AbstractBaseUser):
                     'type': sec.zone_type,
                     'country': sec.country,
                     'region_name': sec.region if hasattr(sec, 'region') and sec.region else None,
-                    'available_years': sec.available_years if hasattr(sec, 'available_years') else []
+                    'available_years': []
                 })
                 seen.add(sec.id)
+                sector_years[sec.id] = set()
+            sector_years[sec.id].add(strava.year)
+
+        for sector_info in sectors_info:
+            sector_info['available_years'] = sorted(sector_years[sector_info['id']])
+
         return sectors_info
 
     def get_user_permissions(self):

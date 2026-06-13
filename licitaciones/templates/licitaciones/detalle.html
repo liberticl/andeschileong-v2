@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div id="content">
+    {% include 'licitaciones/partials/styles.html' %}
+
+    <div class="infra-container">
+        <a href="{% url 'dashboard' %}" class="volver-link">
+            <i class="fa fa-arrow-left"></i> Volver al dashboard
+        </a>
+
+        <div class="infra-header" style="text-align: left;">
+            <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem;">
+                {{ licitacion.nombre }}
+            </h2>
+            <p>
+                Código: <strong>{{ licitacion.codigo }}</strong> &nbsp;&middot;&nbsp;
+                <span class="badge-estado badge-{{ licitacion.estado }}">
+                    {{ licitacion.get_estado_display }}
+                </span>
+            </p>
+        </div>
+
+        <div class="detalle-grid">
+            <div class="detalle-section">
+                <h4>Información</h4>
+                <div class="detalle-row">
+                    <span class="detalle-label">Organismo</span>
+                    <span class="detalle-value">{{ licitacion.organismo }}</span>
+                </div>
+                <div class="detalle-row">
+                    <span class="detalle-label">Comuna</span>
+                    <span class="detalle-value">
+                        {{ licitacion.comuna|default:"Sin comuna" }}
+                    </span>
+                </div>
+                <div class="detalle-row">
+                    <span class="detalle-label">Región</span>
+                    <span class="detalle-value">
+                        {{ licitacion.region|default:"Sin región" }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="detalle-section">
+                <h4>Monto y Fechas</h4>
+                <div class="detalle-row">
+                    <span class="detalle-label">Monto Estimado</span>
+                    <span class="detalle-value">
+                        {{ licitacion.get_monto_display }}
+                    </span>
+                </div>
+                <div class="detalle-row">
+                    <span class="detalle-label">Tipo</span>
+                    <span class="detalle-value">
+                        {{ licitacion.tipo_licitacion }} &middot; {{ licitacion.get_tipo_display }}
+                    </span>
+                </div>
+                <div class="detalle-row">
+                    <span class="detalle-label">Publicación</span>
+                    <span class="detalle-value">
+                        {{ licitacion.fecha_publicacion|date:"d/m/Y"|default:"-" }}
+                    </span>
+                </div>
+                <div class="detalle-row">
+                    <span class="detalle-label">Cierre</span>
+                    <span class="detalle-value">
+                        {{ licitacion.fecha_cierre|date:"d/m/Y"|default:"-" }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        {% if licitacion.palabras_clave %}
+        <div class="detalle-section" style="margin-bottom: 1.5rem;">
+            <h4>Palabras Clave Encontradas</h4>
+            <div>
+                {% for kw in licitacion.palabras_clave %}
+                <span class="kw-tag">{{ kw }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if licitacion.raw_data.CodigoExterno %}
+        <a href="https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?qs={{ licitacion.raw_data.CodigoExterno }}"
+           target="_blank" class="btn-mercado">
+            <i class="fa fa-external-link"></i> Ver en Mercado Público
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

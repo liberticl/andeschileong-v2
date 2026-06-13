@@ -39,6 +39,7 @@ Dominio estático (Hugo): `https://andeschileong.cl`
 | `accounts` | Sistema de autenticación custom: Account (custom user), Organization, Permission | `accounts/` |
 | `measuring` | API IoT para dispositivos de conteo de tráfico: Device, TrafficCount | `measuring/` |
 | `hugo_edit` | CMS para el sitio Hugo: CRUD de Actividades → genera .md → rebuild Hugo | `hugo_edit/` |
+| `licitaciones` | Dashboard de licitaciones de infraestructura ciclista desde Mercado Público | `licitaciones/` |
 
 ---
 
@@ -165,6 +166,8 @@ Editor Markdown: SimpleMDE (CDN) en el campo `content`.
 | `Device` | measuring | Dispositivos IoT con token JWT y coordenadas |
 | `TrafficCount` | measuring | Registros de conteo vehicular por dispositivo |
 | `Activity` | hugo_edit | Actividades del sitio Hugo |
+| `Licitacion` | licitaciones | Licitaciones de infraestructura ciclista/peatonal de Mercado Público |
+| `SyncLog` | licitaciones | Logs de sincronización con API de Mercado Público |
 
 ### MongoDB (trazas espaciales)
 
@@ -226,6 +229,9 @@ DB_PASS="..."
 CP_JWT_SECRET="..."       # Secret para tokens JWT de dispositivos IoT
 SECRET_KEY="..."          # Django secret key
 
+# Mercado Público
+MERCADO_PUBLICO_TICKET="..."
+
 # Config
 DECKGL_VERSION="8.9.*"
 DATA_DIR="ciudadespendientes/data"
@@ -248,6 +254,10 @@ ENV="prod"
 | `/intranet/actividades/` | CRUD views | hugo_edit | Gestionar actividades |
 | `/admin/` | Django admin | - | Admin general |
 | `/api/trafico/` | `TrafficCountAPIView` | measuring | API IoT (JWT auth) |
+| `/apps/licitaciones/` | `dashboard` | licitaciones | Dashboard licitaciones ciclistas |
+| `/apps/licitaciones/lista/` | `licitaciones_list` | licitaciones | Listado de licitaciones |
+| `/apps/licitaciones/<codigo>/` | `licitacion_detalle` | licitaciones | Detalle de licitación |
+| `/apps/licitaciones/api/stats/` | `api_stats` | licitaciones | API JSON para charts |
 
 ---
 
@@ -289,6 +299,10 @@ python manage.py collectstatic
 # Sincronizar Hugo
 python manage.py sync_hugo
 
+# Sincronizar licitaciones de Mercado Público
+python manage.py sync_licitaciones --dias 7
+python manage.py sync_licitaciones --dias 30 --ticket TU_TICKET
+
 # Descargar límites geográficos de Chile (comunas)
 # Solo necesario en primera instalación o para actualizar datos geográficos
 python manage.py download_chile_boundaries --source github
@@ -326,6 +340,13 @@ docker-compose logs -f
 | `hugo_edit/models.py` | Activity (genera .md y rebuild Hugo) |
 | `hugo_edit/management/commands/sync_hugo.py` | Comando sync DB → Hugo |
 | `hugo_edit/admin.py` | Admin custom con SimpleMDE |
+| `licitaciones/models.py` | Licitacion, SyncLog |
+| `licitaciones/views.py` | Dashboard, listado, detalle, api_stats |
+| `licitaciones/urls.py` | URLs de licitaciones |
+| `licitaciones/admin.py` | Admin con filtros y acciones |
+| `licitaciones/forms.py` | Formulario de filtros (FiltroLicitacionesForm con comuna, región, año, estado) |
+| `licitaciones/management/commands/sync_licitaciones.py` | Sync con API Mercado Público |
+| `licitaciones/templates/licitaciones/` | Templates del dashboard |
 | `hugo_site/config.toml` | Configuración de Hugo |
 | `hugo_site/layouts/` | Layouts y partials customizados |
 | `hugo_site/content/` | Contenido Markdown del sitio |

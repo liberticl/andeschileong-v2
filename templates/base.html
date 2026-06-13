@@ -32,6 +32,7 @@
     {% endblock %}
 
 
+    {% if request.resolver_match.url_name in 'buscar,login,logout,welcome' %}
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     {% if request.resolver_match.url_name == 'buscar' and request.user.is_authenticated %}
     <script>
@@ -47,6 +48,7 @@
             attribution: '© OpenStreetMap, © CartoDB'
         }).addTo(map);
     </script>
+    {% endif %}
     {% endif %}
     
 </body>

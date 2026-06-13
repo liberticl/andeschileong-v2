@@ -1,0 +1,366 @@
+{% load static %}
+<link rel="stylesheet" type="text/css"
+    href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<style>
+    .infra-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+        font-family: 'Urbanist', sans-serif;
+    }
+
+    .infra-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .infra-header h2 {
+        font-weight: 700;
+        color: #000;
+        font-size: 1.75rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .infra-header p {
+        color: #6c757d;
+        font-size: 1rem;
+    }
+
+    /* Filtros */
+    .infra-filtros {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: flex-end;
+        margin-bottom: 2rem;
+        padding: 1.25rem 1.5rem;
+        background: #fff;
+        border-radius: 1rem;
+        box-shadow: 0 2px 12px rgba(0,0,0,.05);
+    }
+
+    .infra-filtros .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .infra-filtros label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #6b6b6b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .infra-filtros .form-select,
+    .infra-filtros .form-control {
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        font-size: 0.95rem;
+        padding: 0.5rem 1rem;
+        background-color: #fafafa;
+        min-width: 140px;
+    }
+
+    .infra-filtros .form-select:focus,
+    .infra-filtros .form-control:focus {
+        border-color: #2241a8;
+        box-shadow: 0 0 0 2px rgba(34,65,168,.15);
+    }
+
+    /* KPI Cards */
+    .kpi-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .kpi-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .kpi-card {
+        background: #fff;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 2px 12px rgba(0,0,0,.05);
+    }
+
+    .kpi-card .kpi-icon {
+        font-size: 1.75rem;
+        margin-bottom: 0.5rem;
+        color: #2241a8;
+    }
+
+    .kpi-card .kpi-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2241a8;
+        line-height: 1.2;
+    }
+
+    .kpi-card .kpi-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 0.35rem;
+    }
+
+    .kpi-card .kpi-sub {
+        font-size: 0.8rem;
+        color: #999;
+        margin-top: 0.15rem;
+    }
+
+    /* Charts */
+    .charts-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .charts-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .chart-card {
+        background: #fff;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 2px 12px rgba(0,0,0,.05);
+    }
+
+    .chart-card h4 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #333;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 1rem;
+    }
+
+    .chart-full {
+        grid-column: 1 / -1;
+    }
+
+    /* Tabla */
+    .tabla-card {
+        background: #fff;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 2px 12px rgba(0,0,0,.05);
+        overflow-x: auto;
+    }
+
+    .tabla-card h4 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #333;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 1rem;
+    }
+
+    .tabla-card table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+
+    .tabla-card th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #333;
+        padding: 0.75rem;
+        border-bottom: 2px solid #dee2e6;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .tabla-card td {
+        padding: 0.75rem;
+        border-bottom: 1px solid #eee;
+        color: #333;
+    }
+
+    .tabla-card tr:hover td {
+        background: #f8f9fa;
+    }
+
+    .tabla-card a {
+        color: #2241a8;
+        text-decoration: none;
+    }
+
+    .tabla-card a:hover {
+        color: #2b22a8;
+        text-decoration: underline;
+    }
+
+    /* Badges de estado */
+    .badge-estado {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .badge-publicada { background: #d4edda; color: #155724; }
+    .badge-adjudicada { background: #cce5ff; color: #004085; }
+    .badge-cerrada { background: #e2e3e5; color: #383d41; }
+    .badge-desierta { background: #fff3cd; color: #856404; }
+    .badge-revocada { background: #f8d7da; color: #721c24; }
+    .badge-suspendida { background: #f8d7da; color: #721c24; }
+
+    /* Paginación */
+    .infra-pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .infra-pagination a,
+    .infra-pagination span {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        text-decoration: none;
+        color: #2241a8;
+        border: 1px solid #ddd;
+        background: #fff;
+    }
+
+    .infra-pagination a:hover {
+        background: #2241a8;
+        color: #fff;
+        border-color: #2241a8;
+    }
+
+    .infra-pagination .current {
+        background: #2241a8;
+        color: #fff;
+        border-color: #2241a8;
+    }
+
+    /* Detalle */
+    .detalle-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .detalle-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .detalle-section {
+        background: #fff;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 2px 12px rgba(0,0,0,.05);
+    }
+
+    .detalle-section h4 {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #6b6b6b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .detalle-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f5f5f5;
+    }
+
+    .detalle-row:last-child {
+        border-bottom: none;
+    }
+
+    .detalle-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+
+    .detalle-value {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #333;
+        text-align: right;
+    }
+
+    .volver-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #2241a8;
+        text-decoration: none;
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .volver-link:hover {
+        color: #2b22a8;
+    }
+
+    .kw-tag {
+        display: inline-block;
+        background: #e8eaf6;
+        color: #2241a8;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.8rem;
+        margin: 0.15rem;
+    }
+
+    .btn-mercado {
+        display: inline-block;
+        margin-top: 1rem;
+        padding: 0.6rem 1.5rem;
+        background: #fff;
+        color: #2241a8;
+        border: 2px solid #2241a8;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .btn-mercado:hover {
+        background: #2241a8;
+        color: #fff;
+    }
+
+    .sync-info {
+        text-align: center;
+        font-size: 0.8rem;
+        color: #999;
+        margin-top: 0.75rem;
+    }
+</style>

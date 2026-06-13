@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'accounts',
     'measuring',
     'hugo_edit',
+    'licitaciones',
 ]
 
 MIDDLEWARE = [
@@ -223,3 +224,6 @@ LAYERS = {
 
 # Others
 CP_JWT_SECRET = os.environ.get('CP_JWT_SECRET')
+
+# Mercado Público
+MERCADO_PUBLICO_TICKET = os.environ.get('MERCADO_PUBLICO_TICKET', '')

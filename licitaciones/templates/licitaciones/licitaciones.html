@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div id="content">
+    {% include 'licitaciones/partials/styles.html' %}
+
+    <div class="infra-container">
+        <div class="infra-header">
+            <h2 style="color: #000"><i class="fa fa-list"></i> LICITACIONES</h2>
+            <p>{{ total }} resultado{{ total|pluralize }}</p>
+        </div>
+
+        <!-- Filtros -->
+        <form method="get" class="infra-filtros">
+            <div class="form-group">
+                <label>Año</label>
+                {{ form.year }}
+            </div>
+            <div class="form-group">
+                <label>Estado</label>
+                {{ form.estado }}
+            </div>
+            <div class="form-group">
+                <label>Región</label>
+                {{ form.region }}
+            </div>
+            <div class="form-group">
+                <label>Comuna</label>
+                {{ form.comuna }}
+            </div>
+            <div class="form-group" style="flex: 1; min-width: 200px;">
+                <label>Buscar</label>
+                {{ form.q }}
+            </div>
+            <div class="form-group" style="align-self: flex-end;">
+                <button type="submit" class="btn">
+                    <i class="fa fa-search"></i> Filtrar
+                </button>
+            </div>
+        </form>
+
+        <!-- Tabla -->
+        <div class="tabla-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Organismo</th>
+                        <th>Monto</th>
+                        <th>Estado</th>
+                        <th>Comuna</th>
+                        <th>Región</th>
+                        <th>Fecha Pub.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lic in licitaciones %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'detalle' lic.codigo %}">
+                                {{ lic.codigo }}
+                            </a>
+                        </td>
+                        <td>{{ lic.nombre|truncatewords:12 }}</td>
+                        <td>{{ lic.organismo|truncatewords:5 }}</td>
+                        <td>{{ lic.get_monto_display }}</td>
+                        <td>
+                            <span class="badge-estado badge-{{ lic.estado }}">
+                                {{ lic.get_estado_display }}
+                            </span>
+                        </td>
+                        <td>{{ lic.comuna|default:"-" }}</td>
+                        <td>{{ lic.region|default:"-" }}</td>
+                        <td>{{ lic.fecha_publicacion|date:"d/m/Y" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" style="text-align:center; color:#999; padding:2rem;">
+                            No se encontraron licitaciones con los filtros
+                            seleccionados.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

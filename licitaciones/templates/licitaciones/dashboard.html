@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div id="content">
+    {% include 'licitaciones/partials/styles.html' %}
+
+    <div class="infra-container">
+        <div class="infra-header">
+            <h2>LICITACIONES DE INFRAESTRUCTURA</h2>
+            <p>Licitaciones de infraestructura ciclista y peatonal en Chile</p>
+        </div>
+
+        <!-- Filtros -->
+        <div class="infra-filtros">
+            <div class="form-group">
+                <label for="id_year">Año</label>
+                <select id="id_year" class="form-select" onchange="applyFilter('year', this.value)">
+                    <option value="">Todos</option>
+                    {% for y in años_disponibles %}
+                    <option value="{{ y }}" {% if filtros.year == y|stringformat:"d" %}selected{% endif %}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="id_estado">Estado</label>
+                <select id="id_estado" class="form-select" onchange="applyFilter('estado', this.value)">
+                    <option value="">Todos</option>
+                    <option value="publicada" {% if filtros.estado == 'publicada' %}selected{% endif %}>Publicada</option>
+                    <option value="adjudicada" {% if filtros.estado == 'adjudicada' %}selected{% endif %}>Adjudicada</option>
+                    <option value="cerrada" {% if filtros.estado == 'cerrada' %}selected{% endif %}>Cerrada</option>
+                    <option value="desierta" {% if filtros.estado == 'desierta' %}selected{% endif %}>Desierta</option>
+                    <option value="revocada" {% if filtros.estado == 'revocada' %}selected{% endif %}>Revocada</option>
+                    <option value="suspendida" {% if filtros.estado == 'suspendida' %}selected{% endif %}>Suspendida</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="id_region">Región</label>
+                <select id="id_region" class="form-select" onchange="applyFilter('region', this.value)">
+                    <option value="">Todas</option>
+                    {% for r in regiones_disponibles %}
+                    <option value="{{ r }}" {% if filtros.region == r %}selected{% endif %}>{{ r }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="id_comuna">Comuna</label>
+                <select id="id_comuna" class="form-select" onchange="applyFilter('comuna', this.value)">
+                    <option value="">Todas</option>
+                    {% for c in comunas_disponibles %}
+                    <option value="{{ c }}" {% if filtros.comuna == c %}selected{% endif %}>{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group" style="flex: 1; min-width: 200px;">
+                <label for="id_q">Buscar</label>
+                <input type="text" id="id_q" class="form-control" placeholder="Buscar licitación..."
+                    value="{{ filtros.q }}" onkeyup="debounceSearch(this.value)">
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fa fa-file-text-o"></i></div>
+                <div class="kpi-value" id="kpi-total">{{ total_licitaciones }}</div>
+                <div class="kpi-label">Total Licitaciones</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fa fa-money"></i></div>
+                <div class="kpi-value" id="kpi-monto"></div>
+                <div class="kpi-label">
+                    Monto Total (CLP)
+                    <i class="fa fa-info-circle" style="font-size: 0.7rem; color: #999; cursor: help;"
+                       title="Suma de montos estimados de las licitaciones filtradas. Puede no incluir todas las licitaciones si el monto no fue proporcionado por Mercado Público."></i>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fa fa-check-circle-o"></i></div>
+                <div class="kpi-value" id="kpi-publicadas">
+                    {% for e in por_estado %}
+                    {% if e.estado == 'publicada' %}{{ e.cantidad }}{% endif %}
+                    {% endfor %}
+                </div>
+                <div class="kpi-label">Publicadas</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fa fa-trophy"></i></div>
+                <div class="kpi-value" id="kpi-adjudicadas">
+                    {% for e in por_estado %}
+                    {% if e.estado == 'adjudicada' %}{{ e.cantidad }}{% endif %}
+                    {% endfor %}
+                </div>
+                <div class="kpi-label">Adjudicadas</div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-row">
+            <div class="chart-card">
+                <h4>Por Estado</h4>
+                <div id="chart-estado"></div>
+            </div>
+            <div class="chart-card">
+                <h4>Por Región</h4>
+                <div id="chart-region"></div>
+            </div>
+            <div class="chart-card chart-full">
+                <h4>Por Tipo de Licitación</h4>
+                <div id="chart-timeline"></div>
+            </div>
+        </div>
+
+        <!-- Tabla licitaciones recientes -->
+        <div class="tabla-card">
+            <h4>Licitaciones Recientes</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Organismo</th>
+                        <th>Monto</th>
+                        <th>Estado</th>
+                        <th>Comuna</th>
+                        <th>Región</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lic in licitaciones_recientes %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'detalle' lic.codigo %}">
+                                {{ lic.codigo }}
+                            </a>
+                        </td>
+                        <td>{{ lic.nombre|truncatewords:10 }}</td>
+                        <td>{{ lic.organismo|truncatewords:5 }}</td>
+                        <td>{{ lic.get_monto_display }}</td>
+                        <td>
+                            <span class="badge-estado badge-{{ lic.estado }}">
+                                {{ lic.get_estado_display }}
+                            </span>
+                        </td>
+                        <td>{{ lic.comuna|default:"-" }}</td>
+                        <td>{{ lic.region|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align:center; color:#999; padding:2rem;">
+                            No hay licitaciones registradas aún.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if last_sync %}
+        <p class="sync-info">
+            Última sincronización: {{ last_sync.fecha|date:"d/m/Y H:i" }}
+        </p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    const porEstado = {{ por_estado_js|safe }};
+    const porRegion = {{ por_region_js|safe }};
+    const porTipo = {{ por_tipo_js|safe }};
+    const montoTotal = {{ monto_total_js|safe }};
+
+    function formatMontoKPI(val) {
+        const el = document.getElementById('kpi-monto');
+        if (!val) { el.textContent = '$0'; return; }
+        if (val >= 1e9) el.textContent = '$' + (val / 1e9).toFixed(1) + 'B CLP';
+        else if (val >= 1e6) el.textContent = '$' + (val / 1e6).toFixed(0) + 'M CLP';
+        else el.textContent = '$' + val.toLocaleString('es-CL') + ' CLP';
+    }
+    formatMontoKPI(montoTotal);
+
+    const COLORS = ['#2241a8', '#2294a8', '#2b22a8', '#f39c12', '#6c757d', '#c32c1b'];
+
+    function formatMonto(val) {
+        if (!val) return '$0';
+        if (val >= 1e9) return '$' + (val / 1e9).toFixed(1) + 'B';
+        if (val >= 1e6) return '$' + (val / 1e6).toFixed(0) + 'M';
+        return '$' + val.toLocaleString('es-CL');
+    }
+
+    if (porEstado.length > 0) {
+        const labels = porEstado.map(e => e.estado.charAt(0).toUpperCase() + e.estado.slice(1));
+        const series = porEstado.map(e => e.cantidad);
+
+        new ApexCharts(document.querySelector("#chart-estado"), {
+            chart: { type: 'donut', fontFamily: 'Urbanist, sans-serif' },
+            series: series,
+            labels: labels,
+            colors: COLORS,
+            plotOptions: {
+                pie: {
+                    donut: {
+                        size: '65%',
+                        labels: {
+                            show: true,
+                            name: { show: true, fontSize: '20px' },
+                            value: { show: true, fontSize: '35px', fontWeight: 700 }
+                        }
+                    }
+                }
+            },
+            legend: { position: 'bottom', fontSize: '16px' },
+            dataLabels: { enabled: false },
+            tooltip: { y: { formatter: (val) => val + ' licitaciones' } }
+        }).render();
+    }
+
+    if (porRegion.length > 0) {
+        const regionLabels = porRegion.map(r =>
+            r.region.replace(/^Región (del |de la |de )?/i, '')
+        );
+        const regionSeries = porRegion.map(r => r.cantidad);
+
+        new ApexCharts(document.querySelector("#chart-region"), {
+            chart: {
+                type: 'bar',
+                fontFamily: 'Urbanist, sans-serif',
+                height: 300
+            },
+            series: [{ name: 'Licitaciones', data: regionSeries }],
+            colors: ['#2241a8'],
+            plotOptions: {
+                bar: {
+                    horizontal: true,
+                    barHeight: '60%',
+                    borderRadius: 4,
+                    dataLabels: { position: 'top' }
+                }
+            },
+            xaxis: {
+                categories: regionLabels,
+                labels: { style: { fontSize: '15px' } }
+            },
+            yaxis: {
+                labels: { style: { fontSize: '15px' } }
+            },
+            dataLabels: {
+                enabled: true,
+                style: { fontSize: '15px', fontWeight: 600 },
+                offsetX: -10
+            },
+            tooltip: { x: { show: false } },
+            legend: { show: false }
+        }).render();
+    }
+
+    if (porTipo.length > 0) {
+        const tipoDescriptions = {};
+        porTipo.forEach(t => { tipoDescriptions[t.tipo_licitacion] = t.descripcion; });
+
+        new ApexCharts(document.querySelector("#chart-timeline"), {
+            chart: {
+                type: 'bar',
+                fontFamily: 'Urbanist, sans-serif',
+                height: 200
+            },
+            series: [{
+                name: 'Licitaciones',
+                data: porTipo.map(t => t.cantidad)
+            }],
+            colors: ['#2241a8'],
+            plotOptions: {
+                bar: {
+                    borderRadius: 4,
+                    horizontal: false,
+                    columnWidth: '60%',
+                    dataLabels: { position: 'top' }
+                }
+            },
+            xaxis: {
+                categories: porTipo.map(t => t.tipo_licitacion),
+                labels: { style: { fontSize: '15px', fontWeight: 600 } }
+            },
+            yaxis: {
+                labels: { style: { fontSize: '15px' } }
+            },
+            dataLabels: {
+                enabled: true,
+                style: { fontSize: '15px', fontWeight: 600 },
+                offsetY: -10
+            },
+            tooltip: {
+                y: {
+                    formatter: function(val, opts) {
+                        const code = porTipo[opts.dataPointIndex].tipo_licitacion;
+                        const desc = tipoDescriptions[code]
+                        return val + ' licitaciones\n' + desc;
+                    }
+                }
+            },
+            legend: { show: false }
+        }).render();
+    }
+
+    let searchTimeout;
+    function applyFilter(key, value) {
+        const params = new URLSearchParams(window.location.search);
+        if (value) {
+            params.set(key, value);
+        } else {
+            params.delete(key);
+        }
+        window.location.search = params.toString();
+    }
+
+    function debounceSearch(value) {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            applyFilter('q', value);
+        }, 500);
+    }
+</script>
+{% endblock %}

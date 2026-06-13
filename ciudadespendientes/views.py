@@ -87,6 +87,8 @@ def show_data(request):
         all_references.append(s.get_sector_coords())
 
     center = get_middle_point(all_references)
+    if not all_bounds:
+        return redirect('error_404')
     m, s = color_ride_map(all_bounds, center, years,
                           collection, anual=False)
 

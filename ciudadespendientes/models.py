@@ -37,8 +37,8 @@ class Zone(models.Model):
         "Vías mapeadas", default=list, blank=True,
         help_text="Vías que están mapeadas en la zona.")
     available_years = models.JSONField(
-        "Años disponibles", default=list, blank=True,
-        help_text="Años disponibles para esta zona (ej. [2019, 2025]).")
+        "Años disponibles (deprecated)", default=list, blank=True,
+        help_text="DEPRECATED: Los años se obtienen desde StravaData. Este campo ya no se usa.")
     region = models.CharField(
         "Región/Provincia", max_length=50, choices=choices.REGIONS, blank=True,
         help_text='Región (Chile) o Provincia (Argentina) a la que pertenece esta zona.')
@@ -143,19 +143,16 @@ class StravaData(models.Model):
         return f"{self.sector} - {self.get_month_display()} {self.year}"
 
     def get_polygon(self, save=True):
-        gdf = None
         osm_id = self.sector.osm_id
         url = f'http://polygons.openstreetmap.fr/get_geojson.py?id={osm_id}&params=0'  # noqa
         ans = requests.get(url, timeout=10)
-        if (ans.status_code == 200 and save):
+        if ans.status_code != 200:
+            return {'success': False, 'polygon': None}
+        if save:
             self.save()
-            return ans.status_code
         gdf = gpd.read_file(ans.text)
         gdf = gdf.explode(index_parts=False)
-        return {
-            'success': ans.status_code == 200,
-            'polygon': gdf
-        }
+        return {'success': True, 'polygon': gdf}
 
     def get_sector_coords(self):
         lat, lon = map(float, self.sector.coords.split(','))

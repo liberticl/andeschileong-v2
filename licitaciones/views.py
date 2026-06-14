@@ -78,18 +78,14 @@ def dashboard(request):
         ),
         reverse=True
     )
-    regiones_disponibles = sorted(
-        set(
-            disponibles.exclude(region='', region__isnull=True)
-            .values_list('region', flat=True)
-        )
-    )
-    comunas_disponibles = sorted(
-        set(
-            disponibles.exclude(comuna='', comuna__isnull=True)
-            .values_list('comuna', flat=True)
-        )
-    )
+    regiones_disponibles = sorted({
+        r.strip() for r in disponibles.values_list('region', flat=True)
+        if r and r.strip()
+    })
+    comunas_disponibles = sorted({
+        c.strip() for c in disponibles.values_list('comuna', flat=True)
+        if c and c.strip()
+    })
 
     monto_total = filtered_qs.aggregate(
         total=Sum('monto_estimado'))['total'] or 0
@@ -101,7 +97,7 @@ def dashboard(request):
             .annotate(cantidad=Count('id'))
             .order_by('-cantidad')),
         'por_region': list(
-            filtered_qs.exclude(region='', region__isnull=True)
+            filtered_qs.exclude(region__in=['', None])
             .values('region')
             .annotate(cantidad=Count('id'), total_monto=Sum('monto_estimado'))
             .order_by('-cantidad')[:10]),
@@ -119,7 +115,7 @@ def dashboard(request):
             cls=DecimalEncoder),
         'por_region_js': json.dumps(
             list(
-                filtered_qs.exclude(region='', region__isnull=True)
+                filtered_qs.exclude(region__in=['', None])
                 .values('region')
                 .annotate(cantidad=Count('id'), total_monto=Sum('monto_estimado'))
                 .order_by('-cantidad')[:10]),
@@ -166,12 +162,14 @@ def licitaciones_list(request):
         disponibles.exclude(fecha_publicacion__isnull=True)
         .values_list('fecha_publicacion__year', flat=True)
         .distinct(), reverse=True)
-    regiones = sorted(
-        disponibles.exclude(region='', region__isnull=True)
-        .values_list('region', flat=True).distinct())
-    comunas = sorted(
-        disponibles.exclude(comuna='', comuna__isnull=True)
-        .values_list('comuna', flat=True).distinct())
+    regiones = sorted({
+        r.strip() for r in disponibles.values_list('region', flat=True)
+        if r and r.strip()
+    })
+    comunas = sorted({
+        c.strip() for c in disponibles.values_list('comuna', flat=True)
+        if c and c.strip()
+    })
     form = FiltroLicitacionesForm(
         request.GET, años=años, regiones=regiones, comunas=comunas)
 
@@ -203,7 +201,7 @@ def api_stats(request):
         .order_by('-cantidad'))
 
     por_region = list(
-        base_qs.exclude(region='', region__isnull=True)
+        base_qs.exclude(region__in=['', None])
         .values('region')
         .annotate(
             cantidad=Count('id'),

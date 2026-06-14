@@ -90,8 +90,15 @@ def get_ride_from_mongo(city_bounds, years, collection, osm_ids=[]):
     for bounds in city_bounds:
         coords = list(Polygon(bounds).exterior.coords)
         coords = [[round(x, 6), round(y, 6)] for x, y in coords]
-        coords = [coords + [coords[0]]]
-        full_coords.append(coords)
+        coords = coords + [coords[0]]
+        seen = set()
+        deduped = []
+        for i, pt in enumerate(coords):
+            key = (pt[0], pt[1])
+            if key not in seen or i == len(coords) - 1:
+                seen.add(key)
+                deduped.append(pt)
+        full_coords.append([deduped])
 
     pipeline = copy.deepcopy(points_inside)
     match_stage = pipeline[0]['$match']

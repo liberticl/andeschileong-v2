@@ -21,8 +21,8 @@ class JWTAuthentication(authentication.BaseAuthentication):
         try:
             payload = jwt.decode(
                 token_key, settings.CP_JWT_SECRET, algorithms=["HS256"])
-            devname = payload.get('devicename')
-            device = Device.objects.get(name=devname)
+            fingerprint = payload.get('fingerprint')
+            device = Device.objects.get(fingerprint=fingerprint)
 
         except jwt.ExpiredSignatureError:
             raise AuthenticationFailed('El token ha expirado')

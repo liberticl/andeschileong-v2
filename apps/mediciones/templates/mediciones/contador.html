@@ -75,14 +75,15 @@
         .counter-grid {
             position: fixed;
             bottom: 20px;
-            left: 10px;
-            right: 80px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
-            justify-content: flex-start;
+            justify-content: safe center;
             gap: 8px;
             padding: 0 4px 6px;
             z-index: 100;
-            max-width: none;
+            width: max-content;
+            max-width: calc(100% - 160px);
             margin: 0;
             overflow-x: auto;
             overflow-y: hidden;
@@ -605,10 +606,12 @@
             }
 
             .counter-grid {
-                left: 8px;
-                right: 72px;
+                left: 50%;
+                transform: translateX(-50%);
+                right: auto;
                 bottom: 12px;
-                transform: none;
+                max-width: calc(100% - 100px);
+                justify-content: safe center;
             }
 
             .about-modal {
@@ -626,10 +629,12 @@
 
         @media (orientation: landscape) and (max-width: 900px) {
             .counter-grid {
-                left: 8px;
-                right: 72px;
+                left: 50%;
+                transform: translateX(-50%);
+                right: auto;
                 bottom: 10px;
-                transform: none;
+                max-width: calc(100% - 100px);
+                justify-content: safe center;
             }
         }
     </style>
@@ -660,16 +665,16 @@
         <button class="close-modal" id="closeModal">x</button>
         <h2>Proyecto konta2r</h2>
         <p>Sistema de deteccion de transito en tiempo real que utiliza vision artificial para identificar y contar diferentes tipos de usuarios y elementos moviles en la via publica.</p>
-        <p>Modelo: YOLO26n (mAP 40.9, 2.4M parametros) con ONNX Runtime Web.</p>
-        <p>Backend: WebGPU (preferido) o WASM con fallback automatico.</p>
-        <p>Resolucion adaptativa: 320px (dispositivos con ≤2GB RAM) o 640px (dispositivos con más RAM).</p>
+        <p>Modelo: YOLO26n con ONNX Runtime Web.<br>
+           Backend: WebGPU (preferido) o WASM con fallback automatico.<br>
+           Resolucion adaptativa: 320px o 640px según disponibilidad.</p>
         <p>El sistema puede detectar:</p>
         <ul>
             <li>Peatones y ciclistas</li>
             <li>Patinetas, autos, motos, buses y camiones</li>
             <li>Mascotas (perros y gatos)</li>
         </ul>
-        <p>Desarrollado originalmente por Ariel Lopez. Version YOLO26n para Andes Chile ONG.</p>
+        <p>Desarrollado originalmente por <a href="https://about.me/ariellopez/" target="_blank">Ariel Lopez</a>.<br>Version YOLO26n por Francisco Vergara de <b>Andes Chile ONG</b>.</p>
     </div>
 
     <div class="container">
@@ -753,7 +758,7 @@
         </div>
     </div>
 
-    <div class="attribution">Elaborado por Ariel Lopez - YOLO26n by Ultralytics</div>
+    <div class="attribution">Desarrollado originalmente por Ariel Lopez.<br>Actualizado por Francisco Vergara de <b>Andes Chile ONG</b>.</div>
 
     <script>
         const video = document.getElementById('video');

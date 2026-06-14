@@ -662,6 +662,7 @@
         <p>Sistema de deteccion de transito en tiempo real que utiliza vision artificial para identificar y contar diferentes tipos de usuarios y elementos moviles en la via publica.</p>
         <p>Modelo: YOLO26n (mAP 40.9, 2.4M parametros) con ONNX Runtime Web.</p>
         <p>Backend: WebGPU (preferido) o WASM con fallback automatico.</p>
+        <p>Resolucion adaptativa: 320px (dispositivos con ≤2GB RAM) o 640px (dispositivos con más RAM).</p>
         <p>El sistema puede detectar:</p>
         <ul>
             <li>Peatones y ciclistas</li>
@@ -776,8 +777,10 @@
         const compositeCanvas = document.createElement('canvas');
         const compositeContext = compositeCanvas.getContext('2d');
 
-        const MODEL_URL = '/api/counter/model/';
-        const MODEL_INPUT_SIZE = 640;
+        const deviceRAM = navigator.deviceMemory || 4;
+        const isLowRAM = deviceRAM <= 2;
+        const MODEL_URL = isLowRAM ? '/api/counter/model/?size=320' : '/api/counter/model/?size=640';
+        const MODEL_INPUT_SIZE = isLowRAM ? 320 : 640;
         const CONFIDENCE_THRESHOLD = 0.50;
 
         const COCO_CLASSES = [
@@ -1188,7 +1191,8 @@
         }
 
         async function loadModel() {
-            addLog('Cargando modelo YOLO26n...');
+            const modelInfo = isLowRAM ? `YOLO26n (${MODEL_INPUT_SIZE}px, RAM: ${deviceRAM}GB)` : `YOLO26n (${MODEL_INPUT_SIZE}px, RAM: ${deviceRAM}GB)`;
+            addLog(`Cargando modelo ${modelInfo}...`);
             backendBadge.textContent = 'Cargando modelo...';
             backendBadge.className = 'backend-badge loading';
 
@@ -1211,13 +1215,13 @@
 
                 if (backend === 'webgpu') {
                     session = await ort.InferenceSession.create(MODEL_URL, { executionProviders: ['webgpu', 'wasm'] });
-                    addLog('Modelo cargado con backend WebGPU');
-                    backendBadge.textContent = 'WebGPU';
+                    addLog(`Modelo cargado con backend WebGPU (${MODEL_INPUT_SIZE}px)`);
+                    backendBadge.textContent = `WebGPU ${MODEL_INPUT_SIZE}px`;
                     backendBadge.className = 'backend-badge webgpu';
                 } else {
                     session = await ort.InferenceSession.create(MODEL_URL, { executionProviders: ['wasm'] });
-                    addLog('Modelo cargado con backend WASM');
-                    backendBadge.textContent = 'WASM';
+                    addLog(`Modelo cargado con backend WASM (${MODEL_INPUT_SIZE}px)`);
+                    backendBadge.textContent = `WASM ${MODEL_INPUT_SIZE}px`;
                     backendBadge.className = 'backend-badge wasm';
                 }
             } catch (error) {
@@ -1600,6 +1604,8 @@
             try {
                 await initDatabase();
                 addLog('Base de datos conectada correctamente');
+
+                addLog(`RAM detectada: ${deviceRAM}GB → Modelo: ${MODEL_INPUT_SIZE}px`);
 
                 await loadModel();
 

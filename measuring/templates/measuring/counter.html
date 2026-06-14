@@ -3,10 +3,9 @@
     <meta charset="UTF-8">
     <title>Sistema de Detección de Tránsito</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/ort.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL@20..48,100..700,0..1" rel="stylesheet">
     <style>
         :root {
             --primary: #2563eb;
@@ -32,7 +31,7 @@
         }
 
         .header {
-            display: none; /* Hide the header completely */
+            display: none;
         }
 
         .container {
@@ -121,9 +120,8 @@
             font-weight: 500;
         }
 
-        .material-icons {
-            color: var(--text);
-            font-size: 24px;
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
 
         .counter-value-container {
@@ -154,7 +152,7 @@
             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
             overflow: hidden;
             font-family: 'Roboto Mono', 'Roboto', monospace;
-            display: none; /* Start hidden */
+            display: none;
             transition: all 0.3s ease;
         }
 
@@ -272,7 +270,6 @@
             background: rgba(255, 255, 255, 0.3);
         }
 
-        /* Add style for attribution text */
         .attribution {
             position: fixed;
             bottom: 20px;
@@ -282,7 +279,6 @@
             font-family: 'Roboto', sans-serif;
         }
 
-        /* Add new styles for the terminal toggle button */
         .terminal-toggle {
             position: fixed;
             bottom: 20px;
@@ -304,12 +300,11 @@
             transform: scale(1.05);
         }
 
-        .terminal-toggle .material-icons {
+        .terminal-toggle .material-symbols-outlined {
             color: var(--text);
             font-size: 24px;
         }
 
-        /* Add new styles for the about button and modal */
         .about-btn {
             position: fixed;
             top: 20px;
@@ -318,7 +313,10 @@
             width: 50px;
             height: 50px;
             border-radius: 25px;
-            background: white;
+            background: #4b5563;
+            color: white;
+            font-size: 24px;
+            font-family: 'Roboto', sans-serif;
             border: none;
             cursor: pointer;
             display: flex;
@@ -330,15 +328,7 @@
 
         .about-btn:hover {
             transform: scale(1.05);
-            background: #4b5563;
-        }
-
-        .about-btn {
-            left: 20px;
-            background: #4b5563;
-            color: white;
-            font-size: 24px;
-            font-family: 'Roboto', sans-serif;
+            background: #374151;
         }
 
         .download-btn {
@@ -363,7 +353,7 @@
             transform: scale(1.05);
         }
 
-        .download-btn .material-icons {
+        .download-btn .material-symbols-outlined {
             color: var(--text);
             font-size: 24px;
         }
@@ -371,7 +361,7 @@
         .camera-switch-btn {
             position: fixed;
             top: 20px;
-            right: 80px; /* Position it to the left of the download button */
+            right: 80px;
             z-index: 1000;
             width: 50px;
             height: 50px;
@@ -390,12 +380,11 @@
             transform: scale(1.05);
         }
 
-        .camera-switch-btn .material-icons {
+        .camera-switch-btn .material-symbols-outlined {
             color: var(--text);
             font-size: 24px;
         }
 
-        /* Add modal styles */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -477,7 +466,7 @@
             background-color: var(--border);
         }
 
-                .top-actions {
+        .top-actions {
             position: fixed;
             top: 18px;
             right: 12px;
@@ -518,7 +507,7 @@
             transform: scale(1.05);
         }
 
-        .top-actions .tool-btn .material-icons {
+        .top-actions .tool-btn .material-symbols-outlined {
             color: var(--text);
             font-size: 22px;
         }
@@ -527,8 +516,37 @@
             background: #dc2626 !important;
         }
 
-        .record-btn.recording .material-icons {
+        .record-btn.recording .material-symbols-outlined {
             color: white !important;
+        }
+
+        .backend-badge {
+            position: fixed;
+            top: 20px;
+            left: 80px;
+            z-index: 1000;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .backend-badge.webgpu {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .backend-badge.wasm {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .backend-badge.loading {
+            background: #e0e7ff;
+            color: #3730a3;
         }
 
         @media (max-width: 768px) {
@@ -554,7 +572,7 @@
                 border-radius: 19px;
             }
 
-            .top-actions .tool-btn .material-icons {
+            .top-actions .tool-btn .material-symbols-outlined {
                 font-size: 20px;
             }
 
@@ -597,6 +615,13 @@
                 width: 85%;
                 padding: 20px;
             }
+
+            .backend-badge {
+                top: 12px;
+                left: 56px;
+                font-size: 0.6rem;
+                padding: 3px 8px;
+            }
         }
 
         @media (orientation: landscape) and (max-width: 900px) {
@@ -607,42 +632,43 @@
                 transform: none;
             }
         }
-
     </style>
 </head>
 <body>
-    <button class="about-btn" id="aboutBtn">æ</button>
+    <button class="about-btn" id="aboutBtn">ae</button>
+    <div class="backend-badge loading" id="backendBadge">Cargando modelo...</div>
     <div class="top-actions" id="topActions">
         <button class="tool-btn download-btn" id="downloadBtn" title="Descargar CSV">
-            <span class="material-icons">save</span>
+            <span class="material-symbols-outlined">save</span>
         </button>
         <button class="tool-btn camera-switch-btn" id="cameraSwitchBtn" title="Cambiar cámara">
-            <span class="material-icons">flip_camera_ios</span>
+            <span class="material-symbols-outlined">flip_camera_ios</span>
         </button>
         <button class="tool-btn record-btn" id="recordBtn" title="Grabar video">
-            <span class="material-icons">radio_button_checked</span>
+            <span class="material-symbols-outlined">radio_button_checked</span>
         </button>
         <button class="tool-btn photo-btn" id="photoBtn" title="Guardar foto">
-            <span class="material-icons">photo_camera</span>
+            <span class="material-symbols-outlined">photo_camera</span>
         </button>
         <button class="tool-btn line-btn" id="lineBtn" title="Crear línea de conteo">
-            <span class="material-icons">horizontal_rule</span>
+            <span class="material-symbols-outlined">horizontal_rule</span>
         </button>
     </div>
     
     <div class="modal-overlay" id="modalOverlay"></div>
     <div class="about-modal" id="aboutModal">
-        <button class="close-modal" id="closeModal">×</button>
+        <button class="close-modal" id="closeModal">x</button>
         <h2>Proyecto konta2r</h2>
-        <p>Este es un sistema de detección de tránsito en tiempo real que utiliza visión artificial para identificar y contar diferentes tipos de usuarios y elementos móviles en la vía pública.</p>
+        <p>Sistema de deteccion de transito en tiempo real que utiliza vision artificial para identificar y contar diferentes tipos de usuarios y elementos moviles en la via publica.</p>
+        <p>Modelo: YOLO26n (mAP 40.9, 2.4M parametros) con ONNX Runtime Web.</p>
+        <p>Backend: WebGPU (preferido) o WASM con fallback automatico.</p>
         <p>El sistema puede detectar:</p>
         <ul>
             <li>Peatones y ciclistas</li>
             <li>Patinetas, autos, motos, buses y camiones</li>
             <li>Mascotas (perros y gatos)</li>
         </ul>
-        <p>Desarrollado por Ariel López utilizando TensorFlow y el modelo COCO-SSD para detección de objetos en tiempo real. Para más información puede ver el <a href="https://blog.ariellopez.cl/contamos-personas-para-que-las-personas-cuenten-4068708f09b9" target="_blank">artículo</a> del proyecto.</p>
-        <p>Esta versión es para uso educativo y social sin fines de lucro. Si desea utilizarlo para estudios o proyectos con fines comerciales <a href="https://x.com/arieIIopez" target="_blank">contacte al autor</a>.</p>
+        <p>Desarrollado originalmente por Ariel Lopez. Version YOLO26n para Andes Chile ONG.</p>
     </div>
 
     <div class="container">
@@ -650,69 +676,67 @@
         <canvas id="canvas"></canvas>
     </div>
 
-    <!-- Add counter grid -->
     <div class="counter-grid">
         <div class="counter-item">
             <div class="counter-label">Bicicletas</div>
             <div class="counter-value-container">
-                <span class="material-icons counter-icon">directions_bike</span>
+                <span class="material-symbols-outlined counter-icon">directions_bike</span>
                 <span class="counter-value" id="bicycleCount">0</span>
             </div>
         </div>
         <div class="counter-item">
             <div class="counter-label">Peatones</div>
             <div class="counter-value-container">
-                <span class="material-icons counter-icon">directions_walk</span>
+                <span class="material-symbols-outlined counter-icon">directions_walk</span>
                 <span class="counter-value" id="personCount">0</span>
             </div>
         </div>
         <div class="counter-item">
             <div class="counter-label">Patinetas</div>
             <div class="counter-value-container">
-                <span class="material-icons counter-icon">skateboarding</span>
+                <span class="material-symbols-outlined counter-icon">skateboarding</span>
                 <span class="counter-value" id="skaterCount">0</span>
             </div>
         </div>
         <div class="counter-item">
             <div class="counter-label">Autos</div>
             <div class="counter-value-container">
-                <span class="material-icons counter-icon">directions_car</span>
+                <span class="material-symbols-outlined counter-icon">directions_car</span>
                 <span class="counter-value" id="carCount">0</span>
             </div>
         </div>
         <div class="counter-item">
             <div class="counter-label">Motos</div>
             <div class="counter-value-container">
-                <span class="material-icons counter-icon">two_wheeler</span>
+                <span class="material-symbols-outlined counter-icon">two_wheeler</span>
                 <span class="counter-value" id="motorcycleCount">0</span>
             </div>
         </div>
         <div class="counter-item">
             <div class="counter-label">Buses</div>
             <div class="counter-value-container">
-                <span class="material-icons counter-icon">directions_bus</span>
+                <span class="material-symbols-outlined counter-icon">directions_bus</span>
                 <span class="counter-value" id="busCount">0</span>
             </div>
         </div>
         <div class="counter-item">
             <div class="counter-label">Camiones</div>
             <div class="counter-value-container">
-                <span class="material-icons counter-icon">local_shipping</span>
+                <span class="material-symbols-outlined counter-icon">local_shipping</span>
                 <span class="counter-value" id="truckCount">0</span>
             </div>
         </div>
         <div class="counter-item">
             <div class="counter-label">Mascotas</div>
             <div class="counter-value-container">
-                <span class="material-icons counter-icon">pets</span>
+                <span class="material-symbols-outlined counter-icon">pets</span>
                 <span class="counter-value" id="petCount">0</span>
             </div>
         </div>
     </div>
 
-    <!-- Add the toggle button before the terminal div -->
     <button class="terminal-toggle" id="terminalToggle">
-        <span class="material-icons">terminal</span>
+        <span class="material-symbols-outlined">terminal</span>
     </button>
 
     <div class="terminal" id="terminal">
@@ -728,10 +752,8 @@
         </div>
     </div>
 
-    <!-- Add attribution text -->
-    <div class="attribution">Elaborado por Ariel López</div>
+    <div class="attribution">Elaborado por Ariel Lopez - YOLO26n by Ultralytics</div>
 
-    
     <script>
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
@@ -749,9 +771,49 @@
         const lineBtn = document.getElementById('lineBtn');
         const photoBtn = document.getElementById('photoBtn');
         const recordBtn = document.getElementById('recordBtn');
+        const backendBadge = document.getElementById('backendBadge');
 
         const compositeCanvas = document.createElement('canvas');
         const compositeContext = compositeCanvas.getContext('2d');
+
+        const MODEL_URL = '/api/counter/model/';
+        const MODEL_INPUT_SIZE = 640;
+        const CONFIDENCE_THRESHOLD = 0.50;
+
+        const COCO_CLASSES = [
+            'person','bicycle','car','motorcycle','airplane','bus','train','truck',
+            'boat','traffic light','fire hydrant','stop sign','parking meter','bench',
+            'bird','cat','dog','horse','sheep','cow','elephant','bear','zebra',
+            'giraffe','backpack','umbrella','handbag','tie','suitcase','frisbee',
+            'skis','snowboard','sports ball','kite','baseball bat','baseball glove',
+            'skateboard','surfboard','tennis racket','bottle','wine glass','cup',
+            'fork','knife','spoon','bowl','banana','apple','sandwich','orange',
+            'broccoli','carrot','hot dog','pizza','donut','cake','chair','couch',
+            'potted plant','bed','dining table','toilet','tv','laptop','mouse',
+            'remote','keyboard','cell phone','microwave','oven','toaster','sink',
+            'refrigerator','book','clock','vase','scissors','teddy bear',
+            'hair drier','toothbrush'
+        ];
+
+        const CATEGORY_RULES = {
+            bicycle:   { cocoClass: 'bicycle',   counterKey: 'bicycle',   label: 'bicicleta',  color: '#0066ff' },
+            person:    { cocoClass: 'person',     counterKey: 'person',    label: 'peaton',     color: '#00ff00' },
+            skateboard:{ cocoClass: 'skateboard', counterKey: 'skater',    label: 'patineta',   color: '#ff6600' },
+            car:       { cocoClass: 'car',        counterKey: 'car',       label: 'auto',       color: '#ef4444' },
+            motorcycle:{ cocoClass: 'motorcycle', counterKey: 'motorcycle',label: 'moto',       color: '#f97316' },
+            bus:       { cocoClass: 'bus',        counterKey: 'bus',       label: 'bus',        color: '#8b5cf6' },
+            truck:     { cocoClass: 'truck',      counterKey: 'truck',     label: 'camion',     color: '#dc2626' },
+            dog:       { cocoClass: 'dog',        counterKey: 'pet',       label: 'mascota',    color: '#10b981' },
+            cat:       { cocoClass: 'cat',        counterKey: 'pet',       label: 'mascota',    color: '#14b8a6' }
+        };
+
+        const classToRule = {};
+        Object.entries(CATEGORY_RULES).forEach(([key, rule]) => {
+            const idx = COCO_CLASSES.indexOf(rule.cocoClass);
+            if (idx !== -1) {
+                classToRule[idx] = rule;
+            }
+        });
 
         const counters = {
             bicycle: document.getElementById('bicycleCount'),
@@ -775,18 +837,6 @@
             pet: 0
         };
 
-        const CATEGORY_RULES = {
-            bicycle: { modelClass: 'bicycle', counterKey: 'bicycle', label: 'bicicleta', threshold: 0.66, color: '#0066ff' },
-            person: { modelClass: 'person', counterKey: 'person', label: 'peatón', threshold: 0.60, color: '#00ff00' },
-            skateboard: { modelClass: 'skateboard', counterKey: 'skater', label: 'patineta', threshold: 0.65, color: '#ff6600' },
-            car: { modelClass: 'car', counterKey: 'car', label: 'auto', threshold: 0.72, color: '#ef4444' },
-            motorcycle: { modelClass: 'motorcycle', counterKey: 'motorcycle', label: 'moto', threshold: 0.68, color: '#f97316' },
-            bus: { modelClass: 'bus', counterKey: 'bus', label: 'bus', threshold: 0.70, color: '#8b5cf6' },
-            truck: { modelClass: 'truck', counterKey: 'truck', label: 'camión', threshold: 0.72, color: '#dc2626' },
-            dog: { modelClass: 'dog', counterKey: 'pet', label: 'mascota', threshold: 0.60, color: '#10b981' },
-            cat: { modelClass: 'cat', counterKey: 'pet', label: 'mascota', threshold: 0.60, color: '#14b8a6' }
-        };
-
         const DB_NAME = 'TrafficDetectionDB';
         const DB_VERSION = 2;
         const STORE_NAME = 'detections';
@@ -797,7 +847,7 @@
         const SIDE_DEADZONE_PX = 12;
 
         let db = null;
-        let model = null;
+        let session = null;
         let isDetecting = true;
         let predictionLoopToken = 0;
         let currentFacingMode = 'environment';
@@ -879,29 +929,21 @@
             return { scale, renderedWidth, renderedHeight, offsetX, offsetY };
         }
 
-        function mapBBoxToDisplay(bbox) {
-            const { scale, offsetX, offsetY } = getCoverTransform();
-            const [x, y, width, height] = bbox;
+        function mapBBoxToDisplay(bbox, scaleX, scaleY, offsetX, offsetY) {
             return [
-                x * scale + offsetX,
-                y * scale + offsetY,
-                width * scale,
-                height * scale
+                bbox[0] * scaleX + offsetX,
+                bbox[1] * scaleY + offsetY,
+                (bbox[2] - bbox[0]) * scaleX,
+                (bbox[3] - bbox[1]) * scaleY
             ];
         }
 
         function getFootPoint(bbox) {
-            return {
-                x: bbox[0] + bbox[2] / 2,
-                y: bbox[1] + bbox[3]
-            };
+            return { x: bbox[0] + bbox[2] / 2, y: bbox[1] + bbox[3] };
         }
 
         function getCenterPoint(bbox) {
-            return {
-                x: bbox[0] + bbox[2] / 2,
-                y: bbox[1] + bbox[3] / 2
-            };
+            return { x: bbox[0] + bbox[2] / 2, y: bbox[1] + bbox[3] / 2 };
         }
 
         function distanceBetweenPoints(a, b) {
@@ -909,67 +951,24 @@
         }
 
         function computeIoU(bboxA, bboxB) {
-            const ax1 = bboxA[0];
-            const ay1 = bboxA[1];
-            const ax2 = bboxA[0] + bboxA[2];
-            const ay2 = bboxA[1] + bboxA[3];
-
-            const bx1 = bboxB[0];
-            const by1 = bboxB[1];
-            const bx2 = bboxB[0] + bboxB[2];
-            const by2 = bboxB[1] + bboxB[3];
-
-            const interX1 = Math.max(ax1, bx1);
-            const interY1 = Math.max(ay1, by1);
-            const interX2 = Math.min(ax2, bx2);
-            const interY2 = Math.min(ay2, by2);
-
-            const interWidth = Math.max(0, interX2 - interX1);
-            const interHeight = Math.max(0, interY2 - interY1);
-            const intersection = interWidth * interHeight;
-
-            if (!intersection) {
-                return 0;
-            }
-
+            const ax1 = bboxA[0], ay1 = bboxA[1], ax2 = bboxA[0] + bboxA[2], ay2 = bboxA[1] + bboxA[3];
+            const bx1 = bboxB[0], by1 = bboxB[1], bx2 = bboxB[0] + bboxB[2], by2 = bboxB[1] + bboxB[3];
+            const interX1 = Math.max(ax1, bx1), interY1 = Math.max(ay1, by1);
+            const interX2 = Math.min(ax2, bx2), interY2 = Math.min(ay2, by2);
+            const intersection = Math.max(0, interX2 - interX1) * Math.max(0, interY2 - interY1);
+            if (!intersection) return 0;
             const areaA = bboxA[2] * bboxA[3];
             const areaB = bboxB[2] * bboxB[3];
             return intersection / (areaA + areaB - intersection);
         }
 
-        function getCategoryForPrediction(prediction) {
-            const rule = CATEGORY_RULES[prediction.class];
-            if (!rule || prediction.score < rule.threshold) {
-                return null;
-            }
-            return rule;
-        }
-
         function getActiveLine() {
-            if (!lineStartNorm) {
-                return null;
-            }
-
-            const start = {
-                x: lineStartNorm.x * canvas.width,
-                y: lineStartNorm.y * canvas.height
-            };
-
+            if (!lineStartNorm) return null;
+            const start = { x: lineStartNorm.x * canvas.width, y: lineStartNorm.y * canvas.height };
             let endNorm = lineEndNorm;
-            if (!endNorm && drawingLine && mouseNorm) {
-                endNorm = mouseNorm;
-            }
-
-            if (!endNorm) {
-                return { start, end: start };
-            }
-
-            const end = {
-                x: endNorm.x * canvas.width,
-                y: endNorm.y * canvas.height
-            };
-
-            return { start, end };
+            if (!endNorm && drawingLine && mouseNorm) endNorm = mouseNorm;
+            if (!endNorm) return { start, end: start };
+            return { start, end: { x: endNorm.x * canvas.width, y: endNorm.y * canvas.height } };
         }
 
         function getSignedDistanceToLine(point, line) {
@@ -979,27 +978,19 @@
 
         function getLineSide(point, line) {
             const signedDistance = getSignedDistanceToLine(point, line);
-            if (Math.abs(signedDistance) <= SIDE_DEADZONE_PX) {
-                return 0;
-            }
+            if (Math.abs(signedDistance) <= SIDE_DEADZONE_PX) return 0;
             return signedDistance > 0 ? 1 : -1;
         }
 
         function getDirectionLabel(previousSide, currentSide) {
-            if (previousSide === -1 && currentSide === 1) {
-                return 'A→B';
-            }
-            if (previousSide === 1 && currentSide === -1) {
-                return 'B→A';
-            }
+            if (previousSide === -1 && currentSide === 1) return 'A->B';
+            if (previousSide === 1 && currentSide === -1) return 'B->A';
             return '';
         }
 
         function cleanupOldTracks(now) {
             for (const [trackId, track] of tracks.entries()) {
-                if (now - track.lastSeen > TRACK_MAX_AGE) {
-                    tracks.delete(trackId);
-                }
+                if (now - track.lastSeen > TRACK_MAX_AGE) tracks.delete(trackId);
             }
         }
 
@@ -1008,33 +999,23 @@
             let bestScore = Infinity;
 
             for (const [trackId, track] of tracks.entries()) {
-                if (matchedTrackIds.has(trackId)) {
-                    continue;
-                }
-                if (track.counterKey !== detection.counterKey || track.modelClass !== detection.modelClass) {
-                    continue;
-                }
-                if (now - track.lastSeen > TRACK_MAX_AGE) {
-                    continue;
-                }
+                if (matchedTrackIds.has(trackId)) continue;
+                if (track.counterKey !== detection.counterKey) continue;
+                if (now - track.lastSeen > TRACK_MAX_AGE) continue;
 
                 const centerDistance = distanceBetweenPoints(track.centerPoint, detection.centerPoint);
                 const bboxDiagonal = Math.hypot(detection.bbox[2], detection.bbox[3]);
                 const maxDistance = Math.max(60, Math.min(180, bboxDiagonal * 0.8));
                 const iou = computeIoU(track.bbox, detection.bbox);
 
-                if (centerDistance > maxDistance && iou < 0.05) {
-                    continue;
-                }
+                if (centerDistance > maxDistance && iou < 0.05) continue;
 
                 const score = centerDistance - (iou * 80);
-
                 if (score < bestScore) {
                     bestScore = score;
                     bestTrackId = trackId;
                 }
             }
-
             return bestTrackId;
         }
 
@@ -1103,9 +1084,7 @@
                     registerDetectionEvent(track, direction);
                 }
 
-                if (currentSide !== 0) {
-                    track.side = currentSide;
-                }
+                if (currentSide !== 0) track.side = currentSide;
             } else if (!track.appearanceCounted && track.stableFrames >= MIN_STABLE_FRAMES) {
                 track.appearanceCounted = true;
                 registerDetectionEvent(track, '');
@@ -1118,7 +1097,6 @@
 
             tracks.set(trackId, {
                 id: trackId,
-                modelClass: detection.modelClass,
                 counterKey: detection.counterKey,
                 label: detection.label,
                 color: detection.color,
@@ -1143,10 +1121,8 @@
 
             detections.forEach((detection) => {
                 const matchedTrackId = findBestTrackMatch(detection, now, matchedTrackIds);
-
                 if (matchedTrackId !== null) {
-                    const track = tracks.get(matchedTrackId);
-                    updateTrackWithDetection(track, detection, now, activeLine);
+                    updateTrackWithDetection(tracks.get(matchedTrackId), detection, now, activeLine);
                     matchedTrackIds.add(matchedTrackId);
                 } else {
                     createTrackFromDetection(detection, now, activeLine);
@@ -1156,7 +1132,6 @@
 
         function drawLineAndOverlay(targetContext) {
             const activeLine = getActiveLine();
-
             if (activeLine) {
                 targetContext.strokeStyle = '#ff0000';
                 targetContext.lineWidth = 3;
@@ -1175,11 +1150,8 @@
                 targetContext.font = '20px Arial';
                 targetContext.textAlign = 'center';
                 targetContext.fillText(
-                    drawingLine
-                        ? 'Defina el segundo punto de la línea'
-                        : 'Modo línea activo - haga clic para definir el inicio',
-                    canvas.width / 2,
-                    40
+                    drawingLine ? 'Defina el segundo punto de la linea' : 'Modo linea activo - haga clic para definir el inicio',
+                    canvas.width / 2, 40
                 );
                 targetContext.textAlign = 'left';
             }
@@ -1187,24 +1159,15 @@
 
         function drawTracks(targetContext) {
             const now = Date.now();
-
             for (const track of tracks.values()) {
-                if (now - track.lastSeen > TRACK_MAX_AGE) {
-                    continue;
-                }
-
+                if (now - track.lastSeen > TRACK_MAX_AGE) continue;
                 targetContext.strokeStyle = track.color;
                 targetContext.lineWidth = 4;
                 targetContext.strokeRect(track.bbox[0], track.bbox[1], track.bbox[2], track.bbox[3]);
-
                 const label = `${track.label} ${Math.round(track.score * 100)}%`;
                 targetContext.fillStyle = track.color;
                 targetContext.font = '16px Arial';
-                targetContext.fillText(
-                    label,
-                    track.bbox[0],
-                    track.bbox[1] > 18 ? track.bbox[1] - 6 : 18
-                );
+                targetContext.fillText(label, track.bbox[0], track.bbox[1] > 18 ? track.bbox[1] - 6 : 18);
             }
         }
 
@@ -1216,49 +1179,119 @@
 
         function renderCompositeFrame() {
             compositeContext.clearRect(0, 0, compositeCanvas.width, compositeCanvas.height);
-
             if (video.videoWidth && video.videoHeight) {
                 const { offsetX, offsetY, renderedWidth, renderedHeight } = getCoverTransform();
                 compositeContext.drawImage(video, offsetX, offsetY, renderedWidth, renderedHeight);
             }
-
             drawLineAndOverlay(compositeContext);
             drawTracks(compositeContext);
         }
 
-        async function predictionLoop(loopToken) {
-            if (!isDetecting || !model || loopToken !== predictionLoopToken) {
-                return;
+        async function loadModel() {
+            addLog('Cargando modelo YOLO26n...');
+            backendBadge.textContent = 'Cargando modelo...';
+            backendBadge.className = 'backend-badge loading';
+
+            try {
+                const hasWebGPU = 'gpu' in navigator;
+                let backend = 'wasm';
+
+                if (hasWebGPU) {
+                    try {
+                        const adapter = await navigator.gpu.requestAdapter();
+                        if (adapter) {
+                            backend = 'webgpu';
+                        }
+                    } catch (e) {
+                        addLog('WebGPU no disponible, usando WASM');
+                    }
+                }
+
+                ort.env.wasm.numThreads = navigator.hardwareConcurrency || 4;
+
+                if (backend === 'webgpu') {
+                    session = await ort.InferenceSession.create(MODEL_URL, { executionProviders: ['webgpu', 'wasm'] });
+                    addLog('Modelo cargado con backend WebGPU');
+                    backendBadge.textContent = 'WebGPU';
+                    backendBadge.className = 'backend-badge webgpu';
+                } else {
+                    session = await ort.InferenceSession.create(MODEL_URL, { executionProviders: ['wasm'] });
+                    addLog('Modelo cargado con backend WASM');
+                    backendBadge.textContent = 'WASM';
+                    backendBadge.className = 'backend-badge wasm';
+                }
+            } catch (error) {
+                addLog(`Error cargando modelo: ${error.message}`);
+                backendBadge.textContent = 'Error';
+                backendBadge.className = 'backend-badge loading';
+                throw error;
             }
+        }
+
+        function preprocessFrame() {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = MODEL_INPUT_SIZE;
+            tempCanvas.height = MODEL_INPUT_SIZE;
+            const tempCtx = tempCanvas.getContext('2d');
+
+            const { offsetX, offsetY, renderedWidth, renderedHeight } = getCoverTransform();
+            tempCtx.drawImage(video, offsetX, offsetY, renderedWidth, renderedHeight);
+
+            const imageData = tempCtx.getImageData(0, 0, MODEL_INPUT_SIZE, MODEL_INPUT_SIZE);
+            const data = imageData.data;
+
+            const inputTensor = new Float32Array(1 * 3 * MODEL_INPUT_SIZE * MODEL_INPUT_SIZE);
+            const mean = [0.0, 0.0, 0.0];
+            const std = [255.0, 255.0, 255.0];
+
+            for (let i = 0; i < MODEL_INPUT_SIZE * MODEL_INPUT_SIZE; i++) {
+                inputTensor[i] = (data[i * 4] - mean[0]) / std[0];
+                inputTensor[MODEL_INPUT_SIZE * MODEL_INPUT_SIZE + i] = (data[i * 4 + 1] - mean[1]) / std[1];
+                inputTensor[2 * MODEL_INPUT_SIZE * MODEL_INPUT_SIZE + i] = (data[i * 4 + 2] - mean[2]) / std[2];
+            }
+
+            return new ort.Tensor('float32', inputTensor, [1, 3, MODEL_INPUT_SIZE, MODEL_INPUT_SIZE]);
+        }
+
+        async function predictionLoop(loopToken) {
+            if (!isDetecting || !session || loopToken !== predictionLoopToken) return;
 
             try {
                 resizeRenderSurfaces();
+                const inputTensor = preprocessFrame();
+                const results = await session.run({ images: inputTensor });
+                const output = results.output0.data;
 
-                const predictions = await model.detect(video);
-                if (loopToken !== predictionLoopToken) {
-                    return;
+                const { scale, offsetX, offsetY } = getCoverTransform();
+                const detections = [];
+
+                for (let i = 0; i < 300; i++) {
+                    const base = i * 6;
+                    const x1 = output[base];
+                    const y1 = output[base + 1];
+                    const x2 = output[base + 2];
+                    const y2 = output[base + 3];
+                    const score = output[base + 4];
+                    const classId = Math.round(output[base + 5]);
+
+                    if (score < CONFIDENCE_THRESHOLD) continue;
+
+                    const rule = classToRule[classId];
+                    if (!rule) continue;
+
+                    const displayBBox = mapBBoxToDisplay([x1, y1, x2, y2], scale, scale, offsetX, offsetY);
+
+                    detections.push({
+                        counterKey: rule.counterKey,
+                        label: rule.label,
+                        color: rule.color,
+                        modelClass: rule.cocoClass,
+                        score: score,
+                        bbox: displayBBox,
+                        centerPoint: getCenterPoint(displayBBox),
+                        footPoint: getFootPoint(displayBBox)
+                    });
                 }
-
-                const detections = predictions
-                    .map((prediction) => {
-                        const category = getCategoryForPrediction(prediction);
-                        if (!category) {
-                            return null;
-                        }
-
-                        const displayBBox = mapBBoxToDisplay(prediction.bbox);
-                        return {
-                            modelClass: category.modelClass,
-                            counterKey: category.counterKey,
-                            label: category.label,
-                            color: category.color,
-                            score: prediction.score,
-                            bbox: displayBBox,
-                            centerPoint: getCenterPoint(displayBBox),
-                            footPoint: getFootPoint(displayBBox)
-                        };
-                    })
-                    .filter(Boolean);
 
                 updateTracks(detections, Date.now());
                 renderVisibleOverlay();
@@ -1287,19 +1320,10 @@
         function waitForVideoReady() {
             return new Promise((resolve, reject) => {
                 const onLoaded = async () => {
-                    try {
-                        await video.play();
-                        resolve();
-                    } catch (error) {
-                        reject(error);
-                    }
+                    try { await video.play(); resolve(); }
+                    catch (error) { reject(error); }
                 };
-
-                if (video.readyState >= 2) {
-                    onLoaded();
-                    return;
-                }
-
+                if (video.readyState >= 2) { onLoaded(); return; }
                 video.addEventListener('loadeddata', onLoaded, { once: true });
             });
         }
@@ -1314,16 +1338,9 @@
         function getCurrentPosition() {
             return new Promise((resolve) => {
                 if (!navigator.geolocation) {
-                    resolve({
-                        latitude: '',
-                        longitude: '',
-                        accuracy: '',
-                        capturedAt: '',
-                        locationStatus: 'geolocalización no disponible'
-                    });
+                    resolve({ latitude: '', longitude: '', accuracy: '', capturedAt: '', locationStatus: 'geolocalizacion no disponible' });
                     return;
                 }
-
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
                         resolve({
@@ -1335,20 +1352,9 @@
                         });
                     },
                     (error) => {
-                        console.error(error);
-                        resolve({
-                            latitude: '',
-                            longitude: '',
-                            accuracy: '',
-                            capturedAt: '',
-                            locationStatus: `sin geolocalización (${error.message})`
-                        });
+                        resolve({ latitude: '', longitude: '', accuracy: '', capturedAt: '', locationStatus: `sin geolocalizacion (${error.message})` });
                     },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 0
-                    }
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
                 );
             });
         }
@@ -1356,31 +1362,19 @@
         async function startCountingSession() {
             sessionContext.id = `sesion_${new Date().toISOString().replace(/[:.]/g, '-')}_${Math.random().toString(36).slice(2, 8)}`;
             sessionContext.startedAt = new Date().toISOString();
-
             const location = await getCurrentPosition();
-            sessionContext = {
-                ...sessionContext,
-                ...location
-            };
-
-            if (sessionContext.latitude !== '' && sessionContext.longitude !== '') {
-                addLog(`Sesión iniciada con coordenadas ${sessionContext.latitude}, ${sessionContext.longitude}`);
+            sessionContext = { ...sessionContext, ...location };
+            if (sessionContext.latitude !== '') {
+                addLog(`Sesion iniciada con coordenadas ${sessionContext.latitude}, ${sessionContext.longitude}`);
             } else {
-                addLog(`Sesión iniciada sin coordenadas disponibles`);
+                addLog('Sesion iniciada sin coordenadas disponibles');
             }
         }
 
         function getPreferredRecorderMimeType() {
-            const candidates = [
-                'video/webm;codecs=vp9',
-                'video/webm;codecs=vp8',
-                'video/webm'
-            ];
-
+            const candidates = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
             for (const candidate of candidates) {
-                if (window.MediaRecorder && MediaRecorder.isTypeSupported(candidate)) {
-                    return candidate;
-                }
+                if (window.MediaRecorder && MediaRecorder.isTypeSupported(candidate)) return candidate;
             }
             return '';
         }
@@ -1400,72 +1394,47 @@
         function updateRecordButtonState() {
             if (isRecording) {
                 recordBtn.classList.add('recording');
-                recordBtn.title = 'Detener grabación';
-                recordBtn.innerHTML = '<span class="material-icons">stop_circle</span>';
+                recordBtn.title = 'Detener grabacion';
+                recordBtn.innerHTML = '<span class="material-symbols-outlined">stop_circle</span>';
             } else {
                 recordBtn.classList.remove('recording');
                 recordBtn.title = 'Grabar video';
-                recordBtn.innerHTML = '<span class="material-icons">radio_button_checked</span>';
+                recordBtn.innerHTML = '<span class="material-symbols-outlined">radio_button_checked</span>';
             }
         }
 
         function startRecording() {
-            if (!window.MediaRecorder) {
-                addLog('El navegador no permite grabar video en esta sesión');
-                return;
-            }
-
+            if (!window.MediaRecorder) { addLog('El navegador no permite grabar video'); return; }
             renderCompositeFrame();
-
             recordingChunks = [];
             recordingStream = compositeCanvas.captureStream(25);
-
             const mimeType = getPreferredRecorderMimeType();
-            const recorderOptions = mimeType ? { mimeType } : undefined;
-
-            mediaRecorder = new MediaRecorder(recordingStream, recorderOptions);
-
-            mediaRecorder.ondataavailable = (event) => {
-                if (event.data && event.data.size > 0) {
-                    recordingChunks.push(event.data);
-                }
-            };
-
+            mediaRecorder = new MediaRecorder(recordingStream, mimeType ? { mimeType } : undefined);
+            mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) recordingChunks.push(e.data); };
             mediaRecorder.onstop = () => {
-                const type = mimeType || 'video/webm';
-                const blob = new Blob(recordingChunks, { type });
+                const blob = new Blob(recordingChunks, { type: mimeType || 'video/webm' });
                 downloadBlob(blob, `grabacion_konta2r_${new Date().toISOString().replace(/[:.]/g, '-')}.webm`);
-
-                if (recordingStream) {
-                    recordingStream.getTracks().forEach((track) => track.stop());
-                    recordingStream = null;
-                }
-
+                if (recordingStream) { recordingStream.getTracks().forEach((t) => t.stop()); recordingStream = null; }
                 mediaRecorder = null;
                 isRecording = false;
                 updateRecordButtonState();
-                addLog('Grabación guardada localmente');
+                addLog('Grabacion guardada localmente');
             };
-
             mediaRecorder.start(1000);
             isRecording = true;
             updateRecordButtonState();
-            addLog('Grabación iniciada');
+            addLog('Grabacion iniciada');
         }
 
         function stopRecording() {
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
-            }
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
         }
 
         async function savePhoto() {
             try {
                 renderCompositeFrame();
                 const blob = await new Promise((resolve) => compositeCanvas.toBlob(resolve, 'image/png'));
-                if (!blob) {
-                    throw new Error('No fue posible generar la imagen');
-                }
+                if (!blob) throw new Error('No fue posible generar la imagen');
                 downloadBlob(blob, `foto_konta2r_${new Date().toISOString().replace(/[:.]/g, '-')}.png`);
                 addLog('Foto guardada localmente');
             } catch (error) {
@@ -1476,47 +1445,18 @@
 
         function csvEscape(value) {
             const stringValue = value === null || value === undefined ? '' : String(value);
-            if (/[",\n]/.test(stringValue)) {
-                return `"${stringValue.replace(/"/g, '""')}"`;
-            }
+            if (/[",\n]/.test(stringValue)) return `"${stringValue.replace(/"/g, '""')}"`;
             return stringValue;
         }
 
         async function exportDetectionsCsv() {
-            if (!db) {
-                addLog('Error: base de datos no disponible');
-                return;
-            }
-
+            if (!db) { addLog('Error: base de datos no disponible'); return; }
             try {
                 const data = await readAllDetections();
                 const rows = [
-                    [
-                        'ID sesión',
-                        'fecha',
-                        'hora',
-                        'detección',
-                        'clase modelo',
-                        'dirección',
-                        'latitud',
-                        'longitud',
-                        'precisión_m',
-                        'timestamp_iso'
-                    ],
-                    ...data.map((detection) => [
-                        detection.sessionId,
-                        detection.date,
-                        detection.time,
-                        detection.detected,
-                        detection.modelClass,
-                        detection.direction,
-                        detection.latitude,
-                        detection.longitude,
-                        detection.accuracy,
-                        detection.timestampIso
-                    ])
+                    ['ID sesion', 'fecha', 'hora', 'deteccion', 'clase modelo', 'direccion', 'latitud', 'longitud', 'precision_m', 'timestamp_iso'],
+                    ...data.map((d) => [d.sessionId, d.date, d.time, d.detected, d.modelClass, d.direction, d.latitude, d.longitude, d.accuracy, d.timestampIso])
                 ];
-
                 const csvContent = rows.map((row) => row.map(csvEscape).join(',')).join('\n');
                 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                 downloadBlob(blob, `detecciones_eventos_${new Date().toISOString().split('T')[0]}.csv`);
@@ -1532,7 +1472,6 @@
                 const transaction = db.transaction([STORE_NAME], 'readonly');
                 const store = transaction.objectStore(STORE_NAME);
                 const request = store.getAll();
-
                 request.onsuccess = () => resolve(request.result || []);
                 request.onerror = () => reject(request.error || new Error('No fue posible leer los eventos'));
             });
@@ -1540,15 +1479,10 @@
 
         function saveDetectionEvent(eventRecord) {
             return new Promise((resolve, reject) => {
-                if (!db) {
-                    reject(new Error('Base de datos no inicializada'));
-                    return;
-                }
-
+                if (!db) { reject(new Error('Base de datos no inicializada')); return; }
                 const transaction = db.transaction([STORE_NAME], 'readwrite');
                 const store = transaction.objectStore(STORE_NAME);
                 const request = store.add(eventRecord);
-
                 request.onsuccess = () => resolve();
                 request.onerror = () => reject(request.error || new Error('No fue posible guardar el evento'));
             });
@@ -1557,39 +1491,20 @@
         function initDatabase() {
             return new Promise((resolve, reject) => {
                 const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-                request.onerror = (event) => {
-                    console.error(event.target.error);
-                    reject(event.target.error || new Error('No fue posible abrir la base de datos'));
-                };
-
+                request.onerror = (event) => { reject(event.target.error); };
                 request.onupgradeneeded = (event) => {
                     const database = event.target.result;
                     let store;
-
                     if (!database.objectStoreNames.contains(STORE_NAME)) {
                         store = database.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
                     } else {
                         store = event.target.transaction.objectStore(STORE_NAME);
                     }
-
-                    const indexDefinitions = [
-                        ['timestampIso', 'timestampIso'],
-                        ['sessionId', 'sessionId'],
-                        ['detectedKey', 'detectedKey']
-                    ];
-
-                    indexDefinitions.forEach(([name, keyPath]) => {
-                        if (!store.indexNames.contains(name)) {
-                            store.createIndex(name, keyPath, { unique: false });
-                        }
+                    [['timestampIso', 'timestampIso'], ['sessionId', 'sessionId'], ['detectedKey', 'detectedKey']].forEach(([name, keyPath]) => {
+                        if (!store.indexNames.contains(name)) store.createIndex(name, keyPath, { unique: false });
                     });
                 };
-
-                request.onsuccess = (event) => {
-                    db = event.target.result;
-                    resolve(db);
-                };
+                request.onsuccess = (event) => { db = event.target.result; resolve(db); };
             });
         }
 
@@ -1614,56 +1529,40 @@
         }
 
         function handleCanvasClick(event) {
-            if (!lineMode) {
-                return;
-            }
-
+            if (!lineMode) return;
             const point = getCanvasRelativePoint(event);
-            const normalizedPoint = {
-                x: point.x / point.rectWidth,
-                y: point.y / point.rectHeight
-            };
-
+            const normalizedPoint = { x: point.x / point.rectWidth, y: point.y / point.rectHeight };
             if (!drawingLine || !lineStartNorm || lineEndNorm) {
                 lineStartNorm = normalizedPoint;
                 lineEndNorm = null;
                 drawingLine = true;
-                addLog('Inicio de línea definido. Haga clic para definir el fin.');
+                addLog('Inicio de linea definido. Haga clic para definir el fin.');
                 return;
             }
-
             lineEndNorm = normalizedPoint;
             drawingLine = false;
             lineMode = false;
             mouseNorm = null;
             setLineButtonState();
-            addLog('Línea de conteo actualizada');
+            addLog('Linea de conteo actualizada');
         }
 
         function handleCanvasMouseMove(event) {
-            if (!lineMode || !drawingLine || !lineStartNorm) {
-                return;
-            }
-
+            if (!lineMode || !drawingLine || !lineStartNorm) return;
             const point = getCanvasRelativePoint(event);
-            mouseNorm = {
-                x: point.x / point.rectWidth,
-                y: point.y / point.rectHeight
-            };
+            mouseNorm = { x: point.x / point.rectWidth, y: point.y / point.rectHeight };
         }
 
         function toggleLineMode() {
             lineMode = !lineMode;
             drawingLine = false;
             mouseNorm = null;
-
             if (lineMode) {
                 lineEndNorm = null;
-                addLog('Modo línea activado. Haga clic para definir el inicio de la línea.');
+                addLog('Modo linea activado. Haga clic para definir el inicio de la linea.');
             } else {
-                addLog('Modo línea desactivado.');
+                addLog('Modo linea desactivado.');
             }
-
             setLineButtonState();
         }
 
@@ -1671,42 +1570,30 @@
             stopPredictionLoop();
             stopCurrentVideoStream();
             resetTrackState();
-
             const stream = await navigator.mediaDevices.getUserMedia({
-                video: {
-                    facingMode,
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
-                },
+                video: { facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
                 audio: false
             });
-
             video.srcObject = stream;
             currentFacingMode = facingMode;
             await waitForVideoReady();
             resizeRenderSurfaces();
             startPredictionLoop();
-            addLog(`Cámara ${facingMode === 'environment' ? 'trasera' : 'frontal'} activada`);
+            addLog(`Camara ${facingMode === 'environment' ? 'trasera' : 'frontal'} activada`);
         }
 
         async function startVideo() {
-            try {
-                await setupVideoStream('environment');
-            } catch (error) {
-                console.warn('No fue posible acceder a la cámara trasera, se intentará con la frontal', error);
+            try { await setupVideoStream('environment'); }
+            catch (error) {
+                console.warn('No fue posible acceder a la camara trasera, se intentara con la frontal', error);
                 await setupVideoStream('user');
             }
         }
 
         async function switchCamera() {
             const nextFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
-
-            try {
-                await setupVideoStream(nextFacingMode);
-            } catch (error) {
-                console.error(error);
-                addLog(`Error al cambiar de cámara: ${error.message}`);
-            }
+            try { await setupVideoStream(nextFacingMode); }
+            catch (error) { console.error(error); addLog(`Error al cambiar de camara: ${error.message}`); }
         }
 
         async function initializeApp() {
@@ -1714,8 +1601,7 @@
                 await initDatabase();
                 addLog('Base de datos conectada correctamente');
 
-                model = await cocoSsd.load();
-                addLog('Modelo COCO-SSD cargado');
+                await loadModel();
 
                 await startCountingSession();
                 await startVideo();
@@ -1724,7 +1610,7 @@
                 renderCompositeFrame();
             } catch (error) {
                 console.error(error);
-                addLog(`Error de inicialización: ${error.message}`);
+                addLog(`Error de inicializacion: ${error.message}`);
             }
         }
 
@@ -1759,11 +1645,7 @@
         });
 
         document.querySelector('.minimize').addEventListener('click', () => {
-            if (terminal.style.height === '40px') {
-                terminal.style.height = '300px';
-            } else {
-                terminal.style.height = '40px';
-            }
+            terminal.style.height = terminal.style.height === '40px' ? '300px' : '40px';
         });
 
         document.querySelector('.maximize').addEventListener('click', () => {
@@ -1786,21 +1668,13 @@
 
         canvas.addEventListener('click', handleCanvasClick);
         canvas.addEventListener('mousemove', handleCanvasMouseMove);
-        canvas.addEventListener('mouseleave', () => {
-            mouseNorm = null;
-        });
+        canvas.addEventListener('mouseleave', () => { mouseNorm = null; });
 
         lineBtn.addEventListener('click', toggleLineMode);
         cameraSwitchBtn.addEventListener('click', switchCamera);
         downloadBtn.addEventListener('click', exportDetectionsCsv);
         photoBtn.addEventListener('click', savePhoto);
-        recordBtn.addEventListener('click', () => {
-            if (isRecording) {
-                stopRecording();
-            } else {
-                startRecording();
-            }
-        });
+        recordBtn.addEventListener('click', () => { isRecording ? stopRecording() : startRecording(); });
 
         window.addEventListener('resize', () => {
             resizeRenderSurfaces();
@@ -1811,9 +1685,7 @@
         window.addEventListener('beforeunload', () => {
             stopPredictionLoop();
             stopCurrentVideoStream();
-            if (isRecording) {
-                stopRecording();
-            }
+            if (isRecording) stopRecording();
         });
 
         updateCounters();

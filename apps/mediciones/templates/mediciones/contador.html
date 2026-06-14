@@ -779,7 +779,7 @@
 
         const deviceRAM = navigator.deviceMemory || 4;
         const isLowRAM = deviceRAM <= 2;
-        const MODEL_URL = isLowRAM ? '/api/counter/model/?size=320' : '/api/counter/model/?size=640';
+        const MODEL_URL = isLowRAM ? '/mediciones/contador/model/?size=320' : '/mediciones/contador/model/?size=640';
         const MODEL_INPUT_SIZE = isLowRAM ? 320 : 640;
         const CONFIDENCE_THRESHOLD = 0.50;
 

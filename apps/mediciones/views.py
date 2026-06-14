@@ -9,18 +9,18 @@ from rest_framework import status
 from .serializers import TrafficCountSerializer
 
 
-def counter(request):
-    with open('measuring/templates/measuring/counter.html', 'r') as f:
+def contador(request):
+    with open('apps/mediciones/templates/mediciones/contador.html', 'r') as f:
         return HttpResponse(f.read(), content_type='text/html')
 
 
-def counter_model(request):
+def contador_model(request):
     size = request.GET.get('size', '640')
     if size == '320':
         model_file = 'yolo26n-320.onnx'
     else:
         model_file = 'yolo26n.onnx'
-    model_path = os.path.join(settings.BASE_DIR, 'measuring', 'static', 'measuring', 'models', model_file)
+    model_path = os.path.join(settings.BASE_DIR, 'apps', 'mediciones', 'static', 'mediciones', 'models', model_file)
     return FileResponse(open(model_path, 'rb'), content_type='application/octet-stream')
 
 

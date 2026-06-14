@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'ciudadespendientes',
     'accounts',
-    'measuring',
+    'apps.mediciones',
     'hugo_edit',
     'licitaciones',
 ]

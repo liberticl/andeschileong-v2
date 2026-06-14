@@ -21,6 +21,7 @@ from ciudadespendientes import views
 from django.contrib.auth import views as auth_views
 from accounts.views import CustomLoginView
 from hugo_edit.admin import hugo_admin_site
+from apps.mediciones.urls import api_urlpatterns
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -37,8 +38,11 @@ urlpatterns = [
     # Hugo admin e Intranet
     path('', include('hugo_edit.urls')),
 
-    # Measuring
-    path('api/', include('measuring.urls')),
+    # Mediciones (contador)
+    path('mediciones/', include('apps.mediciones.urls')),
+
+    # API IoT (measuring)
+    path('api/', include((api_urlpatterns, 'mediciones-api'), namespace='mediciones-api')),
 ]
 
 

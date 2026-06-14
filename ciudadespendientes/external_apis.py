@@ -1,16 +1,80 @@
 import requests
+import re
 import geopandas as gpd
 from .models import GeoRegionBoundary
 from shapely.geometry import shape
 
+NOMINATIM_HEADERS = {
+    'Referer': 'https://andeschileong.cl',
+    'User-Agent': 'Urban planning by Andes Chile ONG'
+}
+
+
+def reverse_geocode(lat, lng):
+    """
+    Reverse geocoding usando Nominatim. Devuelve un string legible
+    como 'Providencia, Región Metropolitana' o '' si falla.
+    """
+    try:
+        url = f'https://nominatim.openstreetmap.org/reverse?lat={lat}&lon={lng}&format=json&zoom=14'
+        resp = requests.get(url, headers=NOMINATIM_HEADERS, timeout=5)
+        data = resp.json()
+        addr = data.get('address', {})
+        parts = []
+        for key in ['neighbourhood', 'suburb', 'city_district', 'city', 'town', 'municipality']:
+            if key in addr:
+                parts.append(addr[key])
+                break
+        if 'state' in addr:
+            parts.append(addr['state'])
+        return ', '.join(parts) if parts else data.get('display_name', '').split(',')[0]
+    except Exception:
+        return ''
+
+
+def parse_device_name(user_agent):
+    """
+    Extrae navegador y SO del User-Agent string.
+    Ejemplos: 'Chrome 120 / Linux', 'Safari / iOS 17', 'Firefox / Windows'
+    """
+    ua = user_agent or ''
+
+    browser = ''
+    m = re.search(r'Chrome/(\d+)', ua)
+    if m:
+        browser = f'Chrome {m.group(1)}'
+    else:
+        m = re.search(r'Firefox/(\d+)', ua)
+        if m:
+            browser = f'Firefox {m.group(1)}'
+        else:
+            m = re.search(r'Safari/', ua)
+            if m and 'Chrome' not in ua:
+                browser = 'Safari'
+            else:
+                m = re.search(r'Edg/(\d+)', ua)
+                if m:
+                    browser = f'Edge {m.group(1)}'
+
+    os_name = ''
+    if 'Windows' in ua:
+        os_name = 'Windows'
+    elif 'Mac OS X' in ua:
+        os_name = 'macOS'
+    elif 'Linux' in ua:
+        os_name = 'Linux'
+    elif 'Android' in ua:
+        os_name = 'Android'
+    elif 'iPhone' in ua or 'iPad' in ua:
+        os_name = 'iOS'
+
+    parts = [p for p in [browser, os_name] if p]
+    return ' / '.join(parts) if parts else 'Dispositivo desconocido'
+
 
 def get_osm_relation(place: str):
     url = f'https://nominatim.openstreetmap.org/search?q={place}&format=json'
-    headers = {
-        'Referer': 'https://andeschileong.cl',
-        'User-Agent': 'Urban planning by Andes Chile ONG'
-    }
-    ans = requests.get(url, headers=headers)
+    ans = requests.get(url, headers=NOMINATIM_HEADERS)
     data = ans.json()
 
     for element in data:

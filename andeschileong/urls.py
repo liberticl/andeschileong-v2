@@ -32,14 +32,12 @@ urlpatterns = [
     path('apps/', views.welcome, name='welcome'),
     path('apps/ciudadespendientes/', include('ciudadespendientes.urls')),
     path('apps/licitaciones/', include('licitaciones.urls')),
+    path('apps/mediciones/', include('apps.mediciones.urls')),
     path('404/', views.error_404, name='error_404'),
     path('403/', views.error_403, name='error_403'),
     
     # Hugo admin e Intranet
     path('', include('hugo_edit.urls')),
-
-    # Mediciones (contador)
-    path('mediciones/', include('apps.mediciones.urls')),
 
     # API IoT (measuring)
     path('api/', include((api_urlpatterns, 'mediciones-api'), namespace='mediciones-api')),

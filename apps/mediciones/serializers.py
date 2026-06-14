@@ -9,7 +9,8 @@ class TrafficCountSerializer(serializers.ModelSerializer):
         fields = (
             'datetime',
             'car_count', 'person_count', 'bicycle_count',
-            'motorcycle_count', 'truck_count', 'bus_count'
+            'motorcycle_count', 'truck_count', 'bus_count',
+            'skater_count', 'pet_count'
         )
 
     def validate(self, data):
@@ -24,7 +25,8 @@ class TrafficCountSerializer(serializers.ModelSerializer):
 
         count_fields = [
             'car_count', 'person_count', 'bicycle_count',
-            'motorcycle_count', 'truck_count', 'bus_count'
+            'motorcycle_count', 'truck_count', 'bus_count',
+            'skater_count', 'pet_count'
         ]
 
         qty = 0

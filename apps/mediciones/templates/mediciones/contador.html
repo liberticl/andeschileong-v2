@@ -550,6 +550,122 @@
             color: #3730a3;
         }
 
+        .config-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            z-index: 1002;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .config-modal h2 {
+            margin: 0 0 20px 0;
+            color: var(--text);
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .config-field {
+            margin-bottom: 16px;
+        }
+
+        .config-field label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .config-field input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: 'Roboto', sans-serif;
+            box-sizing: border-box;
+        }
+
+        .config-fingerprint {
+            padding: 8px 12px;
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-family: 'Roboto Mono', monospace;
+            word-break: break-all;
+            color: var(--text-light);
+        }
+
+        .config-save-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .config-save-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .sync-badge {
+            position: fixed;
+            top: 20px;
+            left: 130px;
+            z-index: 1000;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sync-badge:hover {
+            transform: scale(1.05);
+        }
+
+        .sync-badge.connected {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .sync-badge.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .sync-badge.disconnected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        @media (max-width: 768px) {
+            .sync-badge {
+                top: 12px;
+                left: 100px;
+                font-size: 0.6rem;
+                padding: 3px 8px;
+            }
+        }
+
         @media (max-width: 768px) {
             .about-btn {
                 width: 42px;
@@ -642,7 +758,11 @@
 <body>
     <button class="about-btn" id="aboutBtn">ae</button>
     <div class="backend-badge loading" id="backendBadge">Cargando modelo...</div>
+    <div class="sync-badge disconnected" id="syncBadge" title="Estado de sincronizacion">Sin conexion</div>
     <div class="top-actions" id="topActions">
+        <button class="tool-btn" id="configBtn" title="Configuracion">
+            <span class="material-symbols-outlined">settings</span>
+        </button>
         <button class="tool-btn download-btn" id="downloadBtn" title="Descargar CSV">
             <span class="material-symbols-outlined">save</span>
         </button>
@@ -667,7 +787,7 @@
         <p>Sistema de deteccion de transito en tiempo real que utiliza vision artificial para identificar y contar diferentes tipos de usuarios y elementos moviles en la via publica.</p>
         <p>Modelo: YOLO26n con ONNX Runtime Web.<br>
            Backend: WebGPU (preferido) o WASM con fallback automatico.<br>
-           Resolucion adaptativa: 320px o 640px según disponibilidad.</p>
+           Resolucion adaptativa: 320px o 640px segun disponibilidad.</p>
         <p>El sistema puede detectar:</p>
         <ul>
             <li>Peatones y ciclistas</li>
@@ -675,6 +795,24 @@
             <li>Mascotas (perros y gatos)</li>
         </ul>
         <p>Desarrollado originalmente por <a href="https://about.me/ariellopez/" target="_blank">Ariel Lopez</a>.<br>Version YOLO26n por Francisco Vergara de <b>Andes Chile ONG</b>.</p>
+    </div>
+
+    <div class="config-modal" id="configModal">
+        <button class="close-modal" id="closeConfigModal">x</button>
+        <h2>Configuracion</h2>
+        <div class="config-field">
+            <label for="configDeviceName">Nombre del dispositivo</label>
+            <input type="text" id="configDeviceName" placeholder="Ej: Contador Av. Apoquindo" maxlength="200">
+        </div>
+        <div class="config-field">
+            <label for="configInterval">Intervalo de envio (minutos)</label>
+            <input type="number" id="configInterval" min="1" max="1440" value="5">
+        </div>
+        <div class="config-field">
+            <label>ID del dispositivo (fingerprint)</label>
+            <div class="config-fingerprint" id="configFingerprint">Generando...</div>
+        </div>
+        <button class="config-save-btn" id="configSaveBtn">Guardar</button>
     </div>
 
     <div class="container">
@@ -761,6 +899,8 @@
     <div class="attribution">Desarrollado originalmente por Ariel Lopez.<br>Actualizado por Francisco Vergara de <b>Andes Chile ONG</b>.</div>
 
     <script>
+        const SYNC_INTERVAL_MINUTES = {{ sync_interval }};
+
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const context = canvas.getContext('2d');
@@ -784,7 +924,7 @@
 
         const deviceRAM = navigator.deviceMemory || 4;
         const isLowRAM = deviceRAM <= 2;
-        const MODEL_URL = isLowRAM ? '/mediciones/contador/model/?size=320' : '/mediciones/contador/model/?size=640';
+        const MODEL_URL = isLowRAM ? '/apps/mediciones/contador/model/?size=320' : '/apps/mediciones/contador/model/?size=640';
         const MODEL_INPUT_SIZE = isLowRAM ? 320 : 640;
         const CONFIDENCE_THRESHOLD = 0.50;
 
@@ -849,6 +989,10 @@
         const DB_VERSION = 2;
         const STORE_NAME = 'detections';
 
+        const DEVICE_STORAGE_KEY = 'traffic_device_config';
+        const PENDING_STORAGE_KEY = 'traffic_pending_counts';
+        const CONFIG_STORAGE_KEY = 'traffic_sync_config';
+
         const TRACK_MAX_AGE = 1500;
         const MIN_STABLE_FRAMES = 3;
         const RECOUNT_COOLDOWN = 1200;
@@ -873,6 +1017,10 @@
         let recordingStream = null;
         let recordingChunks = [];
         let isRecording = false;
+
+        let deviceConfig = null;
+        let syncTimer = null;
+        let isSyncing = false;
 
         let sessionContext = {
             id: null,
@@ -1030,6 +1178,7 @@
         async function registerDetectionEvent(track, direction) {
             counts[track.counterKey] += 1;
             updateCounters();
+            updateSyncBadge();
 
             const timestamp = new Date();
             const eventRecord = {
@@ -1610,9 +1759,14 @@
                 await initDatabase();
                 addLog('Base de datos conectada correctamente');
 
-                addLog(`RAM detectada: ${deviceRAM}GB → Modelo: ${MODEL_INPUT_SIZE}px`);
+                addLog(`RAM detectada: ${deviceRAM}GB -> Modelo: ${MODEL_INPUT_SIZE}px`);
 
                 await loadModel();
+
+                await registerDevice();
+                await validateDeviceToken();
+                startSyncTimer();
+                updateSyncBadge();
 
                 await startCountingSession();
                 await startVideo();
@@ -1623,6 +1777,235 @@
                 console.error(error);
                 addLog(`Error de inicializacion: ${error.message}`);
             }
+        }
+
+        async function generateFingerprint() {
+            let gpsPart = 'no-gps';
+            try {
+                const pos = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject,
+                        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 });
+                });
+                const lat = (Math.round(pos.coords.latitude * 100000) / 100000).toFixed(5);
+                const lng = (Math.round(pos.coords.longitude * 100000) / 100000).toFixed(5);
+                gpsPart = `${lat},${lng}`;
+            } catch (e) {}
+
+            const components = [
+                navigator.userAgent,
+                screen.width + 'x' + screen.height,
+                navigator.language,
+                Intl.DateTimeFormat().resolvedOptions().timeZone,
+                navigator.hardwareConcurrency,
+                gpsPart
+            ];
+            const raw = components.join('|||');
+            const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw));
+            const hash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+            return { hash, gps: gpsPart };
+        }
+
+        function getDeviceConfig() {
+            try { return JSON.parse(localStorage.getItem(DEVICE_STORAGE_KEY)); }
+            catch (e) { return null; }
+        }
+
+        function saveDeviceConfig(config) {
+            localStorage.setItem(DEVICE_STORAGE_KEY, JSON.stringify(config));
+        }
+
+        function getDeviceName() {
+            if (deviceConfig && deviceConfig.deviceName) return deviceConfig.deviceName;
+            try {
+                const cfg = JSON.parse(localStorage.getItem(DEVICE_STORAGE_KEY));
+                return cfg && cfg.deviceName ? cfg.deviceName : '';
+            } catch (e) { return ''; }
+        }
+
+        function getSyncConfig() {
+            try {
+                const cfg = JSON.parse(localStorage.getItem(CONFIG_STORAGE_KEY));
+                return cfg && cfg.interval ? cfg.interval : SYNC_INTERVAL_MINUTES;
+            } catch (e) { return SYNC_INTERVAL_MINUTES; }
+        }
+
+        function saveSyncConfig(interval) {
+            localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify({ interval }));
+        }
+
+        function getPendingCounts() {
+            try { return JSON.parse(localStorage.getItem(PENDING_STORAGE_KEY)) || {}; }
+            catch (e) { return {}; }
+        }
+
+        function savePendingCounts(pending) {
+            localStorage.setItem(PENDING_STORAGE_KEY, JSON.stringify(pending));
+        }
+
+        function clearPendingCounts() {
+            localStorage.removeItem(PENDING_STORAGE_KEY);
+        }
+
+        async function registerDevice() {
+            deviceConfig = getDeviceConfig();
+            if (deviceConfig && deviceConfig.token) {
+                addLog(`Dispositivo registrado: ${getDeviceName()}`);
+                return;
+            }
+
+            addLog('Registrando dispositivo...');
+            const { hash, gps } = await generateFingerprint();
+
+            document.getElementById('configFingerprint').textContent = hash;
+
+            try {
+                const response = await fetch('/api/trafico/register/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fingerprint: hash,
+                        user_agent: navigator.userAgent,
+                        coords: gps !== 'no-gps' ? gps : ''
+                    })
+                });
+                const data = await response.json();
+                if (data.status && data.token) {
+                    deviceConfig = {
+                        token: data.token,
+                        deviceName: data.device_name,
+                        fingerprint: hash,
+                        deviceId: data.device_id
+                    };
+                    saveDeviceConfig(deviceConfig);
+                    addLog(`Dispositivo registrado: ${data.device_name}`);
+                } else {
+                    addLog('Error al registrar dispositivo');
+                }
+            } catch (error) {
+                addLog(`Error de registro: ${error.message}`);
+            }
+        }
+
+        async function validateDeviceToken() {
+            if (!deviceConfig || !deviceConfig.token) return;
+            try {
+                const response = await fetch('/api/trafico/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${deviceConfig.token}`
+                    },
+                    body: JSON.stringify({ datetime: new Date().toISOString() })
+                });
+                if (response.status === 401 || response.status === 403) {
+                    addLog('Token invalido, re-registrando dispositivo...');
+                    localStorage.removeItem(DEVICE_STORAGE_KEY);
+                    deviceConfig = null;
+                    await registerDevice();
+                }
+            } catch (e) {}
+        }
+
+        async function syncCounts() {
+            if (isSyncing || !deviceConfig || !deviceConfig.token) return;
+            isSyncing = true;
+
+            const pending = getPendingCounts();
+            const toSend = { ...pending };
+            Object.keys(counts).forEach(k => { toSend[k] = (toSend[k] || 0) + counts[k]; });
+
+            const total = Object.values(toSend).reduce((a, b) => a + b, 0);
+            if (total === 0) { isSyncing = false; return; }
+
+            try {
+                const response = await fetch('/api/trafico/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${deviceConfig.token}`
+                    },
+                    body: JSON.stringify({
+                        datetime: new Date().toISOString(),
+                        car_count: toSend.car || 0,
+                        person_count: toSend.person || 0,
+                        bicycle_count: toSend.bicycle || 0,
+                        motorcycle_count: toSend.motorcycle || 0,
+                        truck_count: toSend.truck || 0,
+                        bus_count: toSend.bus || 0,
+                        skater_count: toSend.skater || 0,
+                        pet_count: toSend.pet || 0
+                    })
+                });
+
+                if (response.ok) {
+                    Object.keys(counts).forEach(k => { counts[k] = 0; });
+                    updateCounters();
+                    clearPendingCounts();
+                    addLog(`Sync OK: ${total} eventos enviados`);
+                } else if (response.status === 401 || response.status === 403) {
+                    addLog(`Token invalido (${response.status}), re-registrando dispositivo...`);
+                    localStorage.removeItem(DEVICE_STORAGE_KEY);
+                    deviceConfig = null;
+                    await registerDevice();
+                } else {
+                    savePendingCounts(toSend);
+                    addLog(`Sync error (${response.status}): datos pendientes guardados`);
+                }
+            } catch (error) {
+                savePendingCounts(toSend);
+                addLog(`Sync fallo: ${error.message}. Datos pendientes.`);
+            }
+
+            isSyncing = false;
+            updateSyncBadge();
+        }
+
+        function startSyncTimer() {
+            if (syncTimer) clearInterval(syncTimer);
+            const interval = getSyncConfig();
+            syncTimer = setInterval(syncCounts, interval * 60 * 1000);
+            addLog(`Sync programado cada ${interval} min`);
+        }
+
+        function updateSyncBadge() {
+            const badge = document.getElementById('syncBadge');
+            const pending = getPendingCounts();
+            const pendingTotal = Object.values(pending).reduce((a, b) => a + b, 0);
+            const currentTotal = Object.values(counts).reduce((a, b) => a + b, 0);
+            const totalPending = pendingTotal + currentTotal;
+
+            if (!deviceConfig || !deviceConfig.token) {
+                badge.className = 'sync-badge disconnected';
+                badge.textContent = 'Sin conexion';
+                badge.title = 'Dispositivo no registrado';
+            } else if (totalPending > 0) {
+                badge.className = 'sync-badge pending';
+                badge.textContent = `Pendiente: ${totalPending}`;
+                badge.title = `${totalPending} eventos pendientes de envio`;
+            } else {
+                badge.className = 'sync-badge connected';
+                badge.textContent = 'Conectado';
+                badge.title = 'Sincronizacion activa';
+            }
+        }
+
+        function openConfigModal() {
+            const cfg = getSyncConfig();
+            document.getElementById('configInterval').value = cfg;
+            document.getElementById('configDeviceName').value = getDeviceName();
+            if (deviceConfig && deviceConfig.fingerprint) {
+                document.getElementById('configFingerprint').textContent = deviceConfig.fingerprint;
+            } else if (deviceConfig && deviceConfig.deviceName) {
+                document.getElementById('configFingerprint').textContent = deviceConfig.deviceName;
+            }
+            document.getElementById('configModal').style.display = 'block';
+            document.getElementById('modalOverlay').style.display = 'block';
+        }
+
+        function closeConfigModal() {
+            document.getElementById('configModal').style.display = 'none';
+            document.getElementById('modalOverlay').style.display = 'none';
         }
 
         aboutBtn.addEventListener('click', () => {
@@ -1637,6 +2020,7 @@
 
         modalOverlay.addEventListener('click', () => {
             aboutModal.style.display = 'none';
+            document.getElementById('configModal').style.display = 'none';
             modalOverlay.style.display = 'none';
         });
 
@@ -1686,6 +2070,48 @@
         downloadBtn.addEventListener('click', exportDetectionsCsv);
         photoBtn.addEventListener('click', savePhoto);
         recordBtn.addEventListener('click', () => { isRecording ? stopRecording() : startRecording(); });
+
+        document.getElementById('configBtn').addEventListener('click', openConfigModal);
+        document.getElementById('closeConfigModal').addEventListener('click', closeConfigModal);
+        document.getElementById('configSaveBtn').addEventListener('click', async () => {
+            const interval = parseInt(document.getElementById('configInterval').value) || SYNC_INTERVAL_MINUTES;
+            saveSyncConfig(interval);
+            startSyncTimer();
+            addLog(`Intervalo de sync actualizado: ${interval} min`);
+
+            const newName = document.getElementById('configDeviceName').value.trim();
+            if (newName && deviceConfig && deviceConfig.token) {
+                try {
+                    const response = await fetch('/api/trafico/device/', {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${deviceConfig.token}`
+                        },
+                        body: JSON.stringify({ name: newName })
+                    });
+                    const data = await response.json();
+                    if (data.status) {
+                        deviceConfig.deviceName = data.device_name;
+                        saveDeviceConfig(deviceConfig);
+                        addLog(`Nombre actualizado: ${data.device_name}`);
+                    } else {
+                        addLog('Error al actualizar nombre');
+                    }
+                } catch (error) {
+                    addLog(`Error al actualizar nombre: ${error.message}`);
+                }
+            }
+
+            closeConfigModal();
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                syncCounts();
+                updateSyncBadge();
+            }
+        });
 
         window.addEventListener('resize', () => {
             resizeRenderSurfaces();

@@ -7,22 +7,26 @@ class DeviceAdmin(admin.ModelAdmin):
     """
         Sitio administrativo para Device
     """
-    list_display = ('name', 'is_active', 'token')
-    list_filter = ('name', 'is_active',)
-    search_fields = ('name', 'token', 'coords')
-    readonly_fields = ('token',)
+    list_display = ('name', 'fingerprint_short', 'is_active', 'last_seen', 'token')
+    list_filter = ('is_active',)
+    search_fields = ('name', 'fingerprint', 'token', 'coords')
+    readonly_fields = ('token', 'fingerprint')
     fieldsets = (
         ('General', {
             'fields': (
-                'is_active', 'name', 'token', 'coords',)}),
+                'is_active', 'name', 'fingerprint', 'token', 'coords',
+                'user_agent', 'last_seen',)}),
     )
-    # filter_horizontal = ('sectors',)
+
+    def fingerprint_short(self, obj):
+        return obj.fingerprint[:12] + '...' if obj.fingerprint else ''
+    fingerprint_short.short_description = 'Fingerprint'
 
 
 @admin.register(models.TrafficCount)
 class TrafficCountAdmin(admin.ModelAdmin):
     """
-        Sitio administrativo para Device
+        Sitio administrativo para TrafficCount
     """
     list_display = ('device', 'datetime', 'created_datetime')
     list_filter = ('device',)
@@ -34,6 +38,6 @@ class TrafficCountAdmin(admin.ModelAdmin):
         ('Conteo', {
             'fields': (
                 'car_count', 'person_count', 'bicycle_count',
-                'motorcycle_count', 'truck_count', 'bus_count',)}),
+                'motorcycle_count', 'truck_count', 'bus_count',
+                'skater_count', 'pet_count',)}),
     )
-    # filter_horizontal = ('sectors',)

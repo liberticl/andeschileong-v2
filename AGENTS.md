@@ -361,6 +361,8 @@ docker-compose logs -f
 | `docker-compose.yml` | Orquestación Docker |
 | `requirements.txt` | Dependencias Python |
 | `.env` | Variables de entorno |
+| `docs/api.md` | Documentación de API para endpoints de tránsito |
+| `docs/guia-dispositivos.md` | Guía completa para dispositivos de conteo (no-técnica + técnica) |
 
 ---
 

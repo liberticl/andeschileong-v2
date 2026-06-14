@@ -1,8 +1,15 @@
+from django.shortcuts import render
+from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .auth import JWTAuthentication
 from rest_framework import status
 from .serializers import TrafficCountSerializer
+
+
+def counter(request):
+    with open('measuring/templates/measuring/counter.html', 'r') as f:
+        return HttpResponse(f.read(), content_type='text/html')
 
 
 class TrafficCountAPIView(APIView):

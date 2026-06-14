@@ -1,0 +1,1825 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema de Detección de Tránsito</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #3b82f6;
+            --background: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --success: #22c55e;
+            --border: #e2e8f0;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .header {
+            display: none; /* Hide the header completely */
+        }
+
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: #000;
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: contrast(1.1) brightness(1.1);
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .counter-container {
+            text-align: center;
+            margin: 20px 0;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            font-family: Arial, sans-serif;
+        }
+
+        .counter {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .counter-grid {
+            position: fixed;
+            bottom: 20px;
+            left: 10px;
+            right: 80px;
+            display: flex;
+            justify-content: flex-start;
+            gap: 8px;
+            padding: 0 4px 6px;
+            z-index: 100;
+            max-width: none;
+            margin: 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .counter-grid::-webkit-scrollbar {
+            display: none;
+        }
+
+        .counter-item {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 10px 8px;
+            border-radius: 12px;
+            flex: 0 0 96px;
+            min-width: 96px;
+            max-width: 96px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .counter-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .counter-label {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .material-icons {
+            color: var(--text);
+            font-size: 24px;
+        }
+
+        .counter-value-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .counter-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .counter-icon {
+            color: var(--primary);
+            font-size: 2rem;
+        }
+
+        .terminal {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 400px;
+            height: 300px;
+            background: rgba(0, 0, 0, 0.85);
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            overflow: hidden;
+            font-family: 'Roboto Mono', 'Roboto', monospace;
+            display: none; /* Start hidden */
+            transition: all 0.3s ease;
+        }
+
+        .terminal-header {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 8px 12px;
+            background: linear-gradient(to bottom, #3b3b3b, #2b2b2b);
+            color: #d8d8d8;
+            -webkit-app-region: drag;
+        }
+
+        .terminal-title {
+            font-size: 13px;
+            font-weight: 400;
+            margin-left: 64px;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .terminal-controls {
+            position: absolute;
+            display: flex;
+            gap: 8px;
+            left: 12px;
+        }
+
+        .terminal-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .terminal-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .terminal-button:hover::before {
+            opacity: 1;
+        }
+
+        .minimize { 
+            background: #ffbd2e;
+            border: 1px solid #dea123;
+        }
+        .minimize::before {
+            content: '−';
+            font-size: 14px;
+            color: #5a4701;
+        }
+
+        .maximize { 
+            background: #27c93f;
+            border: 1px solid #1aab29;
+        }
+        .maximize::before {
+            content: '+';
+            font-size: 14px;
+            color: #006500;
+        }
+
+        .close { 
+            background: #ff5f56;
+            border: 1px solid #e0443e;
+        }
+        .close::before {
+            content: '×';
+            font-size: 14px;
+            color: #4a0002;
+        }
+
+        .terminal-content {
+            height: calc(100% - 32px);
+            overflow-y: auto;
+            padding: 12px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #fff;
+        }
+
+        .log-entry {
+            margin: 4px 0;
+            color: #fff;
+        }
+
+        .timestamp {
+            color: #63b0ee;
+            font-weight: normal;
+        }
+
+        .terminal-content::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .terminal-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .terminal-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .terminal-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Add style for attribution text */
+        .attribution {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            color: var(--text-light);
+            font-size: 0.875rem;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        /* Add new styles for the terminal toggle button */
+        .terminal-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            background: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .terminal-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        .terminal-toggle .material-icons {
+            color: var(--text);
+            font-size: 24px;
+        }
+
+        /* Add new styles for the about button and modal */
+        .about-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            background: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .about-btn:hover {
+            transform: scale(1.05);
+            background: #4b5563;
+        }
+
+        .about-btn {
+            left: 20px;
+            background: #4b5563;
+            color: white;
+            font-size: 24px;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .download-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            background: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .download-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .download-btn .material-icons {
+            color: var(--text);
+            font-size: 24px;
+        }
+
+        .camera-switch-btn {
+            position: fixed;
+            top: 20px;
+            right: 80px; /* Position it to the left of the download button */
+            z-index: 1000;
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            background: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .camera-switch-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .camera-switch-btn .material-icons {
+            color: var(--text);
+            font-size: 24px;
+        }
+
+        /* Add modal styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+        }
+
+        .about-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            z-index: 1002;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .about-modal h2 {
+            margin: 0 0 20px 0;
+            color: var(--text);
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .about-modal p {
+            color: var(--text-light);
+            line-height: 1.6;
+            margin: 10px 0;
+        }
+
+        .about-modal ul {
+            color: var(--text-light);
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .about-modal li {
+            margin: 5px 0;
+        }
+
+        .about-modal a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .about-modal a:hover {
+            text-decoration: underline;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 5px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+
+        .close-modal:hover {
+            background-color: var(--border);
+        }
+
+                .top-actions {
+            position: fixed;
+            top: 18px;
+            right: 12px;
+            left: 82px;
+            z-index: 1000;
+            display: flex;
+            justify-content: flex-end;
+            gap: 6px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 2px;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .top-actions::-webkit-scrollbar {
+            display: none;
+        }
+
+        .top-actions .tool-btn {
+            position: static;
+            flex: 0 0 auto;
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            border-radius: 22px;
+            background: rgba(255, 255, 255, 0.96);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+
+        .top-actions .tool-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .top-actions .tool-btn .material-icons {
+            color: var(--text);
+            font-size: 22px;
+        }
+
+        .record-btn.recording {
+            background: #dc2626 !important;
+        }
+
+        .record-btn.recording .material-icons {
+            color: white !important;
+        }
+
+        @media (max-width: 768px) {
+            .about-btn {
+                width: 42px;
+                height: 42px;
+                top: 12px;
+                left: 12px;
+                font-size: 20px;
+            }
+
+            .top-actions {
+                top: 12px;
+                left: 62px;
+                right: 8px;
+                gap: 5px;
+            }
+
+            .top-actions .tool-btn {
+                width: 38px;
+                height: 38px;
+                min-width: 38px;
+                border-radius: 19px;
+            }
+
+            .top-actions .tool-btn .material-icons {
+                font-size: 20px;
+            }
+
+            .counter-item {
+                padding: 8px 6px;
+                flex-basis: 86px;
+                min-width: 86px;
+                max-width: 86px;
+            }
+
+            .counter-value {
+                font-size: 1.35rem;
+            }
+
+            .counter-label {
+                font-size: 0.72rem;
+                text-align: center;
+            }
+
+            .terminal {
+                width: 100%;
+                height: 200px;
+                left: 0;
+                right: 0;
+                bottom: 0;
+            }
+
+            .attribution {
+                display: none;
+            }
+
+            .counter-grid {
+                left: 8px;
+                right: 72px;
+                bottom: 12px;
+                transform: none;
+            }
+
+            .about-modal {
+                width: 85%;
+                padding: 20px;
+            }
+        }
+
+        @media (orientation: landscape) and (max-width: 900px) {
+            .counter-grid {
+                left: 8px;
+                right: 72px;
+                bottom: 10px;
+                transform: none;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <button class="about-btn" id="aboutBtn">æ</button>
+    <div class="top-actions" id="topActions">
+        <button class="tool-btn download-btn" id="downloadBtn" title="Descargar CSV">
+            <span class="material-icons">save</span>
+        </button>
+        <button class="tool-btn camera-switch-btn" id="cameraSwitchBtn" title="Cambiar cámara">
+            <span class="material-icons">flip_camera_ios</span>
+        </button>
+        <button class="tool-btn record-btn" id="recordBtn" title="Grabar video">
+            <span class="material-icons">radio_button_checked</span>
+        </button>
+        <button class="tool-btn photo-btn" id="photoBtn" title="Guardar foto">
+            <span class="material-icons">photo_camera</span>
+        </button>
+        <button class="tool-btn line-btn" id="lineBtn" title="Crear línea de conteo">
+            <span class="material-icons">horizontal_rule</span>
+        </button>
+    </div>
+    
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="about-modal" id="aboutModal">
+        <button class="close-modal" id="closeModal">×</button>
+        <h2>Proyecto konta2r</h2>
+        <p>Este es un sistema de detección de tránsito en tiempo real que utiliza visión artificial para identificar y contar diferentes tipos de usuarios y elementos móviles en la vía pública.</p>
+        <p>El sistema puede detectar:</p>
+        <ul>
+            <li>Peatones y ciclistas</li>
+            <li>Patinetas, autos, motos, buses y camiones</li>
+            <li>Mascotas (perros y gatos)</li>
+        </ul>
+        <p>Desarrollado por Ariel López utilizando TensorFlow y el modelo COCO-SSD para detección de objetos en tiempo real. Para más información puede ver el <a href="https://blog.ariellopez.cl/contamos-personas-para-que-las-personas-cuenten-4068708f09b9" target="_blank">artículo</a> del proyecto.</p>
+        <p>Esta versión es para uso educativo y social sin fines de lucro. Si desea utilizarlo para estudios o proyectos con fines comerciales <a href="https://x.com/arieIIopez" target="_blank">contacte al autor</a>.</p>
+    </div>
+
+    <div class="container">
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <!-- Add counter grid -->
+    <div class="counter-grid">
+        <div class="counter-item">
+            <div class="counter-label">Bicicletas</div>
+            <div class="counter-value-container">
+                <span class="material-icons counter-icon">directions_bike</span>
+                <span class="counter-value" id="bicycleCount">0</span>
+            </div>
+        </div>
+        <div class="counter-item">
+            <div class="counter-label">Peatones</div>
+            <div class="counter-value-container">
+                <span class="material-icons counter-icon">directions_walk</span>
+                <span class="counter-value" id="personCount">0</span>
+            </div>
+        </div>
+        <div class="counter-item">
+            <div class="counter-label">Patinetas</div>
+            <div class="counter-value-container">
+                <span class="material-icons counter-icon">skateboarding</span>
+                <span class="counter-value" id="skaterCount">0</span>
+            </div>
+        </div>
+        <div class="counter-item">
+            <div class="counter-label">Autos</div>
+            <div class="counter-value-container">
+                <span class="material-icons counter-icon">directions_car</span>
+                <span class="counter-value" id="carCount">0</span>
+            </div>
+        </div>
+        <div class="counter-item">
+            <div class="counter-label">Motos</div>
+            <div class="counter-value-container">
+                <span class="material-icons counter-icon">two_wheeler</span>
+                <span class="counter-value" id="motorcycleCount">0</span>
+            </div>
+        </div>
+        <div class="counter-item">
+            <div class="counter-label">Buses</div>
+            <div class="counter-value-container">
+                <span class="material-icons counter-icon">directions_bus</span>
+                <span class="counter-value" id="busCount">0</span>
+            </div>
+        </div>
+        <div class="counter-item">
+            <div class="counter-label">Camiones</div>
+            <div class="counter-value-container">
+                <span class="material-icons counter-icon">local_shipping</span>
+                <span class="counter-value" id="truckCount">0</span>
+            </div>
+        </div>
+        <div class="counter-item">
+            <div class="counter-label">Mascotas</div>
+            <div class="counter-value-container">
+                <span class="material-icons counter-icon">pets</span>
+                <span class="counter-value" id="petCount">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add the toggle button before the terminal div -->
+    <button class="terminal-toggle" id="terminalToggle">
+        <span class="material-icons">terminal</span>
+    </button>
+
+    <div class="terminal" id="terminal">
+        <div class="terminal-header">
+            <div class="terminal-title">Terminal</div>
+            <div class="terminal-controls">
+                <button class="terminal-button minimize" title="Minimizar"></button>
+                <button class="terminal-button maximize" title="Maximizar"></button>
+                <button class="terminal-button close" title="Cerrar"></button>
+            </div>
+        </div>
+        <div class="terminal-content" id="terminalContent">
+        </div>
+    </div>
+
+    <!-- Add attribution text -->
+    <div class="attribution">Elaborado por Ariel López</div>
+
+    
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const container = document.querySelector('.container');
+        const terminalContent = document.getElementById('terminalContent');
+        const terminalToggle = document.getElementById('terminalToggle');
+        const terminal = document.getElementById('terminal');
+        const aboutBtn = document.getElementById('aboutBtn');
+        const aboutModal = document.getElementById('aboutModal');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const closeModal = document.getElementById('closeModal');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const cameraSwitchBtn = document.getElementById('cameraSwitchBtn');
+        const lineBtn = document.getElementById('lineBtn');
+        const photoBtn = document.getElementById('photoBtn');
+        const recordBtn = document.getElementById('recordBtn');
+
+        const compositeCanvas = document.createElement('canvas');
+        const compositeContext = compositeCanvas.getContext('2d');
+
+        const counters = {
+            bicycle: document.getElementById('bicycleCount'),
+            person: document.getElementById('personCount'),
+            skater: document.getElementById('skaterCount'),
+            car: document.getElementById('carCount'),
+            motorcycle: document.getElementById('motorcycleCount'),
+            bus: document.getElementById('busCount'),
+            truck: document.getElementById('truckCount'),
+            pet: document.getElementById('petCount')
+        };
+
+        const counts = {
+            bicycle: 0,
+            person: 0,
+            skater: 0,
+            car: 0,
+            motorcycle: 0,
+            bus: 0,
+            truck: 0,
+            pet: 0
+        };
+
+        const CATEGORY_RULES = {
+            bicycle: { modelClass: 'bicycle', counterKey: 'bicycle', label: 'bicicleta', threshold: 0.66, color: '#0066ff' },
+            person: { modelClass: 'person', counterKey: 'person', label: 'peatón', threshold: 0.60, color: '#00ff00' },
+            skateboard: { modelClass: 'skateboard', counterKey: 'skater', label: 'patineta', threshold: 0.65, color: '#ff6600' },
+            car: { modelClass: 'car', counterKey: 'car', label: 'auto', threshold: 0.72, color: '#ef4444' },
+            motorcycle: { modelClass: 'motorcycle', counterKey: 'motorcycle', label: 'moto', threshold: 0.68, color: '#f97316' },
+            bus: { modelClass: 'bus', counterKey: 'bus', label: 'bus', threshold: 0.70, color: '#8b5cf6' },
+            truck: { modelClass: 'truck', counterKey: 'truck', label: 'camión', threshold: 0.72, color: '#dc2626' },
+            dog: { modelClass: 'dog', counterKey: 'pet', label: 'mascota', threshold: 0.60, color: '#10b981' },
+            cat: { modelClass: 'cat', counterKey: 'pet', label: 'mascota', threshold: 0.60, color: '#14b8a6' }
+        };
+
+        const DB_NAME = 'TrafficDetectionDB';
+        const DB_VERSION = 2;
+        const STORE_NAME = 'detections';
+
+        const TRACK_MAX_AGE = 1500;
+        const MIN_STABLE_FRAMES = 3;
+        const RECOUNT_COOLDOWN = 1200;
+        const SIDE_DEADZONE_PX = 12;
+
+        let db = null;
+        let model = null;
+        let isDetecting = true;
+        let predictionLoopToken = 0;
+        let currentFacingMode = 'environment';
+        let tracks = new Map();
+        let nextTrackId = 1;
+        let isTerminalVisible = false;
+
+        let lineMode = false;
+        let drawingLine = false;
+        let lineStartNorm = null;
+        let lineEndNorm = null;
+        let mouseNorm = null;
+
+        let mediaRecorder = null;
+        let recordingStream = null;
+        let recordingChunks = [];
+        let isRecording = false;
+
+        let sessionContext = {
+            id: null,
+            startedAt: null,
+            latitude: '',
+            longitude: '',
+            accuracy: '',
+            capturedAt: '',
+            locationStatus: 'pendiente'
+        };
+
+        function addLog(message) {
+            const timestamp = new Date().toLocaleTimeString('es-CL', { hour12: false });
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.innerHTML = `<span class="timestamp">[${timestamp}]</span> ${message}`;
+            terminalContent.appendChild(logEntry);
+            terminalContent.scrollTop = terminalContent.scrollHeight;
+        }
+
+        function updateCounters() {
+            Object.keys(counts).forEach((key) => {
+                if (counters[key]) {
+                    counters[key].textContent = counts[key];
+                }
+            });
+        }
+
+        function resetTrackState() {
+            tracks.clear();
+            nextTrackId = 1;
+        }
+
+        function resizeRenderSurfaces() {
+            const rect = container.getBoundingClientRect();
+            const width = Math.max(1, Math.round(rect.width));
+            const height = Math.max(1, Math.round(rect.height));
+
+            if (canvas.width !== width || canvas.height !== height) {
+                canvas.width = width;
+                canvas.height = height;
+            }
+
+            if (compositeCanvas.width !== width || compositeCanvas.height !== height) {
+                compositeCanvas.width = width;
+                compositeCanvas.height = height;
+            }
+        }
+
+        function getCoverTransform() {
+            const sourceWidth = video.videoWidth || 1;
+            const sourceHeight = video.videoHeight || 1;
+            const targetWidth = canvas.width || 1;
+            const targetHeight = canvas.height || 1;
+
+            const scale = Math.max(targetWidth / sourceWidth, targetHeight / sourceHeight);
+            const renderedWidth = sourceWidth * scale;
+            const renderedHeight = sourceHeight * scale;
+            const offsetX = (targetWidth - renderedWidth) / 2;
+            const offsetY = (targetHeight - renderedHeight) / 2;
+
+            return { scale, renderedWidth, renderedHeight, offsetX, offsetY };
+        }
+
+        function mapBBoxToDisplay(bbox) {
+            const { scale, offsetX, offsetY } = getCoverTransform();
+            const [x, y, width, height] = bbox;
+            return [
+                x * scale + offsetX,
+                y * scale + offsetY,
+                width * scale,
+                height * scale
+            ];
+        }
+
+        function getFootPoint(bbox) {
+            return {
+                x: bbox[0] + bbox[2] / 2,
+                y: bbox[1] + bbox[3]
+            };
+        }
+
+        function getCenterPoint(bbox) {
+            return {
+                x: bbox[0] + bbox[2] / 2,
+                y: bbox[1] + bbox[3] / 2
+            };
+        }
+
+        function distanceBetweenPoints(a, b) {
+            return Math.hypot(a.x - b.x, a.y - b.y);
+        }
+
+        function computeIoU(bboxA, bboxB) {
+            const ax1 = bboxA[0];
+            const ay1 = bboxA[1];
+            const ax2 = bboxA[0] + bboxA[2];
+            const ay2 = bboxA[1] + bboxA[3];
+
+            const bx1 = bboxB[0];
+            const by1 = bboxB[1];
+            const bx2 = bboxB[0] + bboxB[2];
+            const by2 = bboxB[1] + bboxB[3];
+
+            const interX1 = Math.max(ax1, bx1);
+            const interY1 = Math.max(ay1, by1);
+            const interX2 = Math.min(ax2, bx2);
+            const interY2 = Math.min(ay2, by2);
+
+            const interWidth = Math.max(0, interX2 - interX1);
+            const interHeight = Math.max(0, interY2 - interY1);
+            const intersection = interWidth * interHeight;
+
+            if (!intersection) {
+                return 0;
+            }
+
+            const areaA = bboxA[2] * bboxA[3];
+            const areaB = bboxB[2] * bboxB[3];
+            return intersection / (areaA + areaB - intersection);
+        }
+
+        function getCategoryForPrediction(prediction) {
+            const rule = CATEGORY_RULES[prediction.class];
+            if (!rule || prediction.score < rule.threshold) {
+                return null;
+            }
+            return rule;
+        }
+
+        function getActiveLine() {
+            if (!lineStartNorm) {
+                return null;
+            }
+
+            const start = {
+                x: lineStartNorm.x * canvas.width,
+                y: lineStartNorm.y * canvas.height
+            };
+
+            let endNorm = lineEndNorm;
+            if (!endNorm && drawingLine && mouseNorm) {
+                endNorm = mouseNorm;
+            }
+
+            if (!endNorm) {
+                return { start, end: start };
+            }
+
+            const end = {
+                x: endNorm.x * canvas.width,
+                y: endNorm.y * canvas.height
+            };
+
+            return { start, end };
+        }
+
+        function getSignedDistanceToLine(point, line) {
+            return ((line.end.x - line.start.x) * (point.y - line.start.y)) -
+                   ((line.end.y - line.start.y) * (point.x - line.start.x));
+        }
+
+        function getLineSide(point, line) {
+            const signedDistance = getSignedDistanceToLine(point, line);
+            if (Math.abs(signedDistance) <= SIDE_DEADZONE_PX) {
+                return 0;
+            }
+            return signedDistance > 0 ? 1 : -1;
+        }
+
+        function getDirectionLabel(previousSide, currentSide) {
+            if (previousSide === -1 && currentSide === 1) {
+                return 'A→B';
+            }
+            if (previousSide === 1 && currentSide === -1) {
+                return 'B→A';
+            }
+            return '';
+        }
+
+        function cleanupOldTracks(now) {
+            for (const [trackId, track] of tracks.entries()) {
+                if (now - track.lastSeen > TRACK_MAX_AGE) {
+                    tracks.delete(trackId);
+                }
+            }
+        }
+
+        function findBestTrackMatch(detection, now, matchedTrackIds) {
+            let bestTrackId = null;
+            let bestScore = Infinity;
+
+            for (const [trackId, track] of tracks.entries()) {
+                if (matchedTrackIds.has(trackId)) {
+                    continue;
+                }
+                if (track.counterKey !== detection.counterKey || track.modelClass !== detection.modelClass) {
+                    continue;
+                }
+                if (now - track.lastSeen > TRACK_MAX_AGE) {
+                    continue;
+                }
+
+                const centerDistance = distanceBetweenPoints(track.centerPoint, detection.centerPoint);
+                const bboxDiagonal = Math.hypot(detection.bbox[2], detection.bbox[3]);
+                const maxDistance = Math.max(60, Math.min(180, bboxDiagonal * 0.8));
+                const iou = computeIoU(track.bbox, detection.bbox);
+
+                if (centerDistance > maxDistance && iou < 0.05) {
+                    continue;
+                }
+
+                const score = centerDistance - (iou * 80);
+
+                if (score < bestScore) {
+                    bestScore = score;
+                    bestTrackId = trackId;
+                }
+            }
+
+            return bestTrackId;
+        }
+
+        async function registerDetectionEvent(track, direction) {
+            counts[track.counterKey] += 1;
+            updateCounters();
+
+            const timestamp = new Date();
+            const eventRecord = {
+                sessionId: sessionContext.id || '',
+                timestampIso: timestamp.toISOString(),
+                date: timestamp.toLocaleDateString('es-CL'),
+                time: timestamp.toLocaleTimeString('es-CL', { hour12: false }),
+                detected: track.label,
+                detectedKey: track.counterKey,
+                modelClass: track.modelClass,
+                direction: direction || '',
+                latitude: sessionContext.latitude,
+                longitude: sessionContext.longitude,
+                accuracy: sessionContext.accuracy,
+                sessionStartedAt: sessionContext.startedAt,
+                sessionLocationCapturedAt: sessionContext.capturedAt
+            };
+
+            try {
+                await saveDetectionEvent(eventRecord);
+                addLog(`Evento registrado: ${track.label}${direction ? ` (${direction})` : ''}`);
+            } catch (error) {
+                console.error(error);
+                addLog(`Error al guardar evento: ${track.label}`);
+            }
+        }
+
+        function updateTrackWithDetection(track, detection, now, activeLine) {
+            const previousFootPoint = track.footPoint;
+            const previousSide = track.side;
+
+            track.bbox = detection.bbox;
+            track.centerPoint = detection.centerPoint;
+            track.footPoint = detection.footPoint;
+            track.lastSeen = now;
+            track.stableFrames += 1;
+            track.score = detection.score;
+            track.color = detection.color;
+
+            if (!previousFootPoint) {
+                track.totalMovement = 0;
+            } else {
+                track.totalMovement += distanceBetweenPoints(previousFootPoint, detection.footPoint);
+            }
+
+            if (activeLine) {
+                const currentSide = getLineSide(detection.footPoint, activeLine);
+
+                if (
+                    previousSide !== null &&
+                    previousSide !== 0 &&
+                    currentSide !== 0 &&
+                    previousSide !== currentSide &&
+                    now - track.lastCountAt > RECOUNT_COOLDOWN &&
+                    track.totalMovement > 8
+                ) {
+                    const direction = getDirectionLabel(previousSide, currentSide);
+                    track.lastCountAt = now;
+                    track.totalMovement = 0;
+                    registerDetectionEvent(track, direction);
+                }
+
+                if (currentSide !== 0) {
+                    track.side = currentSide;
+                }
+            } else if (!track.appearanceCounted && track.stableFrames >= MIN_STABLE_FRAMES) {
+                track.appearanceCounted = true;
+                registerDetectionEvent(track, '');
+            }
+        }
+
+        function createTrackFromDetection(detection, now, activeLine) {
+            const trackId = nextTrackId++;
+            const initialSide = activeLine ? getLineSide(detection.footPoint, activeLine) : null;
+
+            tracks.set(trackId, {
+                id: trackId,
+                modelClass: detection.modelClass,
+                counterKey: detection.counterKey,
+                label: detection.label,
+                color: detection.color,
+                bbox: detection.bbox,
+                centerPoint: detection.centerPoint,
+                footPoint: detection.footPoint,
+                score: detection.score,
+                firstSeen: now,
+                lastSeen: now,
+                stableFrames: 1,
+                side: initialSide,
+                lastCountAt: 0,
+                totalMovement: 0,
+                appearanceCounted: false
+            });
+        }
+
+        function updateTracks(detections, now) {
+            cleanupOldTracks(now);
+            const activeLine = getActiveLine();
+            const matchedTrackIds = new Set();
+
+            detections.forEach((detection) => {
+                const matchedTrackId = findBestTrackMatch(detection, now, matchedTrackIds);
+
+                if (matchedTrackId !== null) {
+                    const track = tracks.get(matchedTrackId);
+                    updateTrackWithDetection(track, detection, now, activeLine);
+                    matchedTrackIds.add(matchedTrackId);
+                } else {
+                    createTrackFromDetection(detection, now, activeLine);
+                }
+            });
+        }
+
+        function drawLineAndOverlay(targetContext) {
+            const activeLine = getActiveLine();
+
+            if (activeLine) {
+                targetContext.strokeStyle = '#ff0000';
+                targetContext.lineWidth = 3;
+                targetContext.setLineDash([8, 6]);
+                targetContext.beginPath();
+                targetContext.moveTo(activeLine.start.x, activeLine.start.y);
+                targetContext.lineTo(activeLine.end.x, activeLine.end.y);
+                targetContext.stroke();
+                targetContext.setLineDash([]);
+            }
+
+            if (lineMode) {
+                targetContext.fillStyle = 'rgba(255, 0, 0, 0.18)';
+                targetContext.fillRect(0, 0, canvas.width, canvas.height);
+                targetContext.fillStyle = '#ffffff';
+                targetContext.font = '20px Arial';
+                targetContext.textAlign = 'center';
+                targetContext.fillText(
+                    drawingLine
+                        ? 'Defina el segundo punto de la línea'
+                        : 'Modo línea activo - haga clic para definir el inicio',
+                    canvas.width / 2,
+                    40
+                );
+                targetContext.textAlign = 'left';
+            }
+        }
+
+        function drawTracks(targetContext) {
+            const now = Date.now();
+
+            for (const track of tracks.values()) {
+                if (now - track.lastSeen > TRACK_MAX_AGE) {
+                    continue;
+                }
+
+                targetContext.strokeStyle = track.color;
+                targetContext.lineWidth = 4;
+                targetContext.strokeRect(track.bbox[0], track.bbox[1], track.bbox[2], track.bbox[3]);
+
+                const label = `${track.label} ${Math.round(track.score * 100)}%`;
+                targetContext.fillStyle = track.color;
+                targetContext.font = '16px Arial';
+                targetContext.fillText(
+                    label,
+                    track.bbox[0],
+                    track.bbox[1] > 18 ? track.bbox[1] - 6 : 18
+                );
+            }
+        }
+
+        function renderVisibleOverlay() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            drawLineAndOverlay(context);
+            drawTracks(context);
+        }
+
+        function renderCompositeFrame() {
+            compositeContext.clearRect(0, 0, compositeCanvas.width, compositeCanvas.height);
+
+            if (video.videoWidth && video.videoHeight) {
+                const { offsetX, offsetY, renderedWidth, renderedHeight } = getCoverTransform();
+                compositeContext.drawImage(video, offsetX, offsetY, renderedWidth, renderedHeight);
+            }
+
+            drawLineAndOverlay(compositeContext);
+            drawTracks(compositeContext);
+        }
+
+        async function predictionLoop(loopToken) {
+            if (!isDetecting || !model || loopToken !== predictionLoopToken) {
+                return;
+            }
+
+            try {
+                resizeRenderSurfaces();
+
+                const predictions = await model.detect(video);
+                if (loopToken !== predictionLoopToken) {
+                    return;
+                }
+
+                const detections = predictions
+                    .map((prediction) => {
+                        const category = getCategoryForPrediction(prediction);
+                        if (!category) {
+                            return null;
+                        }
+
+                        const displayBBox = mapBBoxToDisplay(prediction.bbox);
+                        return {
+                            modelClass: category.modelClass,
+                            counterKey: category.counterKey,
+                            label: category.label,
+                            color: category.color,
+                            score: prediction.score,
+                            bbox: displayBBox,
+                            centerPoint: getCenterPoint(displayBBox),
+                            footPoint: getFootPoint(displayBBox)
+                        };
+                    })
+                    .filter(Boolean);
+
+                updateTracks(detections, Date.now());
+                renderVisibleOverlay();
+                renderCompositeFrame();
+            } catch (error) {
+                console.error(error);
+                addLog(`Error en inferencia: ${error.message}`);
+            }
+
+            if (loopToken === predictionLoopToken) {
+                window.requestAnimationFrame(() => predictionLoop(loopToken));
+            }
+        }
+
+        function startPredictionLoop() {
+            predictionLoopToken += 1;
+            const loopToken = predictionLoopToken;
+            window.requestAnimationFrame(() => predictionLoop(loopToken));
+        }
+
+        function stopPredictionLoop() {
+            predictionLoopToken += 1;
+            context.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function waitForVideoReady() {
+            return new Promise((resolve, reject) => {
+                const onLoaded = async () => {
+                    try {
+                        await video.play();
+                        resolve();
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+
+                if (video.readyState >= 2) {
+                    onLoaded();
+                    return;
+                }
+
+                video.addEventListener('loadeddata', onLoaded, { once: true });
+            });
+        }
+
+        function stopCurrentVideoStream() {
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach((track) => track.stop());
+                video.srcObject = null;
+            }
+        }
+
+        function getCurrentPosition() {
+            return new Promise((resolve) => {
+                if (!navigator.geolocation) {
+                    resolve({
+                        latitude: '',
+                        longitude: '',
+                        accuracy: '',
+                        capturedAt: '',
+                        locationStatus: 'geolocalización no disponible'
+                    });
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        resolve({
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude,
+                            accuracy: Math.round(position.coords.accuracy),
+                            capturedAt: new Date().toISOString(),
+                            locationStatus: 'ok'
+                        });
+                    },
+                    (error) => {
+                        console.error(error);
+                        resolve({
+                            latitude: '',
+                            longitude: '',
+                            accuracy: '',
+                            capturedAt: '',
+                            locationStatus: `sin geolocalización (${error.message})`
+                        });
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            });
+        }
+
+        async function startCountingSession() {
+            sessionContext.id = `sesion_${new Date().toISOString().replace(/[:.]/g, '-')}_${Math.random().toString(36).slice(2, 8)}`;
+            sessionContext.startedAt = new Date().toISOString();
+
+            const location = await getCurrentPosition();
+            sessionContext = {
+                ...sessionContext,
+                ...location
+            };
+
+            if (sessionContext.latitude !== '' && sessionContext.longitude !== '') {
+                addLog(`Sesión iniciada con coordenadas ${sessionContext.latitude}, ${sessionContext.longitude}`);
+            } else {
+                addLog(`Sesión iniciada sin coordenadas disponibles`);
+            }
+        }
+
+        function getPreferredRecorderMimeType() {
+            const candidates = [
+                'video/webm;codecs=vp9',
+                'video/webm;codecs=vp8',
+                'video/webm'
+            ];
+
+            for (const candidate of candidates) {
+                if (window.MediaRecorder && MediaRecorder.isTypeSupported(candidate)) {
+                    return candidate;
+                }
+            }
+            return '';
+        }
+
+        function downloadBlob(blob, fileName) {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+
+        function updateRecordButtonState() {
+            if (isRecording) {
+                recordBtn.classList.add('recording');
+                recordBtn.title = 'Detener grabación';
+                recordBtn.innerHTML = '<span class="material-icons">stop_circle</span>';
+            } else {
+                recordBtn.classList.remove('recording');
+                recordBtn.title = 'Grabar video';
+                recordBtn.innerHTML = '<span class="material-icons">radio_button_checked</span>';
+            }
+        }
+
+        function startRecording() {
+            if (!window.MediaRecorder) {
+                addLog('El navegador no permite grabar video en esta sesión');
+                return;
+            }
+
+            renderCompositeFrame();
+
+            recordingChunks = [];
+            recordingStream = compositeCanvas.captureStream(25);
+
+            const mimeType = getPreferredRecorderMimeType();
+            const recorderOptions = mimeType ? { mimeType } : undefined;
+
+            mediaRecorder = new MediaRecorder(recordingStream, recorderOptions);
+
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data && event.data.size > 0) {
+                    recordingChunks.push(event.data);
+                }
+            };
+
+            mediaRecorder.onstop = () => {
+                const type = mimeType || 'video/webm';
+                const blob = new Blob(recordingChunks, { type });
+                downloadBlob(blob, `grabacion_konta2r_${new Date().toISOString().replace(/[:.]/g, '-')}.webm`);
+
+                if (recordingStream) {
+                    recordingStream.getTracks().forEach((track) => track.stop());
+                    recordingStream = null;
+                }
+
+                mediaRecorder = null;
+                isRecording = false;
+                updateRecordButtonState();
+                addLog('Grabación guardada localmente');
+            };
+
+            mediaRecorder.start(1000);
+            isRecording = true;
+            updateRecordButtonState();
+            addLog('Grabación iniciada');
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+        }
+
+        async function savePhoto() {
+            try {
+                renderCompositeFrame();
+                const blob = await new Promise((resolve) => compositeCanvas.toBlob(resolve, 'image/png'));
+                if (!blob) {
+                    throw new Error('No fue posible generar la imagen');
+                }
+                downloadBlob(blob, `foto_konta2r_${new Date().toISOString().replace(/[:.]/g, '-')}.png`);
+                addLog('Foto guardada localmente');
+            } catch (error) {
+                console.error(error);
+                addLog(`Error al guardar foto: ${error.message}`);
+            }
+        }
+
+        function csvEscape(value) {
+            const stringValue = value === null || value === undefined ? '' : String(value);
+            if (/[",\n]/.test(stringValue)) {
+                return `"${stringValue.replace(/"/g, '""')}"`;
+            }
+            return stringValue;
+        }
+
+        async function exportDetectionsCsv() {
+            if (!db) {
+                addLog('Error: base de datos no disponible');
+                return;
+            }
+
+            try {
+                const data = await readAllDetections();
+                const rows = [
+                    [
+                        'ID sesión',
+                        'fecha',
+                        'hora',
+                        'detección',
+                        'clase modelo',
+                        'dirección',
+                        'latitud',
+                        'longitud',
+                        'precisión_m',
+                        'timestamp_iso'
+                    ],
+                    ...data.map((detection) => [
+                        detection.sessionId,
+                        detection.date,
+                        detection.time,
+                        detection.detected,
+                        detection.modelClass,
+                        detection.direction,
+                        detection.latitude,
+                        detection.longitude,
+                        detection.accuracy,
+                        detection.timestampIso
+                    ])
+                ];
+
+                const csvContent = rows.map((row) => row.map(csvEscape).join(',')).join('\n');
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                downloadBlob(blob, `detecciones_eventos_${new Date().toISOString().split('T')[0]}.csv`);
+                addLog('Archivo CSV descargado exitosamente');
+            } catch (error) {
+                console.error(error);
+                addLog(`Error al descargar CSV: ${error.message}`);
+            }
+        }
+
+        function readAllDetections() {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([STORE_NAME], 'readonly');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.getAll();
+
+                request.onsuccess = () => resolve(request.result || []);
+                request.onerror = () => reject(request.error || new Error('No fue posible leer los eventos'));
+            });
+        }
+
+        function saveDetectionEvent(eventRecord) {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject(new Error('Base de datos no inicializada'));
+                    return;
+                }
+
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.add(eventRecord);
+
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error || new Error('No fue posible guardar el evento'));
+            });
+        }
+
+        function initDatabase() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+                request.onerror = (event) => {
+                    console.error(event.target.error);
+                    reject(event.target.error || new Error('No fue posible abrir la base de datos'));
+                };
+
+                request.onupgradeneeded = (event) => {
+                    const database = event.target.result;
+                    let store;
+
+                    if (!database.objectStoreNames.contains(STORE_NAME)) {
+                        store = database.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                    } else {
+                        store = event.target.transaction.objectStore(STORE_NAME);
+                    }
+
+                    const indexDefinitions = [
+                        ['timestampIso', 'timestampIso'],
+                        ['sessionId', 'sessionId'],
+                        ['detectedKey', 'detectedKey']
+                    ];
+
+                    indexDefinitions.forEach(([name, keyPath]) => {
+                        if (!store.indexNames.contains(name)) {
+                            store.createIndex(name, keyPath, { unique: false });
+                        }
+                    });
+                };
+
+                request.onsuccess = (event) => {
+                    db = event.target.result;
+                    resolve(db);
+                };
+            });
+        }
+
+        function getCanvasRelativePoint(event) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: Math.min(Math.max(0, event.clientX - rect.left), rect.width),
+                y: Math.min(Math.max(0, event.clientY - rect.top), rect.height),
+                rectWidth: rect.width,
+                rectHeight: rect.height
+            };
+        }
+
+        function setLineButtonState() {
+            if (lineMode) {
+                lineBtn.style.background = '#2563eb';
+                lineBtn.style.color = '#ffffff';
+            } else {
+                lineBtn.style.background = '#ffffff';
+                lineBtn.style.color = 'var(--text)';
+            }
+        }
+
+        function handleCanvasClick(event) {
+            if (!lineMode) {
+                return;
+            }
+
+            const point = getCanvasRelativePoint(event);
+            const normalizedPoint = {
+                x: point.x / point.rectWidth,
+                y: point.y / point.rectHeight
+            };
+
+            if (!drawingLine || !lineStartNorm || lineEndNorm) {
+                lineStartNorm = normalizedPoint;
+                lineEndNorm = null;
+                drawingLine = true;
+                addLog('Inicio de línea definido. Haga clic para definir el fin.');
+                return;
+            }
+
+            lineEndNorm = normalizedPoint;
+            drawingLine = false;
+            lineMode = false;
+            mouseNorm = null;
+            setLineButtonState();
+            addLog('Línea de conteo actualizada');
+        }
+
+        function handleCanvasMouseMove(event) {
+            if (!lineMode || !drawingLine || !lineStartNorm) {
+                return;
+            }
+
+            const point = getCanvasRelativePoint(event);
+            mouseNorm = {
+                x: point.x / point.rectWidth,
+                y: point.y / point.rectHeight
+            };
+        }
+
+        function toggleLineMode() {
+            lineMode = !lineMode;
+            drawingLine = false;
+            mouseNorm = null;
+
+            if (lineMode) {
+                lineEndNorm = null;
+                addLog('Modo línea activado. Haga clic para definir el inicio de la línea.');
+            } else {
+                addLog('Modo línea desactivado.');
+            }
+
+            setLineButtonState();
+        }
+
+        async function setupVideoStream(facingMode) {
+            stopPredictionLoop();
+            stopCurrentVideoStream();
+            resetTrackState();
+
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode,
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                },
+                audio: false
+            });
+
+            video.srcObject = stream;
+            currentFacingMode = facingMode;
+            await waitForVideoReady();
+            resizeRenderSurfaces();
+            startPredictionLoop();
+            addLog(`Cámara ${facingMode === 'environment' ? 'trasera' : 'frontal'} activada`);
+        }
+
+        async function startVideo() {
+            try {
+                await setupVideoStream('environment');
+            } catch (error) {
+                console.warn('No fue posible acceder a la cámara trasera, se intentará con la frontal', error);
+                await setupVideoStream('user');
+            }
+        }
+
+        async function switchCamera() {
+            const nextFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
+
+            try {
+                await setupVideoStream(nextFacingMode);
+            } catch (error) {
+                console.error(error);
+                addLog(`Error al cambiar de cámara: ${error.message}`);
+            }
+        }
+
+        async function initializeApp() {
+            try {
+                await initDatabase();
+                addLog('Base de datos conectada correctamente');
+
+                model = await cocoSsd.load();
+                addLog('Modelo COCO-SSD cargado');
+
+                await startCountingSession();
+                await startVideo();
+
+                renderVisibleOverlay();
+                renderCompositeFrame();
+            } catch (error) {
+                console.error(error);
+                addLog(`Error de inicialización: ${error.message}`);
+            }
+        }
+
+        aboutBtn.addEventListener('click', () => {
+            aboutModal.style.display = 'block';
+            modalOverlay.style.display = 'block';
+        });
+
+        closeModal.addEventListener('click', () => {
+            aboutModal.style.display = 'none';
+            modalOverlay.style.display = 'none';
+        });
+
+        modalOverlay.addEventListener('click', () => {
+            aboutModal.style.display = 'none';
+            modalOverlay.style.display = 'none';
+        });
+
+        terminalToggle.addEventListener('click', () => {
+            if (terminal.style.display === 'none' || !terminal.style.display) {
+                terminal.style.display = 'block';
+                isTerminalVisible = true;
+            } else {
+                terminal.style.display = 'none';
+                isTerminalVisible = false;
+            }
+        });
+
+        document.querySelector('.close').addEventListener('click', () => {
+            terminal.style.display = 'none';
+            isTerminalVisible = false;
+        });
+
+        document.querySelector('.minimize').addEventListener('click', () => {
+            if (terminal.style.height === '40px') {
+                terminal.style.height = '300px';
+            } else {
+                terminal.style.height = '40px';
+            }
+        });
+
+        document.querySelector('.maximize').addEventListener('click', () => {
+            if (terminal.style.width === '100%') {
+                terminal.style.width = '400px';
+                terminal.style.height = '300px';
+                terminal.style.top = '';
+                terminal.style.right = '20px';
+                terminal.style.bottom = '20px';
+                terminal.style.left = '';
+            } else {
+                terminal.style.width = '100%';
+                terminal.style.height = '100%';
+                terminal.style.top = '0';
+                terminal.style.right = '0';
+                terminal.style.bottom = '0';
+                terminal.style.left = '0';
+            }
+        });
+
+        canvas.addEventListener('click', handleCanvasClick);
+        canvas.addEventListener('mousemove', handleCanvasMouseMove);
+        canvas.addEventListener('mouseleave', () => {
+            mouseNorm = null;
+        });
+
+        lineBtn.addEventListener('click', toggleLineMode);
+        cameraSwitchBtn.addEventListener('click', switchCamera);
+        downloadBtn.addEventListener('click', exportDetectionsCsv);
+        photoBtn.addEventListener('click', savePhoto);
+        recordBtn.addEventListener('click', () => {
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            resizeRenderSurfaces();
+            renderVisibleOverlay();
+            renderCompositeFrame();
+        });
+
+        window.addEventListener('beforeunload', () => {
+            stopPredictionLoop();
+            stopCurrentVideoStream();
+            if (isRecording) {
+                stopRecording();
+            }
+        });
+
+        updateCounters();
+        setLineButtonState();
+        updateRecordButtonState();
+        initializeApp();
+    </script>
+</body>
+</html>

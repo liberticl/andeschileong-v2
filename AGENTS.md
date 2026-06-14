@@ -10,7 +10,7 @@ ONG **Andes Chile** → organización sin fines de lucro dedicada a la movilidad
 
 Plataforma web **"Ciudades Pendientes V2"** que permite la visualización inmersiva de datos de movilidad (uso de Strava, flujos ciclistas) mediante mapas interactivos con DeckGL/Pydeck.
 
-Base URL: `https://v2.ciudadespendientes.cl`
+Base URL: `https://andeschileong.cl`
 Dominio estático (Hugo): `https://andeschileong.cl`
 
 ---

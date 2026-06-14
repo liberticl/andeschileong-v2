@@ -10,7 +10,7 @@ ONG **Andes Chile** → organización sin fines de lucro dedicada a la movilidad
 
 Plataforma web **"Ciudades Pendientes V2"** que permite la visualización inmersiva de datos de movilidad (uso de Strava, flujos ciclistas) mediante mapas interactivos con DeckGL/Pydeck.
 
-Base URL: `https://v2.ciudadespendientes.cl`
+Base URL: `https://andeschileong.cl`
 Dominio estático (Hugo): `https://andeschileong.cl`
 
 ---
@@ -163,8 +163,8 @@ Editor Markdown: SimpleMDE (CDN) en el campo `content`.
 | `Account` | accounts | Custom user (email = username), zonas, permisos, organizaciones |
 | `Organization` | accounts | Organizaciones adscritas a la plataforma |
 | `Permission` | accounts | Permisos granulares (ej: `view_strava_data`) |
-| `Device` | measuring | Dispositivos IoT con token JWT y coordenadas |
-| `TrafficCount` | measuring | Registros de conteo vehicular por dispositivo |
+| `Device` | mediciones | Dispositivos IoT: fingerprint (SHA-256), nombre legible, token JWT, coordenadas (5 dec), user_agent, last_seen |
+| `TrafficCount` | mediciones | Registros de conteo vehicular: car, person, bicycle, motorcycle, truck, bus, skater, pet_count |
 | `Activity` | hugo_edit | Actividades del sitio Hugo |
 | `Licitacion` | licitaciones | Licitaciones de infraestructura ciclista/peatonal de Mercado Público |
 | `SyncLog` | licitaciones | Logs de sincronización con API de Mercado Público |
@@ -253,7 +253,11 @@ ENV="prod"
 | `/intranet/` | `intranet_dashboard` | hugo_edit | CMS Hugo (superuser) |
 | `/intranet/actividades/` | CRUD views | hugo_edit | Gestionar actividades |
 | `/admin/` | Django admin | - | Admin general |
-| `/api/trafico/` | `TrafficCountAPIView` | measuring | API IoT (JWT auth) |
+| `/apps/mediciones/contador/` | `contador` | mediciones | Contador de tránsito (ONNX + YOLO26n) |
+| `/apps/mediciones/contador/model/` | `contador_model` | mediciones | Modelo ONNX (320/640px según RAM) |
+| `/api/trafico/` | `TrafficCountAPIView` | mediciones | API IoT (JWT auth) |
+| `/api/trafico/register/` | `DeviceRegisterView` | mediciones | Auto-registro de dispositivos (sin auth) |
+| `/api/trafico/device/` | `DeviceNameUpdateView` | mediciones | Renombrar dispositivo (JWT auth) |
 | `/apps/licitaciones/` | `dashboard` | licitaciones | Dashboard licitaciones ciclistas |
 | `/apps/licitaciones/lista/` | `licitaciones_list` | licitaciones | Listado de licitaciones |
 | `/apps/licitaciones/<codigo>/` | `licitacion_detalle` | licitaciones | Detalle de licitación |
@@ -332,11 +336,12 @@ docker-compose logs -f
 | `ciudadespendientes/classifier.py` | Clasificación de flujos (SECTRA, general) |
 | `ciudadespendientes/choices.py` | Constantes: regiones, países, meses, años |
 | `ciudadespendientes/admin.py` | Admin con upload ZIP a MongoDB |
-| `ciudadespendientes/external_apis.py` | Geocodificación (local first → OSM fallback) |
+| `ciudadespendientes/external_apis.py` | Geocodificación (local first → OSM fallback), reverse geocoding, parse User-Agent |
 | `ciudadespendientes/management/commands/download_chile_boundaries.py` | Descarga polígonos comunas Chile |
 | `accounts/models.py` | Account, Organization, Permission |
-| `measuring/models.py` | Device, TrafficCount |
-| `measuring/views.py` | API IoT TrafficCountAPIView |
+| `apps/mediciones/models.py` | Device, TrafficCount |
+| `apps/mediciones/views.py` | API IoT TrafficCountAPIView, DeviceRegisterView, DeviceNameUpdateView |
+| `apps/mediciones/templates/mediciones/contador.html` | Aplicación de detección YOLO26n + ONNX (fingerprint, reverse geocoding, sync) |
 | `hugo_edit/models.py` | Activity (genera .md y rebuild Hugo) |
 | `hugo_edit/management/commands/sync_hugo.py` | Comando sync DB → Hugo |
 | `hugo_edit/admin.py` | Admin custom con SimpleMDE |

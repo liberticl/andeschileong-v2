@@ -155,10 +155,12 @@ Funciones para geocodificación con estrategia "local first":
 - `get_osm_relation(place)`: Busca relación administrativa en Nominatim
 - `get_place_polygon(place)`: Obtiene polígono de un lugar (local → OSM)
 - `get_local_polygon(place_name, country)`: Busca en BD local por nombre
+- `reverse_geocode(lat, lng)`: Reverse geocoding vía Nominatim (ej: "Providencia, Región Metropolitana")
+- `parse_device_name(user_agent)`: Extrae navegador y SO del User-Agent (ej: "Chrome 120 / Linux")
 
 **Ejemplo de uso:**
 ```python
-from ciudadespendientes.external_apis import get_place_polygon
+from ciudadespendientes.external_apis import get_place_polygon, reverse_geocode
 
 # Buscar polígono de Valparaíso
 result = get_place_polygon("Valparaíso")
@@ -166,4 +168,43 @@ if result:
     gdf, center_coords = result
     # gdf: GeoDataFrame con el polígono
     # center_coords: (lat, lon) del centro
+
+# Reverse geocoding
+nombre_lugar = reverse_geocode(-33.05896, -71.61998)
+# → "Providencia, Región Metropolitana"
 ```
+
+### 7. Sistema de Conteo de Tránsito (`apps/mediciones/`)
+
+Aplicación de visión artificial para conteo de tránsito en tiempo real usando YOLO26n + ONNX Runtime Web.
+
+**Componentes principales:**
+
+- **`contador.html`**: Aplicación web que ejecuta detección de objetos en el navegador
+  - Modelo YOLO26n (ONNX, ~9.5MB)
+  - Backend: WebGPU (preferido) o WASM con fallback automático
+  - Resolución adaptativa: 320px (RAM ≤ 2GB) o 640px (RAM > 2GB)
+  - Detecciones: bicicletas, peatones, patinetes, autos, motos, buses, camiones, mascotas
+  - Fingerprint SHA-256 del navegador para identificación del dispositivo
+  - Reverse geocoding (Nominatim) para nombre legible por ubicación
+  - Sincronización periódica con el backend (configurable, default 5 min)
+
+- **`DeviceRegisterView`** (`/api/trafico/register/`): Auto-registro sin autenticación
+  - Recibe fingerprint + user_agent + coords
+  - Genera nombre legible via reverse geocoding o parse de User-Agent
+  - Devuelve token JWT y nombre del dispositivo
+
+- **`TrafficCountAPIView`** (`/api/trafico/`): API IoT con JWT auth
+  - Recibe conteos de 8 categorías: car, person, bicycle, motorcycle, truck, bus, skater, pet
+  - Actualiza `last_seen` del dispositivo en cada POST
+
+**Modelo `Device` (`apps/mediciones/models.py`):**
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `fingerprint` | CharField(64, unique) | Hash SHA-256 del navegador |
+| `name` | CharField(200) | Nombre legible (ej: "Providencia, RM" o "Chrome/Linux") |
+| `token` | CharField(512, unique) | Token JWT de autenticación |
+| `coords` | CharField(30) | Coordenadas GPS (5 decimales) |
+| `user_agent` | CharField(500) | String User-Agent del navegador |
+| `last_seen` | DateTimeField | Última conexión del dispositivo |

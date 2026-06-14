@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'ciudadespendientes',
     'accounts',
-    'measuring',
+    'apps.mediciones',
     'hugo_edit',
     'licitaciones',
 ]
@@ -65,7 +65,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'andeschileong.urls'
 
 CSRF_COOKIE_SECURE = True
-CSRF_TRUSTED_ORIGINS = ['https://v2.ciudadespendientes.cl', 'https://andeschileong-v2-production.up.railway.app']
+CSRF_TRUSTED_ORIGINS = ['https://v2.ciudadespendientes.cl', 'https://andeschileong.cl']
 
 TEMPLATES = [
     {
@@ -224,6 +224,9 @@ LAYERS = {
 
 # Others
 CP_JWT_SECRET = os.environ.get('CP_JWT_SECRET')
+
+# Traffic counter sync interval (minutes)
+TRAFFICO_SYNC_INTERVAL_MINUTES = int(os.environ.get('TRAFFICO_SYNC_INTERVAL_MINUTES', 5))
 
 # Mercado Público
 MERCADO_PUBLICO_TICKET = os.environ.get('MERCADO_PUBLICO_TICKET', '')

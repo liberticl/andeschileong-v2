@@ -1085,12 +1085,33 @@
             return { scale, renderedWidth, renderedHeight, offsetX, offsetY };
         }
 
-        function mapBBoxToDisplay(bbox, scaleX, scaleY, offsetX, offsetY) {
+        function getModelToDisplayTransform() {
+            const sourceWidth = video.videoWidth || 1;
+            const sourceHeight = video.videoHeight || 1;
+            const targetWidth = canvas.width || 1;
+            const targetHeight = canvas.height || 1;
+
+            const scaleM = Math.max(MODEL_INPUT_SIZE / sourceWidth, MODEL_INPUT_SIZE / sourceHeight);
+            const offsetXm = (MODEL_INPUT_SIZE - sourceWidth * scaleM) / 2;
+            const offsetYm = (MODEL_INPUT_SIZE - sourceHeight * scaleM) / 2;
+
+            const scaleD = Math.max(targetWidth / sourceWidth, targetHeight / sourceHeight);
+            const offsetXD = (targetWidth - sourceWidth * scaleD) / 2;
+            const offsetYD = (targetHeight - sourceHeight * scaleD) / 2;
+
+            const s = scaleD / scaleM;
+            const ox = offsetXD - offsetXm * s;
+            const oy = offsetYD - offsetYm * s;
+
+            return { s, ox, oy };
+        }
+
+        function mapBBoxToDisplay(bbox, s, ox, oy) {
             return [
-                bbox[0] * scaleX + offsetX,
-                bbox[1] * scaleY + offsetY,
-                (bbox[2] - bbox[0]) * scaleX,
-                (bbox[3] - bbox[1]) * scaleY
+                bbox[0] * s + ox,
+                bbox[1] * s + oy,
+                (bbox[2] - bbox[0]) * s,
+                (bbox[3] - bbox[1]) * s
             ];
         }
 
@@ -1426,7 +1447,7 @@
                 const results = await session.run({ images: inputTensor });
                 const output = results.output0.data;
 
-                const { scale, offsetX, offsetY } = getCoverTransform();
+                const { s, ox, oy } = getModelToDisplayTransform();
                 const detections = [];
 
                 for (let i = 0; i < 300; i++) {
@@ -1443,7 +1464,7 @@
                     const rule = classToRule[classId];
                     if (!rule) continue;
 
-                    const displayBBox = mapBBoxToDisplay([x1, y1, x2, y2], scale, scale, offsetX, offsetY);
+                    const displayBBox = mapBBoxToDisplay([x1, y1, x2, y2], s, ox, oy);
 
                     detections.push({
                         counterKey: rule.counterKey,
@@ -1735,7 +1756,7 @@
             stopCurrentVideoStream();
             resetTrackState();
             const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
+                video: { facingMode, width: { ideal: MODEL_INPUT_SIZE }, height: { ideal: MODEL_INPUT_SIZE } },
                 audio: false
             });
             video.srcObject = stream;

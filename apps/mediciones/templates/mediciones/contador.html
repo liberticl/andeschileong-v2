@@ -922,7 +922,7 @@
         const compositeCanvas = document.createElement('canvas');
         const compositeContext = compositeCanvas.getContext('2d');
 
-        const deviceRAM = navigator.deviceMemory || 4;
+        const deviceRAM = navigator.deviceMemory || 2;
         const isLowRAM = deviceRAM <= 2;
         const MODEL_URL = isLowRAM ? '/apps/mediciones/contador/model/?size=320' : '/apps/mediciones/contador/model/?size=640';
         const MODEL_INPUT_SIZE = isLowRAM ? 320 : 640;
@@ -1365,7 +1365,7 @@
                     }
                 }
 
-                ort.env.wasm.numThreads = navigator.hardwareConcurrency || 4;
+                ort.env.wasm.numThreads = (typeof crossOriginIsolated !== 'undefined' && crossOriginIsolated) ? (navigator.hardwareConcurrency || 4) : 1;
 
                 if (backend === 'webgpu') {
                     session = await ort.InferenceSession.create(MODEL_URL, { executionProviders: ['webgpu', 'wasm'] });

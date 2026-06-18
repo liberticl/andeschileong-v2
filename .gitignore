@@ -8,6 +8,7 @@ docker-compose.dev.yml
 debug.log
 .flake8
 rebuild.sh
+down.sh
 
 *__pycache__*
 *migrations/

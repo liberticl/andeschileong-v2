@@ -1392,8 +1392,14 @@
             tempCanvas.height = MODEL_INPUT_SIZE;
             const tempCtx = tempCanvas.getContext('2d');
 
-            const { offsetX, offsetY, renderedWidth, renderedHeight } = getCoverTransform();
-            tempCtx.drawImage(video, offsetX, offsetY, renderedWidth, renderedHeight);
+            const sourceWidth = video.videoWidth || 1;
+            const sourceHeight = video.videoHeight || 1;
+            const tempScale = Math.max(MODEL_INPUT_SIZE / sourceWidth, MODEL_INPUT_SIZE / sourceHeight);
+            const tempRenderedW = sourceWidth * tempScale;
+            const tempRenderedH = sourceHeight * tempScale;
+            const tempOffsetX = (MODEL_INPUT_SIZE - tempRenderedW) / 2;
+            const tempOffsetY = (MODEL_INPUT_SIZE - tempRenderedH) / 2;
+            tempCtx.drawImage(video, tempOffsetX, tempOffsetY, tempRenderedW, tempRenderedH);
 
             const imageData = tempCtx.getImageData(0, 0, MODEL_INPUT_SIZE, MODEL_INPUT_SIZE);
             const data = imageData.data;

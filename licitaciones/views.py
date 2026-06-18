@@ -61,7 +61,6 @@ def _apply_filters(queryset, params):
     return queryset
 
 
-@login_required
 def dashboard(request):
     """Dashboard principal con resúmenes y charts."""
     check_and_sync()
@@ -150,7 +149,6 @@ def dashboard(request):
     return render(request, 'licitaciones/dashboard.html', stats)
 
 
-@login_required
 def licitaciones_list(request):
     """Tabla paginada de licitaciones con filtros."""
     base_qs = Licitacion.objects.filter(activo=True)
@@ -181,7 +179,6 @@ def licitaciones_list(request):
     return render(request, 'licitaciones/licitaciones.html', context)
 
 
-@login_required
 def licitacion_detalle(request, codigo):
     """Detalle de una licitación."""
     licitacion = get_object_or_404(
@@ -190,7 +187,6 @@ def licitacion_detalle(request, codigo):
         request, 'licitaciones/detalle.html', {'licitacion': licitacion})
 
 
-@login_required
 def api_stats(request):
     """API JSON para gráficos dinámicos."""
     base_qs = Licitacion.objects.filter(activo=True)

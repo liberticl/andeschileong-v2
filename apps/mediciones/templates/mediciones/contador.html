@@ -1915,73 +1915,161 @@
         }
 
         async function validateDeviceToken() {
-            if (!deviceConfig || !deviceConfig.token) return;
-            try {
-                const response = await fetch('/api/trafico/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${deviceConfig.token}`
-                    },
-                    body: JSON.stringify({ datetime: new Date().toISOString() })
-                });
-                if (response.status === 401 || response.status === 403) {
-                    addLog('Token invalido, re-registrando dispositivo...');
-                    localStorage.removeItem(DEVICE_STORAGE_KEY);
-                    deviceConfig = null;
-                    await registerDevice();
-                }
-            } catch (e) {}
+            // Lightweight token check: just verify the stored token is present
+            // and non-empty. A full round-trip POST is unnecessary and wastes
+            // bandwidth — the sync cycle will surface auth errors naturally.
+            if (!deviceConfig || !deviceConfig.token) {
+                addLog('Token no encontrado, re-registrando dispositivo...');
+                await registerDevice();
+            }
+        }
+
+        // --------------- Batch queue & backoff state ---------------
+        // Each entry: { datetime, car_count, person_count, ... }
+        const BATCH_STORAGE_KEY = 'traffic_batch_queue';
+        let syncFailCount = 0;
+        const MAX_BACKOFF_MINUTES = 30;
+
+        function getBatchQueue() {
+            try { return JSON.parse(localStorage.getItem(BATCH_STORAGE_KEY)) || []; }
+            catch (e) { return []; }
+        }
+
+        function saveBatchQueue(queue) {
+            try { localStorage.setItem(BATCH_STORAGE_KEY, JSON.stringify(queue)); }
+            catch (e) { /* storage full — drop oldest */ }
+        }
+
+        function clearBatchQueue() {
+            localStorage.removeItem(BATCH_STORAGE_KEY);
+        }
+
+        /**
+         * Snapshot the current in-memory counts into the batch queue and
+         * reset the live counters.  Called on every sync-timer tick so that
+         * each interval produces exactly one timestamped record.
+         */
+        function snapshotCountsIntoBatch() {
+            const total = Object.values(counts).reduce((a, b) => a + b, 0);
+            if (total === 0) return;
+
+            const record = {
+                datetime: new Date().toISOString(),
+                car_count: counts.car || 0,
+                person_count: counts.person || 0,
+                bicycle_count: counts.bicycle || 0,
+                motorcycle_count: counts.motorcycle || 0,
+                truck_count: counts.truck || 0,
+                bus_count: counts.bus || 0,
+                skater_count: counts.skater || 0,
+                pet_count: counts.pet || 0
+            };
+
+            // Also merge any legacy pending counts from the old single-record store
+            const legacy = getPendingCounts();
+            const legacyTotal = Object.values(legacy).reduce((a, b) => a + b, 0);
+            if (legacyTotal > 0) {
+                record.car_count += legacy.car || 0;
+                record.person_count += legacy.person || 0;
+                record.bicycle_count += legacy.bicycle || 0;
+                record.motorcycle_count += legacy.motorcycle || 0;
+                record.truck_count += legacy.truck || 0;
+                record.bus_count += legacy.bus || 0;
+                record.skater_count += legacy.skater || 0;
+                record.pet_count += legacy.pet || 0;
+                clearPendingCounts();
+            }
+
+            const queue = getBatchQueue();
+            queue.push(record);
+            // Cap queue at 100 records to avoid unbounded growth
+            if (queue.length > 100) queue.splice(0, queue.length - 100);
+            saveBatchQueue(queue);
+
+            Object.keys(counts).forEach(k => { counts[k] = 0; });
+            updateCounters();
+        }
+
+        /**
+         * Try to gzip-compress a JSON string using the CompressionStream API.
+         * Falls back to plain text if the API is unavailable.
+         * Returns { body, headers } ready for fetch().
+         */
+        async function buildRequestPayload(jsonString) {
+            if (typeof CompressionStream !== 'undefined') {
+                try {
+                    const cs = new CompressionStream('gzip');
+                    const writer = cs.writable.getWriter();
+                    writer.write(new TextEncoder().encode(jsonString));
+                    writer.close();
+                    const compressed = await new Response(cs.readable).arrayBuffer();
+                    return {
+                        body: compressed,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Content-Encoding': 'gzip'
+                        }
+                    };
+                } catch (e) { /* fall through */ }
+            }
+            return {
+                body: jsonString,
+                headers: { 'Content-Type': 'application/json' }
+            };
         }
 
         async function syncCounts() {
             if (isSyncing || !deviceConfig || !deviceConfig.token) return;
             isSyncing = true;
 
-            const pending = getPendingCounts();
-            const toSend = { ...pending };
-            Object.keys(counts).forEach(k => { toSend[k] = (toSend[k] || 0) + counts[k]; });
+            // Snapshot current live counts into the persistent batch queue
+            snapshotCountsIntoBatch();
 
-            const total = Object.values(toSend).reduce((a, b) => a + b, 0);
-            if (total === 0) { isSyncing = false; return; }
+            const queue = getBatchQueue();
+            if (queue.length === 0) {
+                isSyncing = false;
+                updateSyncBadge();
+                return;
+            }
+
+            const totalEvents = queue.reduce((sum, r) => {
+                return sum + (r.car_count || 0) + (r.person_count || 0) +
+                    (r.bicycle_count || 0) + (r.motorcycle_count || 0) +
+                    (r.truck_count || 0) + (r.bus_count || 0) +
+                    (r.skater_count || 0) + (r.pet_count || 0);
+            }, 0);
 
             try {
-                const response = await fetch('/api/trafico/', {
+                const jsonBody = JSON.stringify({ records: queue });
+                const { body, headers } = await buildRequestPayload(jsonBody);
+
+                const response = await fetch('/api/trafico/batch/', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        ...headers,
                         'Authorization': `Bearer ${deviceConfig.token}`
                     },
-                    body: JSON.stringify({
-                        datetime: new Date().toISOString(),
-                        car_count: toSend.car || 0,
-                        person_count: toSend.person || 0,
-                        bicycle_count: toSend.bicycle || 0,
-                        motorcycle_count: toSend.motorcycle || 0,
-                        truck_count: toSend.truck || 0,
-                        bus_count: toSend.bus || 0,
-                        skater_count: toSend.skater || 0,
-                        pet_count: toSend.pet || 0
-                    })
+                    body
                 });
 
                 if (response.ok) {
-                    Object.keys(counts).forEach(k => { counts[k] = 0; });
-                    updateCounters();
-                    clearPendingCounts();
-                    addLog(`Sync OK: ${total} eventos enviados`);
+                    const data = await response.json();
+                    clearBatchQueue();
+                    syncFailCount = 0;
+                    addLog(`Sync OK: ${data.saved} registros enviados (${totalEvents} eventos), ${data.skipped} omitidos`);
                 } else if (response.status === 401 || response.status === 403) {
                     addLog(`Token invalido (${response.status}), re-registrando dispositivo...`);
                     localStorage.removeItem(DEVICE_STORAGE_KEY);
                     deviceConfig = null;
+                    syncFailCount = 0;
                     await registerDevice();
                 } else {
-                    savePendingCounts(toSend);
-                    addLog(`Sync error (${response.status}): datos pendientes guardados`);
+                    syncFailCount += 1;
+                    addLog(`Sync error (${response.status}): ${queue.length} registros pendientes`);
                 }
             } catch (error) {
-                savePendingCounts(toSend);
-                addLog(`Sync fallo: ${error.message}. Datos pendientes.`);
+                syncFailCount += 1;
+                addLog(`Sync fallo: ${error.message}. ${queue.length} registros pendientes.`);
             }
 
             isSyncing = false;
@@ -1990,17 +2078,46 @@
 
         function startSyncTimer() {
             if (syncTimer) clearInterval(syncTimer);
-            const interval = getSyncConfig();
-            syncTimer = setInterval(syncCounts, interval * 60 * 1000);
-            addLog(`Sync programado cada ${interval} min`);
+            const baseInterval = getSyncConfig();   // minutes
+
+            // Apply exponential backoff when there are consecutive failures
+            let effectiveInterval = baseInterval;
+            if (syncFailCount > 0) {
+                effectiveInterval = Math.min(
+                    baseInterval * Math.pow(2, syncFailCount),
+                    MAX_BACKOFF_MINUTES
+                );
+            }
+
+            syncTimer = setInterval(() => {
+                syncCounts().then(() => {
+                    // Restart timer after each tick so backoff is re-evaluated
+                    startSyncTimer();
+                });
+            }, effectiveInterval * 60 * 1000);
+
+            if (syncFailCount > 0) {
+                addLog(`Sync programado en ${effectiveInterval} min (backoff x${syncFailCount})`);
+            } else {
+                addLog(`Sync programado cada ${baseInterval} min`);
+            }
         }
 
         function updateSyncBadge() {
             const badge = document.getElementById('syncBadge');
-            const pending = getPendingCounts();
-            const pendingTotal = Object.values(pending).reduce((a, b) => a + b, 0);
+
+            // Count events across: live counters + batch queue + legacy pending
             const currentTotal = Object.values(counts).reduce((a, b) => a + b, 0);
-            const totalPending = pendingTotal + currentTotal;
+            const batchQueue = getBatchQueue();
+            const batchTotal = batchQueue.reduce((sum, r) => {
+                return sum + (r.car_count || 0) + (r.person_count || 0) +
+                    (r.bicycle_count || 0) + (r.motorcycle_count || 0) +
+                    (r.truck_count || 0) + (r.bus_count || 0) +
+                    (r.skater_count || 0) + (r.pet_count || 0);
+            }, 0);
+            const legacy = getPendingCounts();
+            const legacyTotal = Object.values(legacy).reduce((a, b) => a + b, 0);
+            const totalPending = currentTotal + batchTotal + legacyTotal;
 
             if (!deviceConfig || !deviceConfig.token) {
                 badge.className = 'sync-badge disconnected';

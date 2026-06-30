@@ -209,6 +209,59 @@
         text-decoration: underline;
     }
 
+    .tabla-scroll {
+        max-height: 520px;
+        overflow-y: auto;
+        border-radius: 8px;
+    }
+
+    .tabla-scroll table thead th {
+        position: sticky;
+        top: 0;
+        background: #f8f9fa;
+        z-index: 1;
+    }
+
+    .pagination-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+
+    .pagination-controls .page-info {
+        font-weight: 600;
+    }
+
+    .pagination-controls .page-btns {
+        display: flex;
+        gap: 0.4rem;
+    }
+
+    .pagination-controls .page-btns button {
+        padding: 0.35rem 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background: #fff;
+        color: #2241a8;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .pagination-controls .page-btns button:hover:not(:disabled) {
+        background: #2241a8;
+        color: #fff;
+        border-color: #2241a8;
+    }
+
+    .pagination-controls .page-btns button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
     /* Badges de estado */
     .badge-estado {
         display: inline-block;

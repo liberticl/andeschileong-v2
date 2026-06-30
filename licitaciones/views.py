@@ -130,7 +130,7 @@ def dashboard(request):
             ],
             cls=DecimalEncoder),
         'licitaciones_recientes': list(
-            filtered_qs.order_by('-fecha_publicacion')[:10]),
+            filtered_qs.order_by('-fecha_publicacion')),
         'años_disponibles': años_disponibles,
         'regiones_disponibles': regiones_disponibles,
         'comunas_disponibles': comunas_disponibles,

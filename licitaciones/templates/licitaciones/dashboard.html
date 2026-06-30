@@ -111,49 +111,60 @@
             </div>
         </div>
 
-        <!-- Tabla licitaciones recientes -->
+        <!-- Tabla licitaciones -->
         <div class="tabla-card">
-            <h4>Licitaciones Recientes</h4>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Código</th>
-                        <th>Nombre</th>
-                        <th>Organismo</th>
-                        <th>Monto</th>
-                        <th>Estado</th>
-                        <th>Comuna</th>
-                        <th>Región</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for lic in licitaciones_recientes %}
-                    <tr>
-                        <td>
-                            <a href="{% url 'detalle' lic.codigo %}">
-                                {{ lic.codigo }}
-                            </a>
-                        </td>
-                        <td>{{ lic.nombre|truncatewords:10 }}</td>
-                        <td>{{ lic.organismo|truncatewords:5 }}</td>
-                        <td>{{ lic.get_monto_display }}</td>
-                        <td>
-                            <span class="badge-estado badge-{{ lic.estado }}">
-                                {{ lic.get_estado_display }}
-                            </span>
-                        </td>
-                        <td>{{ lic.comuna|default:"-" }}</td>
-                        <td>{{ lic.region|default:"-" }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="7" style="text-align:center; color:#999; padding:2rem;">
-                            No hay licitaciones registradas aún.
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <h4>Licitaciones</h4>
+            <div class="tabla-scroll" id="tabla-container">
+                <table id="tabla-licitaciones">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th>Organismo</th>
+                            <th>Monto</th>
+                            <th>Estado</th>
+                            <th>Comuna</th>
+                            <th>Región</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for lic in licitaciones_recientes %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'detalle' lic.codigo %}">
+                                    {{ lic.codigo }}
+                                </a>
+                            </td>
+                            <td>{{ lic.nombre|truncatewords:10 }}</td>
+                            <td>{{ lic.organismo|truncatewords:5 }}</td>
+                            <td>{{ lic.get_monto_display }}</td>
+                            <td>
+                                <span class="badge-estado badge-{{ lic.estado }}">
+                                    {{ lic.get_estado_display }}
+                                </span>
+                            </td>
+                            <td>{{ lic.comuna|default:"-" }}</td>
+                            <td>{{ lic.region|default:"-" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" style="text-align:center; color:#999; padding:2rem;">
+                                No hay licitaciones registradas aún.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination-controls" id="pagination" style="display:none;">
+                <span class="page-info" id="page-info"></span>
+                <div class="page-btns">
+                    <button id="btn-first" onclick="goPage(1)" disabled>&laquo;</button>
+                    <button id="btn-prev" onclick="goPage(state.page - 1)" disabled>&lsaquo;</button>
+                    <button id="btn-next" onclick="goPage(state.page + 1)">&rsaquo;</button>
+                    <button id="btn-last" onclick="goPage(state.totalPages)">&raquo;</button>
+                </div>
+            </div>
         </div>
 
         {% if last_sync %}
@@ -319,5 +330,50 @@
             applyFilter('q', value);
         }, 500);
     }
+
+    // Paginado client-side
+    const ROWS_PER_PAGE = 10;
+    const state = { page: 1, totalPages: 1 };
+
+    function initPagination() {
+        const tbody = document.querySelector('#tabla-licitaciones tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        const realRows = rows.filter(r => !r.querySelector('td[colspan]'));
+        if (realRows.length <= ROWS_PER_PAGE) return;
+
+        const totalPages = Math.ceil(realRows.length / ROWS_PER_PAGE);
+        state.totalPages = totalPages;
+        document.getElementById('pagination').style.display = 'flex';
+        showPage(1);
+    }
+
+    function showPage(page) {
+        state.page = page;
+        const tbody = document.querySelector('#tabla-licitaciones tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        const start = (page - 1) * ROWS_PER_PAGE;
+        const end = start + ROWS_PER_PAGE;
+
+        rows.forEach((row, i) => {
+            if (row.querySelector('td[colspan]')) return;
+            row.style.display = (i >= start && i < end) ? '' : 'none';
+        });
+
+        const total = rows.filter(r => !r.querySelector('td[colspan]')).length;
+        document.getElementById('page-info').textContent =
+            `${start + 1}-${Math.min(end, total)} de ${total}`;
+        document.getElementById('btn-first').disabled = (page === 1);
+        document.getElementById('btn-prev').disabled = (page === 1);
+        document.getElementById('btn-next').disabled = (page === state.totalPages);
+        document.getElementById('btn-last').disabled = (page === state.totalPages);
+    }
+
+    function goPage(page) {
+        if (page < 1 || page > state.totalPages) return;
+        showPage(page);
+        document.getElementById('tabla-container').scrollTop = 0;
+    }
+
+    document.addEventListener('DOMContentLoaded', initPagination);
 </script>
 {% endblock %}

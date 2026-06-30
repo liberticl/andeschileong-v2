@@ -106,6 +106,27 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.ERROR(
                     f'Error en fecha {fecha_str}: {e}'))
 
+        # Segunda pasada: re-fetch de licitaciones que quedaron sin organismo
+        incompletas = Licitacion.objects.filter(
+            activo=True, organismo='')
+        if incompletas.exists():
+            self.stdout.write(
+                f'\nRe-fetching {incompletas.count()} '
+                f'licitaciones sin organismo...')
+            for lic in incompletas:
+                try:
+                    detail = self._fetch_detalle(lic.codigo, ticket)
+                    if detail:
+                        self._apply_detail(lic, detail)
+                        lic.save()
+                        self.stdout.write(
+                            f'  OK: {lic.codigo} -> '
+                            f'{lic.organismo[:40] or "(sin organismo)"}')
+                    time.sleep(1.0)
+                except Exception as e:
+                    self.stdout.write(self.style.WARNING(
+                        f'Error re-fetch {lic.codigo}: {e}'))
+
         duracion = time.time() - start_time
         SyncLog.objects.create(
             licitaciones_consultadas=consultadas,
@@ -121,24 +142,59 @@ class Command(BaseCommand):
             f'{filtradas} filtradas de {consultadas} consultadas, '
             f'{detalles_ok} detalles OK ({duracion:.1f}s)'))
 
-    def _fetch_detalle(self, codigo, ticket):
-        """Obtiene el detalle completo de una licitación por su código."""
+    def _fetch_detalle(self, codigo, ticket, max_retries=3):
+        """Obtiene el detalle completo de una licitación con reintentos."""
         url = f'{API_BASE}licitaciones.json'
         params = {'codigo': codigo, 'ticket': ticket}
+        for attempt in range(max_retries):
+            try:
+                resp = requests.get(url, params=params, timeout=30)
+                resp.raise_for_status()
+                data = resp.json()
+                listado = data.get('Listado', [])
+                if listado:
+                    return listado[0]
+                if 'CodigoExterno' in data:
+                    return data
+                return None
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    wait = 2 ** attempt
+                    time.sleep(wait)
+                else:
+                    self.stdout.write(self.style.WARNING(
+                        f'Error fetching detalle {codigo} '
+                        f'({max_retries} intentos): {e}'))
+                    return None
+
+    def _apply_detail(self, lic, detail):
+        """Aplica datos del detalle a un objeto Licitacion existente."""
+        comprador = detail.get('Comprador', {})
+        if comprador and isinstance(comprador, dict):
+            lic.organismo = comprador.get('NombreOrganismo', '') or ''
+            try:
+                lic.codigo_organismo = int(
+                    comprador.get('CodigoOrganismo', 0))
+            except (ValueError, TypeError):
+                lic.codigo_organismo = None
+            lic.region = (
+                comprador.get('RegionUnidad', '') or '').strip()
+            lic.comuna = (
+                comprador.get('ComunaUnidad', '') or '').strip()
+
+        monto = detail.get('MontoEstimado')
         try:
-            resp = requests.get(url, params=params, timeout=30)
-            resp.raise_for_status()
-            data = resp.json()
-            listado = data.get('Listado', [])
-            if listado:
-                return listado[0]
-            if 'CodigoExterno' in data:
-                return data
-            return None
-        except Exception as e:
-            self.stdout.write(self.style.WARNING(
-                f'Error fetching detalle {codigo}: {e}'))
-            return None
+            lic.monto_estimado = float(monto) if monto else None
+        except (ValueError, TypeError):
+            lic.monto_estimado = None
+
+        fechas = detail.get('Fechas', {}) or {}
+        if fechas.get('FechaPublicacion'):
+            lic.fecha_publicacion = fechas['FechaPublicacion']
+        if fechas.get('FechaCierre'):
+            lic.fecha_cierre = fechas['FechaCierre']
+
+        lic.raw_data = detail
 
     def _map_licitacion(self, lic):
         organismo = ''

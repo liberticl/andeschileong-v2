@@ -1,11 +1,25 @@
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 import requests
 import os
 import re
 import time
-from datetime import date, timedelta
+import logging
+from datetime import date, datetime, timedelta
+from pytz import timezone as tz
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 from licitaciones.models import Licitacion, SyncLog
+
+TZ_SANTIAGO = tz('America/Santiago')
+
+logger = logging.getLogger(__name__)
+
+HEADERS = {
+    'User-Agent': 'AndesChileOng-Sync/1.0 (licitaciones-mercado-publico)',
+    'Accept': 'application/json',
+}
 
 KEYWORDS_INFRAESTRUCTURA = [
     'ciclovía', 'ciclovia', 'cicloruta', 'ciclo ruta',
@@ -57,6 +71,7 @@ class Command(BaseCommand):
         detalles_ok = 0
 
         keywords_lower = [k.lower() for k in KEYWORDS_INFRAESTRUCTURA]
+        session = self._get_session()
 
         for i in range(dias):
             fecha = date.today() - timedelta(days=i)
@@ -65,7 +80,7 @@ class Command(BaseCommand):
             params = {'fecha': fecha_str, 'ticket': ticket}
 
             try:
-                response = requests.get(url, params=params, timeout=30)
+                response = session.get(url, params=params, timeout=45)
                 response.raise_for_status()
                 data = response.json()
                 licitaciones = data.get('Listado', [])
@@ -142,13 +157,47 @@ class Command(BaseCommand):
             f'{filtradas} filtradas de {consultadas} consultadas, '
             f'{detalles_ok} detalles OK ({duracion:.1f}s)'))
 
+    def _get_session(self):
+        """Crea sesión HTTP con reintentos automáticos."""
+        session = requests.Session()
+        retry = Retry(
+            total=3,
+            backoff_factor=1,
+            status_forcelist=[429, 500, 502, 503, 504],
+            allowed_methods=["GET"],
+        )
+        adapter = HTTPAdapter(max_retries=retry)
+        session.mount("https://", adapter)
+        session.mount("http://", adapter)
+        session.headers.update(HEADERS)
+        return session
+
+    def _parse_datetime(self, value):
+        """Convierte string o datetime a datetime aware con tz Santiago."""
+        if not value:
+            return None
+        if isinstance(value, datetime):
+            dt = value
+        else:
+            try:
+                dt = datetime.strptime(str(value), '%Y-%m-%d %H:%M:%S')
+            except (ValueError, TypeError):
+                try:
+                    dt = datetime.fromisoformat(str(value))
+                except (ValueError, TypeError):
+                    return None
+        if timezone.is_naive(dt):
+            dt = TZ_SANTIAGO.localize(dt)
+        return dt
+
     def _fetch_detalle(self, codigo, ticket, max_retries=3):
         """Obtiene el detalle completo de una licitación con reintentos."""
         url = f'{API_BASE}licitaciones.json'
         params = {'codigo': codigo, 'ticket': ticket}
+        session = self._get_session()
         for attempt in range(max_retries):
             try:
-                resp = requests.get(url, params=params, timeout=30)
+                resp = session.get(url, params=params, timeout=45)
                 resp.raise_for_status()
                 data = resp.json()
                 listado = data.get('Listado', [])
@@ -157,10 +206,28 @@ class Command(BaseCommand):
                 if 'CodigoExterno' in data:
                     return data
                 return None
-            except Exception as e:
+            except requests.exceptions.SSLError as e:
+                logger.warning(f'SSL error {codigo} (attempt {attempt+1}): {e}')
                 if attempt < max_retries - 1:
-                    wait = 2 ** attempt
-                    time.sleep(wait)
+                    time.sleep(2 ** attempt)
+                else:
+                    self.stdout.write(self.style.WARNING(
+                        f'SSL error fetching {codigo} '
+                        f'({max_retries} intentos): {e}'))
+                    return None
+            except requests.exceptions.ConnectionError as e:
+                logger.warning(f'Connection error {codigo} (attempt {attempt+1}): {e}')
+                if attempt < max_retries - 1:
+                    time.sleep(3 ** attempt)
+                else:
+                    self.stdout.write(self.style.WARNING(
+                        f'Connection error fetching {codigo} '
+                        f'({max_retries} intentos): {e}'))
+                    return None
+            except Exception as e:
+                logger.warning(f'Error fetching {codigo} (attempt {attempt+1}): {e}')
+                if attempt < max_retries - 1:
+                    time.sleep(2 ** attempt)
                 else:
                     self.stdout.write(self.style.WARNING(
                         f'Error fetching detalle {codigo} '
@@ -190,9 +257,9 @@ class Command(BaseCommand):
 
         fechas = detail.get('Fechas', {}) or {}
         if fechas.get('FechaPublicacion'):
-            lic.fecha_publicacion = fechas['FechaPublicacion']
+            lic.fecha_publicacion = self._parse_datetime(fechas['FechaPublicacion'])
         if fechas.get('FechaCierre'):
-            lic.fecha_cierre = fechas['FechaCierre']
+            lic.fecha_cierre = self._parse_datetime(fechas['FechaCierre'])
 
         lic.raw_data = detail
 
@@ -239,8 +306,8 @@ class Command(BaseCommand):
             'monto_estimado': monto,
             'moneda': lic.get('Moneda', 'CLP'),
             'estado': estado,
-            'fecha_cierre': fecha_cierre,
-            'fecha_publicacion': fecha_pub,
+            'fecha_cierre': self._parse_datetime(fecha_cierre),
+            'fecha_publicacion': self._parse_datetime(fecha_pub),
             'tipo_licitacion': tipo[:5] if tipo else '',
             'comuna': comuna_unidad,
             'region': region_unidad,

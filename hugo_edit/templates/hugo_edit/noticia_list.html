@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5 pt-5 mb-5">
+    <div class="row align-items-center mb-4">
+        <div class="col-md-12">
+            <h2 style="font-family: 'Urbanist', sans-serif; font-weight: 700;">Noticias de Andes Chile ONG</h2>
+            <p class="text-muted">Gestiona el contenido de la sección "Noticias" del sitio web.</p>
+        </div>
+        <div class="col-md-8"></div>
+        <div class="col-md-4 text-end">
+            <button type="button" onclick="window.location.href='{% url 'hugo_noticia_create' %}'"
+                class="btn rounded-pill px-4 shadow-sm">
+                <i class="fa fa-plus me-2"></i> Añadir Noticia
+            </button>
+        </div>
+    </div>
+
+    <div class="border-0 rounded-3">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="bg-light text-muted">
+                    <tr>
+                        <th class="ps-4">Título</th>
+                        <th>Publicado</th>
+                        <th>Tags</th>
+                        <th class="pe-4 text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for noticia in noticias %}
+                    <tr>
+                        <td class="ps-4 fw-bold">{{ noticia.title }}</td>
+                        <td>{{ noticia.date|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if noticia.tags %}
+                            <span class="badge bg-secondary">{{ noticia.tags }}</span>
+                            {% else %}
+                            <span class="text-muted small">Sin tags</span>
+                            {% endif %}
+                        </td>
+                        <td class="pe-4 text-end">
+                            <button type="button"
+                                onclick="window.location.href='{% url 'hugo_noticia_update' noticia.pk %}'"
+                                class="btn btn-sm ms-1" title="Editar">
+                                <i class="fa fa-pencil"></i>
+                            </button>
+                            <button type="button"
+                                onclick="window.location.href='{% url 'hugo_noticia_delete' noticia.pk %}'"
+                                class="btn btn-sm btn-outline-danger ms-1" title="Eliminar">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            No hay noticias creadas aún.<br>
+                            <a href="{% url 'hugo_noticia_create' %}" class="btn btn-sm mt-3">¡Crea la primera!</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

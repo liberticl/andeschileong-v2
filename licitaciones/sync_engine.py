@@ -29,6 +29,7 @@ KEYWORDS_INFRAESTRUCTURA = [
     'infraestructura ciclista', 'vía verde', 'via verde',
     'carril bici', 'sendero ciclista',
     'plan regulador', 'plan seccional', 'pimep', 'imiv',
+    ' vial ', 'vialidad'
 ]
 
 ESTADO_MAP = {

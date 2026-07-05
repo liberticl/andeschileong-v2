@@ -170,6 +170,11 @@
         {% if last_sync %}
         <p class="sync-info">
             Última sincronización: {{ last_sync.fecha|date:"d/m/Y H:i" }}
+            {% if show_sync_button %}
+            <button id="btn-sync" onclick="triggerSync()" class="btn-sync">
+                <i class="fa fa-refresh"></i> Actualizar datos
+            </button>
+            {% endif %}
         </p>
         {% endif %}
     </div>
@@ -375,5 +380,44 @@
     }
 
     document.addEventListener('DOMContentLoaded', initPagination);
+
+    function getCookie(name) {
+        let value = null;
+        document.cookie.split(';').forEach(c => {
+            c = c.trim();
+            if (c.startsWith(name + '=')) {
+                value = decodeURIComponent(c.substring(name.length + 1));
+            }
+        });
+        return value;
+    }
+
+    function triggerSync() {
+        const btn = document.getElementById('btn-sync');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Sincronizando...';
+        }
+        fetch('{% url "trigger_sync" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (btn) {
+                btn.innerHTML = '<i class="fa fa-check"></i> ' + data.message;
+            }
+            setTimeout(() => { window.location.reload(); }, 3000);
+        })
+        .catch(err => {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa fa-refresh"></i> Actualizar datos';
+            }
+        });
+    }
 </script>
 {% endblock %}

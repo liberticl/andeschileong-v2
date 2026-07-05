@@ -416,4 +416,27 @@
         color: #999;
         margin-top: 0.75rem;
     }
+
+    .btn-sync {
+        display: inline-block;
+        margin-left: 0.5rem;
+        padding: 0.3rem 0.75rem;
+        background: #fff;
+        color: #2241a8;
+        border: 1px solid #2241a8;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-sync:hover:not(:disabled) {
+        background: #2241a8;
+        color: #fff;
+    }
+
+    .btn-sync:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
 </style>

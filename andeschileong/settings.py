@@ -232,3 +232,24 @@ TRAFFICO_SYNC_INTERVAL_MINUTES = int(os.environ.get('TRAFFICO_SYNC_INTERVAL_MINU
 
 # Mercado Público
 MERCADO_PUBLICO_TICKET = os.environ.get('MERCADO_PUBLICO_TICKET', '')
+
+# Celery
+from celery.schedules import crontab
+
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://redis:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://redis:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'America/Santiago'
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 1800
+CELERY_TASK_SOFT_TIME_LIMIT = 1500
+
+CELERY_BEAT_SCHEDULE = {
+    'sync-licitaciones-diario': {
+        'task': 'licitaciones.tasks.sync_licitaciones_task',
+        'schedule': crontab(hour=12, minute=0),
+        'kwargs': {'dias': 7},
+    },
+}

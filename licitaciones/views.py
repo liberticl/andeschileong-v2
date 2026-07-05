@@ -6,6 +6,8 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Count, Q
 from django.utils import timezone
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.http import require_POST
 
 from .models import Licitacion, SyncLog
 
@@ -17,24 +19,23 @@ class DecimalEncoder(json.JSONEncoder):
         return super().default(o)
 
 
-def check_and_sync():
-    """Verifica si se necesita sincronizar, ejecuta si >24h."""
+@require_POST
+def trigger_sync(request):
+    """Endpoint para botón manual de sincronización."""
     last_sync = SyncLog.objects.filter(exitoso=True).first()
-    if not last_sync:
-        return True
-    hours_since = (
-        timezone.now() - last_sync.fecha
-    ).total_seconds() / 3600
-    if hours_since > 24:
-        from django.core.management import call_command
-        import io
-        out = io.StringIO()
-        try:
-            call_command('sync_licitaciones', '--dias', '7', stdout=out)
-        except Exception:
-            pass
-        return True
-    return False
+    if last_sync:
+        hours_since = (
+            timezone.now() - last_sync.fecha
+        ).total_seconds() / 3600
+        if hours_since < 4:
+            return JsonResponse({
+                'status': 'skipped',
+                'message': 'Sincronización reciente (<4h)',
+            })
+
+    from licitaciones.tasks import sync_licitaciones_task
+    sync_licitaciones_task.delay(dias=7)
+    return JsonResponse({'status': 'started', 'message': 'Sincronización en background'})
 
 
 def _apply_filters(queryset, params):
@@ -61,10 +62,9 @@ def _apply_filters(queryset, params):
     return queryset
 
 
+@ensure_csrf_cookie
 def dashboard(request):
     """Dashboard principal con resúmenes y charts."""
-    check_and_sync()
-
     base_qs = Licitacion.objects.filter(activo=True)
     filtered_qs = _apply_filters(base_qs, request.GET)
 
@@ -145,6 +145,16 @@ def dashboard(request):
 
     last_sync = SyncLog.objects.filter(exitoso=True).first()
     stats['last_sync'] = last_sync
+
+    show_sync_button = False
+    if last_sync:
+        hours_since = (
+            timezone.now() - last_sync.fecha
+        ).total_seconds() / 3600
+        show_sync_button = hours_since > 4
+    else:
+        show_sync_button = True
+    stats['show_sync_button'] = show_sync_button
 
     return render(request, 'licitaciones/dashboard.html', stats)
 

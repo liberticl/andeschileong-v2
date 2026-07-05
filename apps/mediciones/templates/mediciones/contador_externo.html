@@ -1,0 +1,1695 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>konta2r - Fuente Externa</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/ort.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL@20..48,100..700,0..1" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #3b82f6;
+            --background: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --success: #22c55e;
+            --border: #e2e8f0;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .header { display: none; }
+
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: #000;
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: contrast(1.1) brightness(1.1);
+        }
+
+        #mjpegImg {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .counter-grid {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: safe center;
+            gap: 8px;
+            padding: 0 4px 6px;
+            z-index: 100;
+            width: max-content;
+            max-width: calc(100% - 160px);
+            margin: 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .counter-grid::-webkit-scrollbar { display: none; }
+
+        .counter-item {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 10px 8px;
+            border-radius: 12px;
+            flex: 0 0 96px;
+            min-width: 96px;
+            max-width: 96px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .counter-item:hover { transform: translateY(-2px); }
+
+        .counter-label {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .counter-value-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .counter-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .counter-icon {
+            color: var(--primary);
+            font-size: 2rem;
+        }
+
+        .terminal {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 400px;
+            height: 300px;
+            background: rgba(0, 0, 0, 0.85);
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            overflow: hidden;
+            font-family: 'Roboto Mono', 'Roboto', monospace;
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        .terminal-header {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 8px 12px;
+            background: linear-gradient(to bottom, #3b3b3b, #2b2b2b);
+            color: #d8d8d8;
+        }
+
+        .terminal-title {
+            font-size: 13px;
+            font-weight: 400;
+            margin-left: 64px;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .terminal-controls {
+            position: absolute;
+            display: flex;
+            gap: 8px;
+            left: 12px;
+        }
+
+        .terminal-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+        }
+
+        .minimize { background: #ffbd2e; border: 1px solid #dea123; }
+        .maximize { background: #27c93f; border: 1px solid #1aab29; }
+        .close { background: #ff5f56; border: 1px solid #e0443e; }
+
+        .terminal-content {
+            height: calc(100% - 32px);
+            overflow-y: auto;
+            padding: 12px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #fff;
+        }
+
+        .log-entry { margin: 4px 0; color: #fff; }
+        .timestamp { color: #63b0ee; font-weight: normal; }
+
+        .terminal-content::-webkit-scrollbar { width: 5px; }
+        .terminal-content::-webkit-scrollbar-track { background: transparent; }
+        .terminal-content::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 3px; }
+
+        .terminal-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            background: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.2s ease;
+            z-index: 100;
+        }
+
+        .terminal-toggle:hover { transform: scale(1.05); }
+        .terminal-toggle .material-symbols-outlined { color: var(--text); font-size: 24px; }
+
+        .about-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            background: #4b5563;
+            color: white;
+            font-size: 24px;
+            font-family: 'Roboto', sans-serif;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .about-btn:hover { transform: scale(1.05); background: #374151; }
+
+        .top-actions {
+            position: fixed;
+            top: 18px;
+            right: 12px;
+            left: 82px;
+            z-index: 1000;
+            display: flex;
+            justify-content: flex-end;
+            gap: 6px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 2px;
+            scrollbar-width: none;
+        }
+
+        .top-actions::-webkit-scrollbar { display: none; }
+
+        .top-actions .tool-btn {
+            position: static;
+            flex: 0 0 auto;
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            border-radius: 22px;
+            background: rgba(255, 255, 255, 0.96);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .top-actions .tool-btn:hover { transform: scale(1.05); }
+        .top-actions .tool-btn .material-symbols-outlined { color: var(--text); font-size: 22px; }
+
+        .record-btn.recording { background: #dc2626 !important; }
+        .record-btn.recording .material-symbols-outlined { color: white !important; }
+
+        .backend-badge {
+            position: fixed;
+            top: 20px;
+            left: 80px;
+            z-index: 1000;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .backend-badge.webgpu { background: #dcfce7; color: #166534; }
+        .backend-badge.wasm { background: #fef3c7; color: #92400e; }
+        .backend-badge.loading { background: #e0e7ff; color: #3730a3; }
+
+        .sync-badge {
+            position: fixed;
+            top: 20px;
+            left: 130px;
+            z-index: 1000;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sync-badge:hover { transform: scale(1.05); }
+        .sync-badge.connected { background: #dcfce7; color: #166534; }
+        .sync-badge.pending { background: #fef3c7; color: #92400e; }
+        .sync-badge.disconnected { background: #fee2e2; color: #991b1b; }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+        }
+
+        .about-modal, .config-modal {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            z-index: 1002;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .about-modal h2, .config-modal h2 { margin: 0 0 20px 0; color: var(--text); font-size: 1.5rem; font-weight: 600; }
+        .about-modal p { color: var(--text-light); line-height: 1.6; margin: 10px 0; }
+        .about-modal ul { color: var(--text-light); margin: 10px 0; padding-left: 20px; }
+        .about-modal li { margin: 5px 0; }
+        .about-modal a { color: var(--primary); text-decoration: none; }
+        .about-modal a:hover { text-decoration: underline; }
+
+        .close-modal {
+            position: absolute;
+            top: 15px; right: 15px;
+            background: none; border: none;
+            font-size: 24px; color: var(--text-light);
+            cursor: pointer; padding: 5px;
+            width: 30px; height: 30px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close-modal:hover { background-color: var(--border); }
+
+        .config-field { margin-bottom: 16px; }
+        .config-field label { display: block; font-size: 0.875rem; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+        .config-field input, .config-field select {
+            width: 100%; padding: 8px 12px;
+            border: 1px solid var(--border); border-radius: 6px;
+            font-size: 1rem; font-family: 'Roboto', sans-serif; box-sizing: border-box;
+        }
+
+        .config-fingerprint {
+            padding: 8px 12px; background: var(--background);
+            border: 1px solid var(--border); border-radius: 6px;
+            font-size: 0.75rem; font-family: 'Roboto Mono', monospace;
+            word-break: break-all; color: var(--text-light);
+        }
+
+        .config-save-btn {
+            width: 100%; padding: 10px;
+            background: var(--primary); color: white;
+            border: none; border-radius: 6px;
+            font-size: 1rem; font-weight: 500; cursor: pointer;
+        }
+
+        .config-save-btn:hover { background: #1d4ed8; }
+
+        /* Source selector */
+        .source-selector {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--background);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .source-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px 30px;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+        }
+
+        .source-card h1 {
+            margin: 0 0 8px 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .source-card .subtitle {
+            color: var(--text-light);
+            margin: 0 0 24px 0;
+            font-size: 0.9rem;
+        }
+
+        .source-tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--background);
+            padding: 4px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .source-tab {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .source-tab.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .source-panel { display: none; }
+        .source-panel.active { display: block; }
+
+        .source-field { margin-bottom: 16px; }
+        .source-field label { display: block; font-size: 0.875rem; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+        .source-field input {
+            width: 100%; padding: 10px 12px;
+            border: 1px solid var(--border); border-radius: 8px;
+            font-size: 0.95rem; font-family: 'Roboto', sans-serif; box-sizing: border-box;
+        }
+
+        .source-field input::placeholder { color: #94a3b8; }
+
+        .source-hint {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        .file-drop {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--background);
+        }
+
+        .file-drop:hover, .file-drop.dragover {
+            border-color: var(--primary);
+            background: #eff6ff;
+        }
+
+        .file-drop .material-symbols-outlined {
+            font-size: 48px;
+            color: var(--text-light);
+            margin-bottom: 8px;
+        }
+
+        .file-drop p {
+            margin: 0;
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+
+        .file-drop .filename {
+            color: var(--primary);
+            font-weight: 500;
+            margin-top: 8px;
+            font-size: 0.9rem;
+        }
+
+        .source-start-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 8px;
+            font-family: 'Roboto', sans-serif;
+            transition: background 0.2s;
+        }
+
+        .source-start-btn:hover { background: #1d4ed8; }
+        .source-start-btn:disabled { background: #94a3b8; cursor: not-allowed; }
+
+        .source-start-btn .material-symbols-outlined {
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+
+        @media (max-width: 768px) {
+            .source-card { padding: 30px 20px; }
+            .counter-item { padding: 8px 6px; flex-basis: 86px; min-width: 86px; max-width: 86px; }
+            .counter-value { font-size: 1.35rem; }
+            .counter-label { font-size: 0.72rem; text-align: center; }
+            .terminal { width: 100%; height: 200px; left: 0; right: 0; bottom: 0; }
+            .counter-grid { max-width: calc(100% - 100px); }
+            .top-actions { top: 12px; left: 62px; right: 8px; gap: 5px; }
+            .top-actions .tool-btn { width: 38px; height: 38px; min-width: 38px; border-radius: 19px; }
+            .top-actions .tool-btn .material-symbols-outlined { font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Source selector screen -->
+    <div class="source-selector" id="sourceSelector">
+        <div class="source-card">
+            <h1>konta2r</h1>
+            <p class="subtitle">Deteccion de transito con fuente externa</p>
+
+            <div class="source-tabs">
+                <button class="source-tab active" data-tab="url">URL / Stream</button>
+                <button class="source-tab" data-tab="file">Archivo local</button>
+            </div>
+
+            <div class="source-panel active" id="panelUrl">
+                <div class="source-field">
+                    <label for="videoUrl">URL del video o camara</label>
+                    <input type="url" id="videoUrl" placeholder="https://ejemplo.com/stream.mjpeg">
+                    <div class="source-hint">Funciona con: videos MP4/WEBM, streams MJPEG, URLs de camaras IP con CORS habilitado</div>
+                </div>
+            </div>
+
+            <div class="source-panel" id="panelFile">
+                <div class="file-drop" id="fileDrop">
+                    <span class="material-symbols-outlined">upload_file</span>
+                    <p>Arrastra un video aqui o haz clic para seleccionar</p>
+                    <div class="filename" id="fileName"></div>
+                    <input type="file" id="fileInput" accept="video/*" style="display:none">
+                </div>
+            </div>
+
+            <div class="source-field" style="margin-top: 16px;">
+                <label for="deviceNameInput">Nombre del dispositivo (opcional)</label>
+                <input type="text" id="deviceNameInput" placeholder="Ej: Camara Av. Apoquindo">
+            </div>
+
+            <div class="source-field">
+                <label for="coordsInput">Coordenadas (opcional)</label>
+                <input type="text" id="coordsInput" placeholder="-33.4489,-70.6693">
+                <div class="source-hint">Formato: latitud,longitud</div>
+            </div>
+
+            <button class="source-start-btn" id="startBtn" disabled>
+                <span class="material-symbols-outlined">play_arrow</span>
+                Iniciar deteccion
+            </button>
+        </div>
+    </div>
+
+    <!-- Detection UI (hidden initially) -->
+    <button class="about-btn" id="aboutBtn" style="display:none">ae</button>
+    <div class="backend-badge loading" id="backendBadge" style="display:none">Cargando modelo...</div>
+    <div class="sync-badge disconnected" id="syncBadge" style="display:none" title="Estado de sincronizacion">Sin conexion</div>
+
+    <div class="top-actions" id="topActions" style="display:none">
+        <button class="tool-btn" id="configBtn" title="Configuracion">
+            <span class="material-symbols-outlined">settings</span>
+        </button>
+        <button class="tool-btn download-btn" id="downloadBtn" title="Descargar CSV">
+            <span class="material-symbols-outlined">save</span>
+        </button>
+        <button class="tool-btn record-btn" id="recordBtn" title="Grabar video">
+            <span class="material-symbols-outlined">radio_button_checked</span>
+        </button>
+        <button class="tool-btn photo-btn" id="photoBtn" title="Guardar foto">
+            <span class="material-symbols-outlined">photo_camera</span>
+        </button>
+        <button class="tool-btn line-btn" id="lineBtn" title="Crear linea de conteo">
+            <span class="material-symbols-outlined">horizontal_rule</span>
+        </button>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay"></div>
+
+    <div class="about-modal" id="aboutModal">
+        <button class="close-modal" id="closeModal">x</button>
+        <h2>Proyecto konta2r</h2>
+        <p>Sistema de deteccion de transito en tiempo real que utiliza vision artificial para identificar y contar diferentes tipos de usuarios en la via publica.</p>
+        <p>Modelo: YOLO26n con ONNX Runtime Web.<br>
+           Backend: WebGPU (preferido) o WASM con fallback automatico.<br>
+           Fuente: URL externa o archivo local.</p>
+        <p>Desarrollado originalmente por <a href="https://about.me/ariellopez/" target="_blank">Ariel Lopez</a>.<br>Version YOLO26n por Francisco Vergara de <b>Andes Chile ONG</b>.</p>
+    </div>
+
+    <div class="config-modal" id="configModal">
+        <button class="close-modal" id="closeConfigModal">x</button>
+        <h2>Configuracion</h2>
+        <div class="config-field">
+            <label for="configDeviceName">Nombre del dispositivo</label>
+            <input type="text" id="configDeviceName" placeholder="Ej: Contador Av. Apoquindo" maxlength="200">
+        </div>
+        <div class="config-field">
+            <label for="configInterval">Intervalo de envio (minutos)</label>
+            <input type="number" id="configInterval" min="1" max="1440" value="5">
+        </div>
+        <div class="config-field">
+            <label>ID del dispositivo (fingerprint)</label>
+            <div class="config-fingerprint" id="configFingerprint">Generando...</div>
+        </div>
+        <button class="config-save-btn" id="configSaveBtn">Guardar</button>
+    </div>
+
+    <div class="container" id="detectionContainer" style="display:none">
+        <video id="video" autoplay playsinline loop muted></video>
+        <img id="mjpegImg" alt="MJPEG stream">
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="counter-grid" id="counterGrid" style="display:none">
+        <div class="counter-item">
+            <div class="counter-label">Bicicletas</div>
+            <div class="counter-value-container">
+                <span class="material-symbols-outlined counter-icon">directions_bike</span>
+                <span class="counter-value" id="bicycleCount">0</span>
+            </div>
+        </div>
+        <div class="counter-item">
+            <div class="counter-label">Peatones</div>
+            <div class="counter-value-container">
+                <span class="material-symbols-outlined counter-icon">directions_walk</span>
+                <span class="counter-value" id="personCount">0</span>
+            </div>
+        </div>
+        <div class="counter-item">
+            <div class="counter-label">Patinetas</div>
+            <div class="counter-value-container">
+                <span class="material-symbols-outlined counter-icon">skateboarding</span>
+                <span class="counter-value" id="skaterCount">0</span>
+            </div>
+        </div>
+        <div class="counter-item">
+            <div class="counter-label">Autos</div>
+            <div class="counter-value-container">
+                <span class="material-symbols-outlined counter-icon">directions_car</span>
+                <span class="counter-value" id="carCount">0</span>
+            </div>
+        </div>
+        <div class="counter-item">
+            <div class="counter-label">Motos</div>
+            <div class="counter-value-container">
+                <span class="material-symbols-outlined counter-icon">two_wheeler</span>
+                <span class="counter-value" id="motorcycleCount">0</span>
+            </div>
+        </div>
+        <div class="counter-item">
+            <div class="counter-label">Buses</div>
+            <div class="counter-value-container">
+                <span class="material-symbols-outlined counter-icon">directions_bus</span>
+                <span class="counter-value" id="busCount">0</span>
+            </div>
+        </div>
+        <div class="counter-item">
+            <div class="counter-label">Camiones</div>
+            <div class="counter-value-container">
+                <span class="material-symbols-outlined counter-icon">local_shipping</span>
+                <span class="counter-value" id="truckCount">0</span>
+            </div>
+        </div>
+        <div class="counter-item">
+            <div class="counter-label">Mascotas</div>
+            <div class="counter-value-container">
+                <span class="material-symbols-outlined counter-icon">pets</span>
+                <span class="counter-value" id="petCount">0</span>
+            </div>
+        </div>
+    </div>
+
+    <button class="terminal-toggle" id="terminalToggle" style="display:none">
+        <span class="material-symbols-outlined">terminal</span>
+    </button>
+
+    <div class="terminal" id="terminal">
+        <div class="terminal-header">
+            <div class="terminal-title">Terminal</div>
+            <div class="terminal-controls">
+                <button class="terminal-button minimize" title="Minimizar"></button>
+                <button class="terminal-button maximize" title="Maximizar"></button>
+                <button class="terminal-button close" title="Cerrar"></button>
+            </div>
+        </div>
+        <div class="terminal-content" id="terminalContent"></div>
+    </div>
+
+    <script>
+        const SYNC_INTERVAL_MINUTES = {{ sync_interval }};
+
+        // Source selector elements
+        const sourceSelector = document.getElementById('sourceSelector');
+        const sourceTabs = document.querySelectorAll('.source-tab');
+        const panels = document.querySelectorAll('.source-panel');
+        const videoUrlInput = document.getElementById('videoUrl');
+        const fileInput = document.getElementById('fileInput');
+        const fileDrop = document.getElementById('fileDrop');
+        const fileName = document.getElementById('fileName');
+        const startBtn = document.getElementById('startBtn');
+        const deviceNameInput = document.getElementById('deviceNameInput');
+        const coordsInput = document.getElementById('coordsInput');
+
+        // Detection elements
+        const video = document.getElementById('video');
+        const mjpegImg = document.getElementById('mjpegImg');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const container = document.getElementById('detectionContainer');
+        const terminalContent = document.getElementById('terminalContent');
+        const terminalToggle = document.getElementById('terminalToggle');
+        const terminal = document.getElementById('terminal');
+        const aboutBtn = document.getElementById('aboutBtn');
+        const aboutModal = document.getElementById('aboutModal');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const closeModal = document.getElementById('closeModal');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const lineBtn = document.getElementById('lineBtn');
+        const photoBtn = document.getElementById('photoBtn');
+        const recordBtn = document.getElementById('recordBtn');
+        const backendBadge = document.getElementById('backendBadge');
+        const counterGrid = document.getElementById('counterGrid');
+        const topActions = document.getElementById('topActions');
+        const syncBadge = document.getElementById('syncBadge');
+
+        const compositeCanvas = document.createElement('canvas');
+        const compositeContext = compositeCanvas.getContext('2d');
+
+        const deviceRAM = navigator.deviceMemory || 2;
+        const isLowRAM = deviceRAM <= 2;
+        const MODEL_URL = isLowRAM ? '/apps/mediciones/contador/model/?size=320' : '/apps/mediciones/contador/model/?size=640';
+        const MODEL_INPUT_SIZE = isLowRAM ? 320 : 640;
+        const CONFIDENCE_THRESHOLD = 0.50;
+
+        const COCO_CLASSES = [
+            'person','bicycle','car','motorcycle','airplane','bus','train','truck',
+            'boat','traffic light','fire hydrant','stop sign','parking meter','bench',
+            'bird','cat','dog','horse','sheep','cow','elephant','bear','zebra',
+            'giraffe','backpack','umbrella','handbag','tie','suitcase','frisbee',
+            'skis','snowboard','sports ball','kite','baseball bat','baseball glove',
+            'skateboard','surfboard','tennis racket','bottle','wine glass','cup',
+            'fork','knife','spoon','bowl','banana','apple','sandwich','orange',
+            'broccoli','carrot','hot dog','pizza','donut','cake','chair','couch',
+            'potted plant','bed','dining table','toilet','tv','laptop','mouse',
+            'remote','keyboard','cell phone','microwave','oven','toaster','sink',
+            'refrigerator','book','clock','vase','scissors','teddy bear',
+            'hair drier','toothbrush'
+        ];
+
+        const CATEGORY_RULES = {
+            bicycle:   { cocoClass: 'bicycle',   counterKey: 'bicycle',   label: 'bicicleta',  color: '#0066ff' },
+            person:    { cocoClass: 'person',     counterKey: 'person',    label: 'peaton',     color: '#00ff00' },
+            skateboard:{ cocoClass: 'skateboard', counterKey: 'skater',    label: 'patineta',   color: '#ff6600' },
+            car:       { cocoClass: 'car',        counterKey: 'car',       label: 'auto',       color: '#ef4444' },
+            motorcycle:{ cocoClass: 'motorcycle', counterKey: 'motorcycle',label: 'moto',       color: '#f97316' },
+            bus:       { cocoClass: 'bus',        counterKey: 'bus',       label: 'bus',        color: '#8b5cf6' },
+            truck:     { cocoClass: 'truck',      counterKey: 'truck',     label: 'camion',     color: '#dc2626' },
+            dog:       { cocoClass: 'dog',        counterKey: 'pet',       label: 'mascota',    color: '#10b981' },
+            cat:       { cocoClass: 'cat',        counterKey: 'pet',       label: 'mascota',    color: '#14b8a6' }
+        };
+
+        const classToRule = {};
+        Object.entries(CATEGORY_RULES).forEach(([key, rule]) => {
+            const idx = COCO_CLASSES.indexOf(rule.cocoClass);
+            if (idx !== -1) classToRule[idx] = rule;
+        });
+
+        const counters = {
+            bicycle: document.getElementById('bicycleCount'),
+            person: document.getElementById('personCount'),
+            skater: document.getElementById('skaterCount'),
+            car: document.getElementById('carCount'),
+            motorcycle: document.getElementById('motorcycleCount'),
+            bus: document.getElementById('busCount'),
+            truck: document.getElementById('truckCount'),
+            pet: document.getElementById('petCount')
+        };
+
+        const counts = { bicycle:0, person:0, skater:0, car:0, motorcycle:0, bus:0, truck:0, pet:0 };
+
+        const DB_NAME = 'TrafficDetectionDB';
+        const DB_VERSION = 2;
+        const STORE_NAME = 'detections';
+        const DEVICE_STORAGE_KEY = 'traffic_device_config';
+        const PENDING_STORAGE_KEY = 'traffic_pending_counts';
+        const CONFIG_STORAGE_KEY = 'traffic_sync_config';
+
+        const TRACK_MAX_AGE = 1500;
+        const MIN_STABLE_FRAMES = 3;
+        const RECOUNT_COOLDOWN = 1200;
+        const SIDE_DEADZONE_PX = 12;
+
+        let db = null;
+        let session = null;
+        let isDetecting = false;
+        let predictionLoopToken = 0;
+        let tracks = new Map();
+        let nextTrackId = 1;
+        let isTerminalVisible = false;
+        let sourceType = 'url';
+        let isMjpeg = false;
+        let mjpegAnimFrame = null;
+
+        let lineMode = false;
+        let drawingLine = false;
+        let lineStartNorm = null;
+        let lineEndNorm = null;
+        let mouseNorm = null;
+
+        let mediaRecorder = null;
+        let recordingStream = null;
+        let recordingChunks = [];
+        let isRecording = false;
+
+        let deviceConfig = null;
+        let syncTimer = null;
+        let isSyncing = false;
+
+        let sessionContext = {
+            id: null, startedAt: null, latitude: '', longitude: '',
+            accuracy: '', capturedAt: '', locationStatus: 'pendiente'
+        };
+
+        // Tab switching
+        sourceTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                sourceTabs.forEach(t => t.classList.remove('active'));
+                panels.forEach(p => p.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById('panel' + tab.dataset.tab.charAt(0).toUpperCase() + tab.dataset.tab.slice(1)).classList.add('active');
+                sourceType = tab.dataset.tab;
+                validateStartBtn();
+            });
+        });
+
+        videoUrlInput.addEventListener('input', validateStartBtn);
+
+        fileDrop.addEventListener('click', () => fileInput.click());
+        fileDrop.addEventListener('dragover', (e) => { e.preventDefault(); fileDrop.classList.add('dragover'); });
+        fileDrop.addEventListener('dragleave', () => fileDrop.classList.remove('dragover'));
+        fileDrop.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileDrop.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelect();
+            }
+        });
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleFileSelect() {
+            if (fileInput.files.length) {
+                fileName.textContent = fileInput.files[0].name;
+                validateStartBtn();
+            }
+        }
+
+        function validateStartBtn() {
+            if (sourceType === 'url') {
+                startBtn.disabled = !videoUrlInput.value.trim();
+            } else {
+                startBtn.disabled = !fileInput.files.length;
+            }
+        }
+
+        function detectMjpeg(url) {
+            const lower = url.toLowerCase();
+            return lower.endsWith('.mjpg') || lower.endsWith('.mjpeg') ||
+                   lower.includes('mjpg') || lower.includes('mjpeg') ||
+                   lower.includes('snapshot') || lower.includes('cgi-bin');
+        }
+
+        startBtn.addEventListener('click', async () => {
+            sourceSelector.style.display = 'none';
+            showDetectionUI();
+            await initializeApp();
+        });
+
+        function showDetectionUI() {
+            container.style.display = 'block';
+            counterGrid.style.display = 'flex';
+            topActions.style.display = 'flex';
+            terminalToggle.style.display = 'flex';
+            aboutBtn.style.display = 'flex';
+            backendBadge.style.display = 'block';
+            syncBadge.style.display = 'block';
+        }
+
+        function addLog(message) {
+            const timestamp = new Date().toLocaleTimeString('es-CL', { hour12: false });
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.innerHTML = `<span class="timestamp">[${timestamp}]</span> ${message}`;
+            terminalContent.appendChild(logEntry);
+            terminalContent.scrollTop = terminalContent.scrollHeight;
+        }
+
+        function updateCounters() {
+            Object.keys(counts).forEach((key) => {
+                if (counters[key]) counters[key].textContent = counts[key];
+            });
+        }
+
+        function resetTrackState() { tracks.clear(); nextTrackId = 1; }
+
+        function resizeRenderSurfaces() {
+            const rect = container.getBoundingClientRect();
+            const width = Math.max(1, Math.round(rect.width));
+            const height = Math.max(1, Math.round(rect.height));
+            if (canvas.width !== width || canvas.height !== height) { canvas.width = width; canvas.height = height; }
+            if (compositeCanvas.width !== width || compositeCanvas.height !== height) { compositeCanvas.width = width; compositeCanvas.height = height; }
+        }
+
+        function getSourceDimensions() {
+            if (isMjpeg) {
+                return { w: mjpegImg.naturalWidth || mjpegImg.width || 1, h: mjpegImg.naturalHeight || mjpegImg.height || 1 };
+            }
+            return { w: video.videoWidth || 1, h: video.videoHeight || 1 };
+        }
+
+        function drawSourceToCanvas(targetCtx, sx, sy, sw, sh, dx, dy, dw, dh) {
+            if (isMjpeg) {
+                targetCtx.drawImage(mjpegImg, sx, sy, sw, sh, dx, dy, dw, dh);
+            } else {
+                targetCtx.drawImage(video, sx, sy, sw, sh, dx, dy, dw, dh);
+            }
+        }
+
+        function getCoverTransform() {
+            const { w: sourceWidth, h: sourceHeight } = getSourceDimensions();
+            const targetWidth = canvas.width || 1;
+            const targetHeight = canvas.height || 1;
+            const scale = Math.max(targetWidth / sourceWidth, targetHeight / sourceHeight);
+            const renderedWidth = sourceWidth * scale;
+            const renderedHeight = sourceHeight * scale;
+            const offsetX = (targetWidth - renderedWidth) / 2;
+            const offsetY = (targetHeight - renderedHeight) / 2;
+            return { scale, renderedWidth, renderedHeight, offsetX, offsetY };
+        }
+
+        function getModelToDisplayTransform() {
+            const { w: sourceWidth, h: sourceHeight } = getSourceDimensions();
+            const targetWidth = canvas.width || 1;
+            const targetHeight = canvas.height || 1;
+            const scaleM = Math.max(MODEL_INPUT_SIZE / sourceWidth, MODEL_INPUT_SIZE / sourceHeight);
+            const offsetXm = (MODEL_INPUT_SIZE - sourceWidth * scaleM) / 2;
+            const offsetYm = (MODEL_INPUT_SIZE - sourceHeight * scaleM) / 2;
+            const scaleD = Math.max(targetWidth / sourceWidth, targetHeight / sourceHeight);
+            const offsetXD = (targetWidth - sourceWidth * scaleD) / 2;
+            const offsetYD = (targetHeight - sourceHeight * scaleD) / 2;
+            const s = scaleD / scaleM;
+            const ox = offsetXD - offsetXm * s;
+            const oy = offsetYD - offsetYm * s;
+            return { s, ox, oy };
+        }
+
+        function mapBBoxToDisplay(bbox, s, ox, oy) {
+            return [bbox[0]*s+ox, bbox[1]*s+oy, (bbox[2]-bbox[0])*s, (bbox[3]-bbox[1])*s];
+        }
+
+        function getFootPoint(bbox) { return { x: bbox[0]+bbox[2]/2, y: bbox[1]+bbox[3] }; }
+        function getCenterPoint(bbox) { return { x: bbox[0]+bbox[2]/2, y: bbox[1]+bbox[3]/2 }; }
+        function distanceBetweenPoints(a, b) { return Math.hypot(a.x-b.x, a.y-b.y); }
+
+        function computeIoU(bboxA, bboxB) {
+            const ax1=bboxA[0], ay1=bboxA[1], ax2=bboxA[0]+bboxA[2], ay2=bboxA[1]+bboxA[3];
+            const bx1=bboxB[0], by1=bboxB[1], bx2=bboxB[0]+bboxB[2], by2=bboxB[1]+bboxB[3];
+            const interX1=Math.max(ax1,bx1), interY1=Math.max(ay1,by1);
+            const interX2=Math.min(ax2,bx2), interY2=Math.min(ay2,by2);
+            const intersection = Math.max(0,interX2-interX1)*Math.max(0,interY2-interY1);
+            if (!intersection) return 0;
+            const areaA=bboxA[2]*bboxA[3], areaB=bboxB[2]*bboxB[3];
+            return intersection/(areaA+areaB-intersection);
+        }
+
+        function getActiveLine() {
+            if (!lineStartNorm) return null;
+            const start = { x: lineStartNorm.x*canvas.width, y: lineStartNorm.y*canvas.height };
+            let endNorm = lineEndNorm;
+            if (!endNorm && drawingLine && mouseNorm) endNorm = mouseNorm;
+            if (!endNorm) return { start, end: start };
+            return { start, end: { x: endNorm.x*canvas.width, y: endNorm.y*canvas.height } };
+        }
+
+        function getSignedDistanceToLine(point, line) {
+            return ((line.end.x-line.start.x)*(point.y-line.start.y))-((line.end.y-line.start.y)*(point.x-line.start.x));
+        }
+
+        function getLineSide(point, line) {
+            const signedDistance = getSignedDistanceToLine(point, line);
+            if (Math.abs(signedDistance) <= SIDE_DEADZONE_PX) return 0;
+            return signedDistance > 0 ? 1 : -1;
+        }
+
+        function getDirectionLabel(previousSide, currentSide) {
+            if (previousSide === -1 && currentSide === 1) return 'A->B';
+            if (previousSide === 1 && currentSide === -1) return 'B->A';
+            return '';
+        }
+
+        function cleanupOldTracks(now) {
+            for (const [trackId, track] of tracks.entries()) {
+                if (now - track.lastSeen > TRACK_MAX_AGE) tracks.delete(trackId);
+            }
+        }
+
+        function findBestTrackMatch(detection, now, matchedTrackIds) {
+            let bestTrackId = null, bestScore = Infinity;
+            for (const [trackId, track] of tracks.entries()) {
+                if (matchedTrackIds.has(trackId)) continue;
+                if (track.counterKey !== detection.counterKey) continue;
+                if (now - track.lastSeen > TRACK_MAX_AGE) continue;
+                const centerDistance = distanceBetweenPoints(track.centerPoint, detection.centerPoint);
+                const bboxDiagonal = Math.hypot(detection.bbox[2], detection.bbox[3]);
+                const maxDistance = Math.max(60, Math.min(180, bboxDiagonal*0.8));
+                const iou = computeIoU(track.bbox, detection.bbox);
+                if (centerDistance > maxDistance && iou < 0.05) continue;
+                const score = centerDistance-(iou*80);
+                if (score < bestScore) { bestScore = score; bestTrackId = trackId; }
+            }
+            return bestTrackId;
+        }
+
+        async function registerDetectionEvent(track, direction) {
+            counts[track.counterKey] += 1;
+            updateCounters();
+            updateSyncBadge();
+            const timestamp = new Date();
+            const eventRecord = {
+                sessionId: sessionContext.id||'', timestampIso: timestamp.toISOString(),
+                date: timestamp.toLocaleDateString('es-CL'), time: timestamp.toLocaleTimeString('es-CL',{hour12:false}),
+                detected: track.label, detectedKey: track.counterKey, modelClass: track.modelClass,
+                direction: direction||'', latitude: sessionContext.latitude, longitude: sessionContext.longitude,
+                accuracy: sessionContext.accuracy, sessionStartedAt: sessionContext.startedAt,
+                sessionLocationCapturedAt: sessionContext.capturedAt
+            };
+            try { await saveDetectionEvent(eventRecord); addLog(`Evento: ${track.label}${direction?` (${direction})`:''}`); }
+            catch (error) { console.error(error); addLog(`Error evento: ${track.label}`); }
+        }
+
+        function updateTrackWithDetection(track, detection, now, activeLine) {
+            const previousFootPoint = track.footPoint;
+            const previousSide = track.side;
+            track.bbox = detection.bbox; track.centerPoint = detection.centerPoint;
+            track.footPoint = detection.footPoint; track.lastSeen = now;
+            track.stableFrames += 1; track.score = detection.score; track.color = detection.color;
+            if (!previousFootPoint) track.totalMovement = 0;
+            else track.totalMovement += distanceBetweenPoints(previousFootPoint, detection.footPoint);
+
+            if (activeLine) {
+                const currentSide = getLineSide(detection.footPoint, activeLine);
+                if (previousSide!==null && previousSide!==0 && currentSide!==0 &&
+                    previousSide!==currentSide && now-track.lastCountAt>RECOUNT_COOLDOWN && track.totalMovement>8) {
+                    const direction = getDirectionLabel(previousSide, currentSide);
+                    track.lastCountAt = now; track.totalMovement = 0;
+                    registerDetectionEvent(track, direction);
+                }
+                if (currentSide !== 0) track.side = currentSide;
+            } else if (!track.appearanceCounted && track.stableFrames >= MIN_STABLE_FRAMES) {
+                track.appearanceCounted = true;
+                registerDetectionEvent(track, '');
+            }
+        }
+
+        function createTrackFromDetection(detection, now, activeLine) {
+            const trackId = nextTrackId++;
+            const initialSide = activeLine ? getLineSide(detection.footPoint, activeLine) : null;
+            tracks.set(trackId, {
+                id: trackId, counterKey: detection.counterKey, label: detection.label,
+                color: detection.color, bbox: detection.bbox, centerPoint: detection.centerPoint,
+                footPoint: detection.footPoint, score: detection.score, firstSeen: now, lastSeen: now,
+                stableFrames: 1, side: initialSide, lastCountAt: 0, totalMovement: 0, appearanceCounted: false
+            });
+        }
+
+        function updateTracks(detections, now) {
+            cleanupOldTracks(now);
+            const activeLine = getActiveLine();
+            const matchedTrackIds = new Set();
+            detections.forEach((detection) => {
+                const matchedTrackId = findBestTrackMatch(detection, now, matchedTrackIds);
+                if (matchedTrackId !== null) {
+                    updateTrackWithDetection(tracks.get(matchedTrackId), detection, now, activeLine);
+                    matchedTrackIds.add(matchedTrackId);
+                } else { createTrackFromDetection(detection, now, activeLine); }
+            });
+        }
+
+        function drawLineAndOverlay(targetContext) {
+            const activeLine = getActiveLine();
+            if (activeLine) {
+                targetContext.strokeStyle = '#ff0000'; targetContext.lineWidth = 3;
+                targetContext.setLineDash([8, 6]);
+                targetContext.beginPath();
+                targetContext.moveTo(activeLine.start.x, activeLine.start.y);
+                targetContext.lineTo(activeLine.end.x, activeLine.end.y);
+                targetContext.stroke(); targetContext.setLineDash([]);
+            }
+            if (lineMode) {
+                targetContext.fillStyle = 'rgba(255, 0, 0, 0.18)';
+                targetContext.fillRect(0, 0, canvas.width, canvas.height);
+                targetContext.fillStyle = '#ffffff'; targetContext.font = '20px Arial';
+                targetContext.textAlign = 'center';
+                targetContext.fillText(drawingLine?'Defina el segundo punto':'Modo linea - clic para inicio', canvas.width/2, 40);
+                targetContext.textAlign = 'left';
+            }
+        }
+
+        function drawTracks(targetContext) {
+            const now = Date.now();
+            for (const track of tracks.values()) {
+                if (now - track.lastSeen > TRACK_MAX_AGE) continue;
+                targetContext.strokeStyle = track.color; targetContext.lineWidth = 4;
+                targetContext.strokeRect(track.bbox[0], track.bbox[1], track.bbox[2], track.bbox[3]);
+                const label = `${track.label} ${Math.round(track.score*100)}%`;
+                targetContext.fillStyle = track.color; targetContext.font = '16px Arial';
+                targetContext.fillText(label, track.bbox[0], track.bbox[1]>18?track.bbox[1]-6:18);
+            }
+        }
+
+        function renderVisibleOverlay() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            drawLineAndOverlay(context);
+            drawTracks(context);
+        }
+
+        function renderCompositeFrame() {
+            compositeContext.clearRect(0, 0, compositeCanvas.width, compositeCanvas.height);
+            const { w: sw, h: sh } = getSourceDimensions();
+            if (sw > 1 && sh > 1) {
+                const { offsetX, offsetY, renderedWidth, renderedHeight } = getCoverTransform();
+                drawSourceToCanvas(compositeContext, 0, 0, sw, sh, offsetX, offsetY, renderedWidth, renderedHeight);
+            }
+            drawLineAndOverlay(compositeContext);
+            drawTracks(compositeContext);
+        }
+
+        async function loadModel() {
+            const modelInfo = `YOLO26n (${MODEL_INPUT_SIZE}px, RAM: ${deviceRAM}GB)`;
+            addLog(`Cargando modelo ${modelInfo}...`);
+            backendBadge.textContent = 'Cargando modelo...';
+            backendBadge.className = 'backend-badge loading';
+            try {
+                const hasWebGPU = 'gpu' in navigator;
+                let backend = 'wasm';
+                if (hasWebGPU) {
+                    try { const adapter = await navigator.gpu.requestAdapter(); if (adapter) backend = 'webgpu'; }
+                    catch (e) { addLog('WebGPU no disponible, usando WASM'); }
+                }
+                ort.env.wasm.numThreads = (typeof crossOriginIsolated!=='undefined'&&crossOriginIsolated)?(navigator.hardwareConcurrency||4):1;
+                if (backend === 'webgpu') {
+                    session = await ort.InferenceSession.create(MODEL_URL, { executionProviders: ['webgpu','wasm'] });
+                    addLog(`Modelo cargado con WebGPU (${MODEL_INPUT_SIZE}px)`);
+                    backendBadge.textContent = `WebGPU ${MODEL_INPUT_SIZE}px`;
+                    backendBadge.className = 'backend-badge webgpu';
+                } else {
+                    session = await ort.InferenceSession.create(MODEL_URL, { executionProviders: ['wasm'] });
+                    addLog(`Modelo cargado con WASM (${MODEL_INPUT_SIZE}px)`);
+                    backendBadge.textContent = `WASM ${MODEL_INPUT_SIZE}px`;
+                    backendBadge.className = 'backend-badge wasm';
+                }
+            } catch (error) {
+                addLog(`Error cargando modelo: ${error.message}`);
+                backendBadge.textContent = 'Error';
+                backendBadge.className = 'backend-badge loading';
+                throw error;
+            }
+        }
+
+        function preprocessFrame() {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = MODEL_INPUT_SIZE;
+            tempCanvas.height = MODEL_INPUT_SIZE;
+            const tempCtx = tempCanvas.getContext('2d');
+            const { w: sourceWidth, h: sourceHeight } = getSourceDimensions();
+            const tempScale = Math.max(MODEL_INPUT_SIZE/sourceWidth, MODEL_INPUT_SIZE/sourceHeight);
+            const tempRenderedW = sourceWidth*tempScale;
+            const tempRenderedH = sourceHeight*tempScale;
+            const tempOffsetX = (MODEL_INPUT_SIZE-tempRenderedW)/2;
+            const tempOffsetY = (MODEL_INPUT_SIZE-tempRenderedH)/2;
+            drawSourceToCanvas(tempCtx, 0, 0, sourceWidth, sourceHeight, tempOffsetX, tempOffsetY, tempRenderedW, tempRenderedH);
+            const imageData = tempCtx.getImageData(0, 0, MODEL_INPUT_SIZE, MODEL_INPUT_SIZE);
+            const data = imageData.data;
+            const inputTensor = new Float32Array(1*3*MODEL_INPUT_SIZE*MODEL_INPUT_SIZE);
+            for (let i = 0; i < MODEL_INPUT_SIZE*MODEL_INPUT_SIZE; i++) {
+                inputTensor[i] = data[i*4]/255.0;
+                inputTensor[MODEL_INPUT_SIZE*MODEL_INPUT_SIZE+i] = data[i*4+1]/255.0;
+                inputTensor[2*MODEL_INPUT_SIZE*MODEL_INPUT_SIZE+i] = data[i*4+2]/255.0;
+            }
+            return new ort.Tensor('float32', inputTensor, [1,3,MODEL_INPUT_SIZE,MODEL_INPUT_SIZE]);
+        }
+
+        async function predictionLoop(loopToken) {
+            if (!isDetecting || !session || loopToken !== predictionLoopToken) return;
+            try {
+                resizeRenderSurfaces();
+                const inputTensor = preprocessFrame();
+                const results = await session.run({ images: inputTensor });
+                const output = results.output0.data;
+                const { s, ox, oy } = getModelToDisplayTransform();
+                const detections = [];
+                for (let i = 0; i < 300; i++) {
+                    const base = i*6;
+                    const x1=output[base], y1=output[base+1], x2=output[base+2], y2=output[base+3];
+                    const score=output[base+4], classId=Math.round(output[base+5]);
+                    if (score < CONFIDENCE_THRESHOLD) continue;
+                    const rule = classToRule[classId];
+                    if (!rule) continue;
+                    const displayBBox = mapBBoxToDisplay([x1,y1,x2,y2], s, ox, oy);
+                    detections.push({
+                        counterKey:rule.counterKey, label:rule.label, color:rule.color,
+                        modelClass:rule.cocoClass, score:score, bbox:displayBBox,
+                        centerPoint:getCenterPoint(displayBBox), footPoint:getFootPoint(displayBBox)
+                    });
+                }
+                updateTracks(detections, Date.now());
+                renderVisibleOverlay();
+                renderCompositeFrame();
+            } catch (error) { console.error(error); addLog(`Error inferencia: ${error.message}`); }
+            if (loopToken === predictionLoopToken) {
+                window.requestAnimationFrame(() => predictionLoop(loopToken));
+            }
+        }
+
+        function startPredictionLoop() { predictionLoopToken+=1; const t=predictionLoopToken; window.requestAnimationFrame(()=>predictionLoop(t)); }
+        function stopPredictionLoop() { predictionLoopToken+=1; context.clearRect(0,0,canvas.width,canvas.height); }
+
+        function isVideoReady() {
+            if (isMjpeg) return mjpegImg.complete && mjpegImg.naturalWidth > 0;
+            return video.readyState >= 2;
+        }
+
+        async function startVideo() {
+            const url = videoUrlInput.value.trim();
+            isMjpeg = detectMjpeg(url);
+            resetTrackState();
+
+            if (isMjpeg) {
+                video.style.display = 'none';
+                mjpegImg.style.display = 'block';
+                mjpegImg.src = url;
+                addLog(`Stream MJPEG: ${url}`);
+                await new Promise((resolve) => {
+                    if (mjpegImg.complete && mjpegImg.naturalWidth > 0) { resolve(); return; }
+                    mjpegImg.onload = resolve;
+                    mjpegImg.onerror = () => { addLog('Error cargando MJPEG stream'); resolve(); };
+                });
+                resizeRenderSurfaces();
+                startPredictionLoop();
+                startMjpegLoop();
+            } else {
+                mjpegImg.style.display = 'none';
+                video.style.display = 'block';
+                video.src = url;
+                video.load();
+                addLog(`Fuente de video: ${url}`);
+                await new Promise((resolve) => {
+                    const onReady = async () => {
+                        try { await video.play(); resolve(); }
+                        catch (e) { addLog(`Error reproduciendo: ${e.message}`); resolve(); }
+                    };
+                    if (video.readyState >= 2) { onReady(); return; }
+                    video.addEventListener('loadeddata', onReady, { once: true });
+                    video.addEventListener('error', () => { addLog('Error cargando video'); resolve(); }, { once: true });
+                });
+                resizeRenderSurfaces();
+                startPredictionLoop();
+            }
+        }
+
+        function startMjpegLoop() {
+            function frame() {
+                if (!isMjpeg || !isDetecting) return;
+                mjpegAnimFrame = requestAnimationFrame(frame);
+            }
+            mjpegAnimFrame = requestAnimationFrame(frame);
+        }
+
+        function stopMjpegLoop() {
+            if (mjpegAnimFrame) { cancelAnimationFrame(mjpegAnimFrame); mjpegAnimFrame = null; }
+        }
+
+        function stopCurrentSource() {
+            stopPredictionLoop();
+            stopMjpegLoop();
+            if (video.src) { video.removeAttribute('src'); video.load(); }
+            if (mjpegImg.src) { mjpegImg.src = ''; }
+        }
+
+        function getCurrentPosition() {
+            return new Promise((resolve) => {
+                const manualCoords = coordsInput.value.trim();
+                if (manualCoords) {
+                    const parts = manualCoords.split(',');
+                    if (parts.length === 2) {
+                        resolve({ latitude:parts[0].trim(), longitude:parts[1].trim(), accuracy:'manual', capturedAt:new Date().toISOString(), locationStatus:'manual' });
+                        return;
+                    }
+                }
+                if (!navigator.geolocation) {
+                    resolve({ latitude:'', longitude:'', accuracy:'', capturedAt:'', locationStatus:'sin geolocalizacion' });
+                    return;
+                }
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => resolve({ latitude:pos.coords.latitude, longitude:pos.coords.longitude, accuracy:Math.round(pos.coords.accuracy), capturedAt:new Date().toISOString(), locationStatus:'ok' }),
+                    (err) => resolve({ latitude:'', longitude:'', accuracy:'', capturedAt:'', locationStatus:`sin geo (${err.message})` }),
+                    { enableHighAccuracy:true, timeout:10000, maximumAge:0 }
+                );
+            });
+        }
+
+        async function startCountingSession() {
+            sessionContext.id = `sesion_${new Date().toISOString().replace(/[:.]/g,'-')}_${Math.random().toString(36).slice(2,8)}`;
+            sessionContext.startedAt = new Date().toISOString();
+            const location = await getCurrentPosition();
+            sessionContext = { ...sessionContext, ...location };
+            addLog(sessionContext.latitude ? `Sesion con coords ${sessionContext.latitude}, ${sessionContext.longitude}` : 'Sesion sin coordenadas');
+        }
+
+        function getPreferredRecorderMimeType() {
+            const candidates = ['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];
+            for (const c of candidates) { if (window.MediaRecorder && MediaRecorder.isTypeSupported(c)) return c; }
+            return '';
+        }
+
+        function downloadBlob(blob, fileName) {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url; link.download = fileName; link.style.display = 'none';
+            document.body.appendChild(link); link.click(); link.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+
+        function updateRecordButtonState() {
+            if (isRecording) {
+                recordBtn.classList.add('recording'); recordBtn.title = 'Detener grabacion';
+                recordBtn.innerHTML = '<span class="material-symbols-outlined">stop_circle</span>';
+            } else {
+                recordBtn.classList.remove('recording'); recordBtn.title = 'Grabar video';
+                recordBtn.innerHTML = '<span class="material-symbols-outlined">radio_button_checked</span>';
+            }
+        }
+
+        function startRecording() {
+            if (!window.MediaRecorder) { addLog('El navegador no permite grabar video'); return; }
+            renderCompositeFrame();
+            recordingChunks = [];
+            recordingStream = compositeCanvas.captureStream(25);
+            const mimeType = getPreferredRecorderMimeType();
+            mediaRecorder = new MediaRecorder(recordingStream, mimeType?{mimeType}:undefined);
+            mediaRecorder.ondataavailable = (e) => { if (e.data&&e.data.size>0) recordingChunks.push(e.data); };
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordingChunks, { type:mimeType||'video/webm' });
+                downloadBlob(blob, `grabacion_konta2r_${new Date().toISOString().replace(/[:.]/g,'-')}.webm`);
+                if (recordingStream) { recordingStream.getTracks().forEach((t)=>t.stop()); recordingStream=null; }
+                mediaRecorder = null; isRecording = false; updateRecordButtonState();
+                addLog('Grabacion guardada');
+            };
+            mediaRecorder.start(1000);
+            isRecording = true; updateRecordButtonState();
+            addLog('Grabacion iniciada');
+        }
+
+        function stopRecording() { if (mediaRecorder&&mediaRecorder.state!=='inactive') mediaRecorder.stop(); }
+
+        async function savePhoto() {
+            try {
+                renderCompositeFrame();
+                const blob = await new Promise((resolve) => compositeCanvas.toBlob(resolve, 'image/png'));
+                if (!blob) throw new Error('No fue posible generar la imagen');
+                downloadBlob(blob, `foto_konta2r_${new Date().toISOString().replace(/[:.]/g,'-')}.png`);
+                addLog('Foto guardada');
+            } catch (error) { console.error(error); addLog(`Error foto: ${error.message}`); }
+        }
+
+        function csvEscape(v) {
+            const s = v===null||v===undefined?'':String(v);
+            return /[",\n]/.test(s)?`"${s.replace(/"/g,'""')}"`:s;
+        }
+
+        async function exportDetectionsCsv() {
+            if (!db) { addLog('Error: DB no disponible'); return; }
+            try {
+                const data = await readAllDetections();
+                const rows = [['ID sesion','fecha','hora','deteccion','clase modelo','direccion','latitud','longitud','precision_m','timestamp_iso'],
+                    ...data.map((d)=>[d.sessionId,d.date,d.time,d.detected,d.modelClass,d.direction,d.latitude,d.longitude,d.accuracy,d.timestampIso])];
+                const csv = rows.map((r)=>r.map(csvEscape).join(',')).join('\n');
+                downloadBlob(new Blob([csv],{type:'text/csv;charset=utf-8;'}), `detecciones_${new Date().toISOString().split('T')[0]}.csv`);
+                addLog('CSV descargado');
+            } catch (error) { console.error(error); addLog(`Error CSV: ${error.message}`); }
+        }
+
+        function readAllDetections() {
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction([STORE_NAME],'readonly');
+                const store = tx.objectStore(STORE_NAME);
+                const req = store.getAll();
+                req.onsuccess = () => resolve(req.result||[]);
+                req.onerror = () => reject(req.error||new Error('Error leyendo eventos'));
+            });
+        }
+
+        function saveDetectionEvent(eventRecord) {
+            return new Promise((resolve, reject) => {
+                if (!db) { reject(new Error('DB no inicializada')); return; }
+                const tx = db.transaction([STORE_NAME],'readwrite');
+                const store = tx.objectStore(STORE_NAME);
+                const req = store.add(eventRecord);
+                req.onsuccess = () => resolve();
+                req.onerror = () => reject(req.error||new Error('Error guardando evento'));
+            });
+        }
+
+        function initDatabase() {
+            return new Promise((resolve, reject) => {
+                const req = indexedDB.open(DB_NAME, DB_VERSION);
+                req.onerror = (e) => reject(e.target.error);
+                req.onupgradeneeded = (e) => {
+                    const database = e.target.result;
+                    let store;
+                    if (!database.objectStoreNames.contains(STORE_NAME)) {
+                        store = database.createObjectStore(STORE_NAME, { keyPath:'id', autoIncrement:true });
+                    } else { store = e.target.transaction.objectStore(STORE_NAME); }
+                    [['timestampIso','timestampIso'],['sessionId','sessionId'],['detectedKey','detectedKey']].forEach(([n,k]) => {
+                        if (!store.indexNames.contains(n)) store.createIndex(n, k, { unique:false });
+                    });
+                };
+                req.onsuccess = (e) => { db = e.target.result; resolve(db); };
+            });
+        }
+
+        function getCanvasRelativePoint(event) {
+            const rect = canvas.getBoundingClientRect();
+            return { x:Math.min(Math.max(0,event.clientX-rect.left),rect.width), y:Math.min(Math.max(0,event.clientY-rect.top),rect.height), rectWidth:rect.width, rectHeight:rect.height };
+        }
+
+        function setLineButtonState() {
+            lineBtn.style.background = lineMode ? '#2563eb' : '#ffffff';
+            lineBtn.style.color = lineMode ? '#ffffff' : 'var(--text)';
+        }
+
+        function handleCanvasClick(event) {
+            if (!lineMode) return;
+            const point = getCanvasRelativePoint(event);
+            const np = { x:point.x/point.rectWidth, y:point.y/point.rectHeight };
+            if (!drawingLine||!lineStartNorm||lineEndNorm) {
+                lineStartNorm = np; lineEndNorm = null; drawingLine = true;
+                addLog('Inicio de linea definido');
+                return;
+            }
+            lineEndNorm = np; drawingLine = false; lineMode = false; mouseNorm = null;
+            setLineButtonState(); addLog('Linea de conteo actualizada');
+        }
+
+        function handleCanvasMouseMove(event) {
+            if (!lineMode||!drawingLine||!lineStartNorm) return;
+            const point = getCanvasRelativePoint(event);
+            mouseNorm = { x:point.x/point.rectWidth, y:point.y/point.rectHeight };
+        }
+
+        function toggleLineMode() {
+            lineMode = !lineMode; drawingLine = false; mouseNorm = null;
+            if (lineMode) { lineEndNorm = null; addLog('Modo linea activado'); }
+            else { addLog('Modo linea desactivado'); }
+            setLineButtonState();
+        }
+
+        async function generateFingerprint() {
+            let gpsPart = 'no-gps';
+            try {
+                const pos = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy:true, timeout:5000, maximumAge:0 });
+                });
+                gpsPart = `${(Math.round(pos.coords.latitude*100000)/100000).toFixed(5)},${(Math.round(pos.coords.longitude*100000)/100000).toFixed(5)}`;
+            } catch (e) {}
+            const components = [navigator.userAgent, screen.width+'x'+screen.height, navigator.language,
+                Intl.DateTimeFormat().resolvedOptions().timeZone, navigator.hardwareConcurrency, gpsPart];
+            const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(components.join('|||')));
+            const hash = Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('');
+            return { hash, gps:gpsPart };
+        }
+
+        function getDeviceConfig() { try { return JSON.parse(localStorage.getItem(DEVICE_STORAGE_KEY)); } catch(e) { return null; } }
+        function saveDeviceConfig(config) { localStorage.setItem(DEVICE_STORAGE_KEY, JSON.stringify(config)); }
+        function getDeviceName() {
+            if (deviceConfig&&deviceConfig.deviceName) return deviceConfig.deviceName;
+            try { const c=JSON.parse(localStorage.getItem(DEVICE_STORAGE_KEY)); return c&&c.deviceName?c.deviceName:''; } catch(e) { return ''; }
+        }
+        function getSyncConfig() {
+            try { const c=JSON.parse(localStorage.getItem(CONFIG_STORAGE_KEY)); return c&&c.interval?c.interval:SYNC_INTERVAL_MINUTES; }
+            catch(e) { return SYNC_INTERVAL_MINUTES; }
+        }
+        function saveSyncConfig(interval) { localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify({interval})); }
+        function getPendingCounts() { try { return JSON.parse(localStorage.getItem(PENDING_STORAGE_KEY))||{}; } catch(e) { return {}; } }
+        function savePendingCounts(p) { localStorage.setItem(PENDING_STORAGE_KEY, JSON.stringify(p)); }
+        function clearPendingCounts() { localStorage.removeItem(PENDING_STORAGE_KEY); }
+
+        async function registerDevice() {
+            deviceConfig = getDeviceConfig();
+            if (deviceConfig&&deviceConfig.token) { addLog(`Dispositivo: ${getDeviceName()}`); return; }
+            addLog('Registrando dispositivo...');
+            const { hash, gps } = await generateFingerprint();
+            document.getElementById('configFingerprint').textContent = hash;
+            const manualName = deviceNameInput.value.trim();
+            try {
+                const response = await fetch('/api/trafico/register/', {
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({ fingerprint:hash, user_agent:navigator.userAgent, coords:coordsInput.value.trim()||gps!=='no-gps'?gps:'' })
+                });
+                const data = await response.json();
+                if (data.status&&data.token) {
+                    deviceConfig = { token:data.token, deviceName:manualName||data.device_name, fingerprint:hash, deviceId:data.device_id };
+                    saveDeviceConfig(deviceConfig);
+                    addLog(`Dispositivo: ${deviceConfig.deviceName}`);
+                } else { addLog('Error registrando dispositivo'); }
+            } catch (error) { addLog(`Error registro: ${error.message}`); }
+        }
+
+        async function validateDeviceToken() {
+            if (!deviceConfig||!deviceConfig.token) return;
+            try {
+                const r = await fetch('/api/trafico/', { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${deviceConfig.token}`}, body:JSON.stringify({datetime:new Date().toISOString()}) });
+                if (r.status===401||r.status===403) { addLog('Token invalido, re-registrando...'); localStorage.removeItem(DEVICE_STORAGE_KEY); deviceConfig=null; await registerDevice(); }
+            } catch(e) {}
+        }
+
+        async function syncCounts() {
+            if (isSyncing||!deviceConfig||!deviceConfig.token) return;
+            isSyncing = true;
+            const pending = getPendingCounts();
+            const toSend = { ...pending };
+            Object.keys(counts).forEach(k => { toSend[k]=(toSend[k]||0)+counts[k]; });
+            const total = Object.values(toSend).reduce((a,b)=>a+b,0);
+            if (total===0) { isSyncing=false; return; }
+            try {
+                const r = await fetch('/api/trafico/', {
+                    method:'POST',
+                    headers:{'Content-Type':'application/json','Authorization':`Bearer ${deviceConfig.token}`},
+                    body: JSON.stringify({ datetime:new Date().toISOString(), car_count:toSend.car||0, person_count:toSend.person||0,
+                        bicycle_count:toSend.bicycle||0, motorcycle_count:toSend.motorcycle||0, truck_count:toSend.truck||0,
+                        bus_count:toSend.bus||0, skater_count:toSend.skater||0, pet_count:toSend.pet||0 })
+                });
+                if (r.ok) {
+                    Object.keys(counts).forEach(k=>{counts[k]=0;}); updateCounters(); clearPendingCounts();
+                    addLog(`Sync OK: ${total} eventos`);
+                } else if (r.status===401||r.status===403) {
+                    addLog(`Token invalido, re-registrando...`); localStorage.removeItem(DEVICE_STORAGE_KEY);
+                    deviceConfig=null; await registerDevice();
+                } else { savePendingCounts(toSend); addLog(`Sync error (${r.status})`); }
+            } catch (error) { savePendingCounts(toSend); addLog(`Sync fallo: ${error.message}`); }
+            isSyncing = false; updateSyncBadge();
+        }
+
+        function startSyncTimer() {
+            if (syncTimer) clearInterval(syncTimer);
+            const interval = getSyncConfig();
+            syncTimer = setInterval(syncCounts, interval*60*1000);
+            addLog(`Sync cada ${interval} min`);
+        }
+
+        function updateSyncBadge() {
+            const pending = getPendingCounts();
+            const pendingTotal = Object.values(pending).reduce((a,b)=>a+b,0);
+            const currentTotal = Object.values(counts).reduce((a,b)=>a+b,0);
+            const totalPending = pendingTotal+currentTotal;
+            if (!deviceConfig||!deviceConfig.token) {
+                syncBadge.className = 'sync-badge disconnected'; syncBadge.textContent = 'Sin conexion';
+            } else if (totalPending>0) {
+                syncBadge.className = 'sync-badge pending'; syncBadge.textContent = `Pendiente: ${totalPending}`;
+            } else {
+                syncBadge.className = 'sync-badge connected'; syncBadge.textContent = 'Conectado';
+            }
+        }
+
+        function openConfigModal() {
+            document.getElementById('configInterval').value = getSyncConfig();
+            document.getElementById('configDeviceName').value = getDeviceName();
+            if (deviceConfig&&deviceConfig.fingerprint) document.getElementById('configFingerprint').textContent = deviceConfig.fingerprint;
+            document.getElementById('configModal').style.display = 'block';
+            modalOverlay.style.display = 'block';
+        }
+
+        function closeConfigModal() {
+            document.getElementById('configModal').style.display = 'none';
+            modalOverlay.style.display = 'none';
+        }
+
+        async function initializeApp() {
+            try {
+                await initDatabase();
+                addLog('Base de datos conectada');
+                addLog(`RAM: ${deviceRAM}GB -> Modelo: ${MODEL_INPUT_SIZE}px`);
+                await loadModel();
+                await registerDevice();
+                await validateDeviceToken();
+                startSyncTimer();
+                updateSyncBadge();
+                await startCountingSession();
+                await startVideo();
+                renderVisibleOverlay();
+                renderCompositeFrame();
+            } catch (error) { console.error(error); addLog(`Error init: ${error.message}`); }
+        }
+
+        // Event listeners
+        aboutBtn.addEventListener('click', () => { aboutModal.style.display='block'; modalOverlay.style.display='block'; });
+        closeModal.addEventListener('click', () => { aboutModal.style.display='none'; modalOverlay.style.display='none'; });
+        modalOverlay.addEventListener('click', () => {
+            aboutModal.style.display='none'; document.getElementById('configModal').style.display='none';
+            modalOverlay.style.display='none';
+        });
+
+        terminalToggle.addEventListener('click', () => {
+            terminal.style.display = (terminal.style.display==='none'||!terminal.style.display)?'block':'none';
+        });
+
+        document.querySelector('.terminal-controls .close').addEventListener('click', () => { terminal.style.display='none'; });
+        document.querySelector('.terminal-controls .minimize').addEventListener('click', () => { terminal.style.height=terminal.style.height==='40px'?'300px':'40px'; });
+        document.querySelector('.terminal-controls .maximize').addEventListener('click', () => {
+            if (terminal.style.width==='100%') {
+                terminal.style.width='400px'; terminal.style.height='300px';
+                terminal.style.top=''; terminal.style.right='20px'; terminal.style.bottom='20px'; terminal.style.left='';
+            } else {
+                terminal.style.width='100%'; terminal.style.height='100%';
+                terminal.style.top='0'; terminal.style.right='0'; terminal.style.bottom='0'; terminal.style.left='0';
+            }
+        });
+
+        canvas.addEventListener('click', handleCanvasClick);
+        canvas.addEventListener('mousemove', handleCanvasMouseMove);
+        canvas.addEventListener('mouseleave', () => { mouseNorm=null; });
+
+        lineBtn.addEventListener('click', toggleLineMode);
+        downloadBtn.addEventListener('click', exportDetectionsCsv);
+        photoBtn.addEventListener('click', savePhoto);
+        recordBtn.addEventListener('click', () => { isRecording?stopRecording():startRecording(); });
+
+        document.getElementById('configBtn').addEventListener('click', openConfigModal);
+        document.getElementById('closeConfigModal').addEventListener('click', closeConfigModal);
+        document.getElementById('configSaveBtn').addEventListener('click', async () => {
+            const interval = parseInt(document.getElementById('configInterval').value)||SYNC_INTERVAL_MINUTES;
+            saveSyncConfig(interval); startSyncTimer();
+            addLog(`Intervalo: ${interval} min`);
+            const newName = document.getElementById('configDeviceName').value.trim();
+            if (newName&&deviceConfig&&deviceConfig.token) {
+                try {
+                    const r = await fetch('/api/trafico/device/', { method:'PATCH', headers:{'Content-Type':'application/json','Authorization':`Bearer ${deviceConfig.token}`}, body:JSON.stringify({name:newName}) });
+                    const d = await r.json();
+                    if (d.status) { deviceConfig.deviceName=d.device_name; saveDeviceConfig(deviceConfig); addLog(`Nombre: ${d.device_name}`); }
+                    else { addLog('Error actualizando nombre'); }
+                } catch(e) { addLog(`Error nombre: ${e.message}`); }
+            }
+            closeConfigModal();
+        });
+
+        document.addEventListener('visibilitychange', () => { if (document.visibilityState==='visible') { syncCounts(); updateSyncBadge(); } });
+        window.addEventListener('resize', () => { resizeRenderSurfaces(); renderVisibleOverlay(); renderCompositeFrame(); });
+        window.addEventListener('beforeunload', () => { stopPredictionLoop(); stopMjpegLoop(); stopCurrentSource(); if (isRecording) stopRecording(); });
+
+        updateCounters();
+        setLineButtonState();
+        updateRecordButtonState();
+    </script>
+</body>
+</html>

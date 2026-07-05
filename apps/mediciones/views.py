@@ -20,6 +20,12 @@ def contador(request):
     })
 
 
+def contador_externo(request):
+    return render(request, 'mediciones/contador_externo.html', {
+        'sync_interval': settings.TRAFFICO_SYNC_INTERVAL_MINUTES,
+    })
+
+
 def contador_model(request):
     size = request.GET.get('size', '640')
     if size == '320':

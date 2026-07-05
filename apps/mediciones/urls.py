@@ -1,9 +1,10 @@
 from django.urls import path
-from .views import TrafficCountAPIView, DeviceRegisterView, DeviceNameUpdateView, contador, contador_model
+from .views import TrafficCountAPIView, DeviceRegisterView, DeviceNameUpdateView, contador, contador_model, contador_externo
 
 urlpatterns = [
     path('contador/', contador, name='contador'),
     path('contador/model/', contador_model, name='contador-model'),
+    path('contador-externo/', contador_externo, name='contador-externo'),
 ]
 
 # API IoT routes (se mantiene en /api/trafico/)

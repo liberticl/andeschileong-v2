@@ -54,13 +54,19 @@ class ActivityListView(StaffMixin, ListView):
     template_name = 'hugo_edit/activity_list.html'
     context_object_name = 'activities'
     ordering = ['-date']
+    paginate_by = 15
 
     def get_queryset(self):
-        return super().get_queryset().filter(is_deleted=False)
+        qs = super().get_queryset().filter(is_deleted=False)
+        q = self.request.GET.get('q', '')
+        if q:
+            qs = qs.filter(title__icontains=q)
+        return qs
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['deleted_count'] = Activity.objects.filter(is_deleted=True).count()
+        ctx['q'] = self.request.GET.get('q', '')
         return ctx
 
 
@@ -100,13 +106,19 @@ class NoticiaListView(StaffMixin, ListView):
     template_name = 'hugo_edit/noticia_list.html'
     context_object_name = 'noticias'
     ordering = ['-date']
+    paginate_by = 15
 
     def get_queryset(self):
-        return super().get_queryset().filter(is_deleted=False)
+        qs = super().get_queryset().filter(is_deleted=False)
+        q = self.request.GET.get('q', '')
+        if q:
+            qs = qs.filter(title__icontains=q)
+        return qs
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['deleted_count'] = Noticia.objects.filter(is_deleted=True).count()
+        ctx['q'] = self.request.GET.get('q', '')
         return ctx
 
 
@@ -146,13 +158,19 @@ class EstudioListView(StaffMixin, ListView):
     template_name = 'hugo_edit/estudio_list.html'
     context_object_name = 'estudios'
     ordering = ['-date']
+    paginate_by = 15
 
     def get_queryset(self):
-        return super().get_queryset().filter(is_deleted=False)
+        qs = super().get_queryset().filter(is_deleted=False)
+        q = self.request.GET.get('q', '')
+        if q:
+            qs = qs.filter(title__icontains=q)
+        return qs
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['deleted_count'] = Estudio.objects.filter(is_deleted=True).count()
+        ctx['q'] = self.request.GET.get('q', '')
         return ctx
 
 

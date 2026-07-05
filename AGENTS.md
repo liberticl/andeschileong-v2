@@ -38,7 +38,7 @@ Dominio estático (Hugo): `https://andeschileong.cl`
 | `ciudadespendientes` | Core del sistema: modelos Zone/StravaData, visualización de mapas interactivos, carga de datos Strava, clasificación de flujos | `ciudadespendientes/` |
 | `accounts` | Sistema de autenticación custom: Account (custom user), Organization, Permission | `accounts/` |
 | `measuring` | API IoT para dispositivos de conteo de tráfico: Device, TrafficCount | `measuring/` |
-| `hugo_edit` | CMS para el sitio Hugo: CRUD de Actividades → genera .md → rebuild Hugo | `hugo_edit/` |
+| `hugo_edit` | CMS para el sitio Hugo: CRUD de Actividades/Noticias/Estudios → genera .md → rebuild Hugo via Celery | `hugo_edit/` |
 | `licitaciones` | Dashboard de licitaciones de infraestructura ciclista desde Mercado Público | `licitaciones/` |
 
 ---
@@ -103,7 +103,7 @@ El sitio público de la ONG, generado con Hugo.
 ## 5. hugo_edit ↔ hugo_site (Flujo de Sincronización)
 
 ```
-hugo_edit (Django)  ──→  hugo_site/content/actividades/{year}/{slug}.md  ──→  Hugo build  ──→  public/
+hugo_edit (Django)  ──→  hugo_site/content/actividades/{year}/{slug}.md  ──→  Celery task (rebuild_hugo)  ──→  public/
 ```
 
 ### Modelo Activity (`hugo_edit/models.py`)
@@ -121,12 +121,19 @@ hugo_edit (Django)  ──→  hugo_site/content/actividades/{year}/{slug}.md  �
 
 1. `Activity.save()` → `super().save()` → `self.generate_markdown()`
 2. `generate_markdown()` escribe `.md` en `hugo_site/content/actividades/{year}/{slug}.md`
-3. Ejecuta `subprocess.run(['hugo', '--minify'])` para reconstruir
+3. `rebuild_hugo.delay()` envía tarea asincrónica a Celery para reconstruir Hugo
 
 ### Flujo de eliminación
 
-1. `Activity.delete()` → elimina `.md` si existe → `subprocess.run(['hugo', '--minify'])`
-2. `super().delete()` para eliminar de la DB
+1. `Activity.soft_delete()` → elimina `.md` si existe → `rebuild_hugo.delay()`
+2. `super().delete()` para eliminar de la DB (vía `soft_delete`)
+
+### Tarea Celery (`hugo_edit/tasks.py`)
+
+La reconstrucción de Hugo se ejecuta de forma asincrónica via Celery:
+- `rebuild_hugo()` ejecuta `hugo --minify` con timeout de 60s
+- Broker: Redis (`redis://redis:6379/0`)
+- Auto-descubierta por `app.autodiscover_tasks()` en `andeschileong/celery.py`
 
 ### Comando de recuperación
 
@@ -138,16 +145,26 @@ Regenera TODOS los `.md` desde la DB y reconstruye Hugo. Usar si los archivos se
 ### Intranet (solo superuser)
 
 - `/intranet/` → Dashboard
-- `/intranet/actividades/` → Listado de actividades
+- `/intranet/actividades/` → Listado de actividades (con búsqueda y paginación)
 - `/intranet/actividades/add/` → Crear actividad
 - `/intranet/actividades/<pk>/edit/` → Editar
 - `/intranet/actividades/<pk>/delete/` → Eliminar
+- `/intranet/noticias/` → Listado de noticias (con búsqueda y paginación)
+- `/intranet/noticias/add/` → Crear noticia
+- `/intranet/noticias/<pk>/edit/` → Editar
+- `/intranet/noticias/<pk>/delete/` → Eliminar
+- `/intranet/estudios/` → Listado de estudios (con búsqueda y paginación)
+- `/intranet/estudios/add/` → Crear estudio
+- `/intranet/estudios/<pk>/edit/` → Editar
+- `/intranet/estudios/<pk>/delete/` → Eliminar
+
+Los listados incluyen búsqueda por título (`?q=`) y paginación (15 ítems/página).
 
 Editor Markdown: SimpleMDE (CDN) en el campo `content`.
 
 ### Nota importante
 
-`hugo_edit` **solo gestiona la sección `actividades/`**. Las demás secciones (noticias, estudios, nosotros, etc.) se editan directamente como archivos `.md` en `hugo_site/content/`.
+`hugo_edit` gestiona las secciones `actividades/`, `noticias/` y `estudios/` del sitio Hugo. La sección `nosotros/` y demás se editan directamente como archivos `.md` en `hugo_site/content/`.
 
 ---
 
@@ -342,7 +359,8 @@ docker-compose logs -f
 | `apps/mediciones/models.py` | Device, TrafficCount |
 | `apps/mediciones/views.py` | API IoT TrafficCountAPIView, DeviceRegisterView, DeviceNameUpdateView |
 | `apps/mediciones/templates/mediciones/contador.html` | Aplicación de detección YOLO26n + ONNX (fingerprint, reverse geocoding, sync) |
-| `hugo_edit/models.py` | Activity (genera .md y rebuild Hugo) |
+| `hugo_edit/models.py` | Activity, Noticia, Estudio (genera .md y trigger rebuild Hugo via Celery) |
+| `hugo_edit/tasks.py` | Tarea Celery `rebuild_hugo()` — ejecuta `hugo --minify` asincrónicamente |
 | `hugo_edit/management/commands/sync_hugo.py` | Comando sync DB → Hugo |
 | `hugo_edit/admin.py` | Admin custom con SimpleMDE |
 | `licitaciones/models.py` | Licitacion, SyncLog |

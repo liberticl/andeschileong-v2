@@ -1,15 +1,9 @@
-import subprocess
 import os
 from django.db import models
 from django.conf import settings
 from django.utils.text import slugify
 
-
-def _rebuild_hugo():
-    subprocess.run(
-        ['hugo', '--minify'],
-        cwd=os.path.join(settings.BASE_DIR, 'hugo_site')
-    )
+from .tasks import rebuild_hugo
 
 
 class Activity(models.Model):
@@ -71,13 +65,13 @@ title: "{self.title}"
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         self.generate_markdown()
-        _rebuild_hugo()
+        rebuild_hugo.delay()
 
     def soft_delete(self):
         self.is_deleted = True
         self.save()
         self.remove_hugo_file()
-        _rebuild_hugo()
+        rebuild_hugo.delay()
 
     def restore(self):
         self.is_deleted = False
@@ -140,13 +134,13 @@ title: "{self.title}"
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         self.generate_markdown()
-        _rebuild_hugo()
+        rebuild_hugo.delay()
 
     def soft_delete(self):
         self.is_deleted = True
         self.save()
         self.remove_hugo_file()
-        _rebuild_hugo()
+        rebuild_hugo.delay()
 
     def restore(self):
         self.is_deleted = False
@@ -207,13 +201,13 @@ title: "{self.title}"
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         self.generate_markdown()
-        _rebuild_hugo()
+        rebuild_hugo.delay()
 
     def soft_delete(self):
         self.is_deleted = True
         self.save()
         self.remove_hugo_file()
-        _rebuild_hugo()
+        rebuild_hugo.delay()
 
     def restore(self):
         self.is_deleted = False

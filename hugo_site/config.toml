@@ -7,7 +7,7 @@ disqusShortname = ""
 googleAnalytics = ""
 theme = "hugo-sustain"
 buildFuture = true
-buildDrafts = true
+buildDrafts = false
 
 [permalinks]
   post = "/:day de /:month del /:year:/slug"

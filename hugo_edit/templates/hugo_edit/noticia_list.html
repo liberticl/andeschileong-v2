@@ -9,6 +9,12 @@
         </div>
         <div class="col-md-8"></div>
         <div class="col-md-4 text-end">
+            {% if deleted_count > 0 %}
+            <a href="{% url 'hugo_noticia_deleted' %}"
+                class="btn btn-outline-secondary rounded-pill px-4 me-2 shadow-sm">
+                <i class="fa fa-trash me-2"></i> Eliminados <span class="badge bg-secondary ms-1">{{ deleted_count }}</span>
+            </a>
+            {% endif %}
             <button type="button" onclick="window.location.href='{% url 'hugo_noticia_create' %}'"
                 class="btn rounded-pill px-4 shadow-sm">
                 <i class="fa fa-plus me-2"></i> Añadir Noticia
@@ -24,13 +30,18 @@
                         <th class="ps-4">Título</th>
                         <th>Publicado</th>
                         <th>Tags</th>
-                        <th class="pe-4 text-end">Acciones</th>
+                        <th class="text-center">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for noticia in noticias %}
                     <tr>
-                        <td class="ps-4 fw-bold">{{ noticia.title }}</td>
+                        <td class="ps-4 fw-bold">
+                            {{ noticia.title }}
+                            {% if not noticia.is_published %}
+                            <span class="badge bg-warning text-dark ms-2">Borrador</span>
+                            {% endif %}
+                        </td>
                         <td>{{ noticia.date|date:"d/m/Y" }}</td>
                         <td>
                             {% if noticia.tags %}
@@ -39,10 +50,14 @@
                             <span class="text-muted small">Sin tags</span>
                             {% endif %}
                         </td>
-                        <td class="pe-4 text-end">
+                        <td class="text-center">
+                            <a href="/noticias/{{ noticia.date.year }}/{{ noticia.title|slugify }}/"
+                                target="_blank" class="btn btn-sm btn-outline-secondary ms-1" title="Previsualizar">
+                                <i class="fa fa-eye"></i>
+                            </a>
                             <button type="button"
                                 onclick="window.location.href='{% url 'hugo_noticia_update' noticia.pk %}'"
-                                class="btn btn-sm ms-1" title="Editar">
+                                class="btn btn-sm btn-outline-secondary ms-1" title="Editar">
                                 <i class="fa fa-pencil"></i>
                             </button>
                             <button type="button"

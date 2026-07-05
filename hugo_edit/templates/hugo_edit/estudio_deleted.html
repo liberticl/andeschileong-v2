@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5 pt-5 mb-5">
+    <div class="row align-items-center mb-4">
+        <div class="col-md-12">
+            <h2 style="font-family: 'Urbanist', sans-serif; font-weight: 700;">Estudios Eliminados</h2>
+            <p class="text-muted">Estos estudios fueron eliminados. Puedes restaurarlos para volver a mostrarlos en el sitio.</p>
+        </div>
+        <div class="col-md-8">
+            <a href="{% url 'hugo_estudio_list' %}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                <i class="fa fa-arrow-left me-2"></i> Volver al listado
+            </a>
+        </div>
+    </div>
+
+    <div class="border-0 rounded-3">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="bg-light text-muted">
+                    <tr>
+                        <th class="ps-4">Título</th>
+                        <th>Fecha</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for estudio in estudios %}
+                    <tr>
+                        <td class="ps-4 fw-bold">{{ estudio.title }}</td>
+                        <td>{{ estudio.date|date:"d/m/Y" }}</td>
+                        <td class="text-center">
+                            <button type="button"
+                                onclick="window.location.href='{% url 'hugo_estudio_restore' estudio.pk %}'"
+                                class="btn btn-sm btn-outline-success ms-1" title="Restaurar">
+                                <i class="fa fa-undo"></i> Republicar
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center py-5 text-muted">
+                            No hay estudios eliminados.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

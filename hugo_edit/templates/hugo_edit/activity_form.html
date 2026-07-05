@@ -27,7 +27,7 @@
     </div>
 
     <div class="mt-5">
-        <form method="post" enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data" id="activity-form">
             {% csrf_token %}
             <div class="row g-3 text-start">
                 <div class="col-md-8">
@@ -56,15 +56,29 @@
                     {{ form.tags }}
                 </div>
 
+                <div class="col-12 mt-3">
+                    <div class="form-check">
+                        {{ form.is_published }}
+                        <label class="form-check-label fw-bold" for="{{ form.is_published.id_for_label }}">
+                            {{ form.is_published.label }}
+                        </label>
+                        <small class="text-secondary d-block">Desmarca para guardar como borrador (no se muestra al público)</small>
+                    </div>
+                </div>
+
                 <div class="col-12 mt-4">
                     <label class="form-label fw-bold mb-3">{{ form.content.label }}</label>
-                    <!-- El ID de este campo será 'id_content' automáticamente y lo inyectaremos en SimpleMDE -->
                     {{ form.content }}
                 </div>
             </div>
 
             <div class="text-end pt-3 pb-5">
                 <button type="button" class="btn btn-lg px-5 shadow-sm" onclick="window.location.href='{% url 'hugo_activity_list' %}'">Cancelar</button>
+                {% if object %}
+                <button type="button" class="btn btn-lg px-5 shadow-sm btn-outline-secondary me-2" id="preview-btn">
+                    <i class="fa fa-eye me-2"></i> Previsualizar
+                </button>
+                {% endif %}
                 <button type="submit" class="btn btn-lg px-5 shadow-sm">
                     <i class="fa fa-save me-2"></i> Guardar
                 </button>
@@ -84,6 +98,19 @@
                 spellChecker: false,
                 forceSync: true,
                 placeholder: "Escribe tu contenido aquí en formato Markdown...",
+            });
+        }
+
+        var previewBtn = document.getElementById("preview-btn");
+        if (previewBtn) {
+            previewBtn.addEventListener("click", function () {
+                var form = document.getElementById("activity-form");
+                var hiddenInput = document.createElement("input");
+                hiddenInput.type = "hidden";
+                hiddenInput.name = "preview";
+                hiddenInput.value = "1";
+                form.appendChild(hiddenInput);
+                form.submit();
             });
         }
     });

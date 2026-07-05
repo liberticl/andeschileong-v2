@@ -9,6 +9,12 @@
         </div>
         <div class="col-md-8"></div>
         <div class="col-md-4 text-end">
+            {% if deleted_count > 0 %}
+            <a href="{% url 'hugo_estudio_deleted' %}"
+                class="btn btn-outline-secondary rounded-pill px-4 me-2 shadow-sm">
+                <i class="fa fa-trash me-2"></i> Eliminados <span class="badge bg-secondary ms-1">{{ deleted_count }}</span>
+            </a>
+            {% endif %}
             <button type="button" onclick="window.location.href='{% url 'hugo_estudio_create' %}'"
                 class="btn rounded-pill px-4 shadow-sm">
                 <i class="fa fa-plus me-2"></i> Añadir Estudio
@@ -24,13 +30,18 @@
                         <th class="ps-4">Título</th>
                         <th>Publicado</th>
                         <th>Imagen</th>
-                        <th class="pe-4 text-end">Acciones</th>
+                        <th class="text-center">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for estudio in estudios %}
                     <tr>
-                        <td class="ps-4 fw-bold">{{ estudio.title }}</td>
+                        <td class="ps-4 fw-bold">
+                            {{ estudio.title }}
+                            {% if not estudio.is_published %}
+                            <span class="badge bg-warning text-dark ms-2">Borrador</span>
+                            {% endif %}
+                        </td>
                         <td>{{ estudio.date|date:"d/m/Y" }}</td>
                         <td>
                             {% if estudio.featured_image %}
@@ -39,10 +50,14 @@
                             <span class="text-muted small">Sin imagen</span>
                             {% endif %}
                         </td>
-                        <td class="pe-4 text-end">
+                        <td class="text-center">
+                            <a href="/estudios/{{ estudio.date.year }}/{{ estudio.title|slugify }}/"
+                                target="_blank" class="btn btn-sm btn-outline-secondary ms-1" title="Previsualizar">
+                                <i class="fa fa-eye"></i>
+                            </a>
                             <button type="button"
                                 onclick="window.location.href='{% url 'hugo_estudio_update' estudio.pk %}'"
-                                class="btn btn-sm ms-1" title="Editar">
+                                class="btn btn-sm btn-outline-secondary ms-1" title="Editar">
                                 <i class="fa fa-pencil"></i>
                             </button>
                             <button type="button"

@@ -582,3 +582,25 @@ h5 a:hover {
   z-index: 1500 !important;
   backdrop-filter: blur(4px) !important;
 }
+
+/* Intranet button hover: white text + filled background */
+.btn-outline-secondary:hover,
+.btn-outline-danger:hover,
+.btn-outline-success:hover {
+  color: #fff !important;
+}
+.btn-outline-secondary:hover .fa,
+.btn-outline-danger:hover .fa,
+.btn-outline-success:hover .fa {
+  color: #fff !important;
+}
+
+/* Fix: a tags with btn-outline inherit link color (blue) */
+a.btn-outline-secondary,
+a.btn-outline-secondary .fa {
+  color: #000 !important;
+}
+a.btn-outline-secondary:hover,
+a.btn-outline-secondary:hover .fa {
+  color: #fff !important;
+}

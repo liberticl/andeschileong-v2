@@ -29,7 +29,7 @@
                     <tr>
                         <td class="ps-4 fw-bold">{{ activity.title }}</td>
                         <td>{{ activity.date|date:"d/m/Y" }}</td>
-                        <td class="text-center">
+                        <td class="text-center col-acciones">
                             <button type="button"
                                 onclick="window.location.href='{% url 'hugo_activity_restore' activity.pk %}'"
                                 class="btn btn-sm btn-outline-success ms-1" title="Restaurar">

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load split_tags %}
 
 {% block content %}
 <div class="container mt-5 pt-5 mb-5">
@@ -61,12 +62,14 @@
                         <td>{{ activity.date|date:"d/m/Y" }}</td>
                         <td>
                             {% if activity.tags %}
-                            <span class="badge bg-secondary">{{ activity.tags }}</span>
+                            {% for tag in activity.tags|split:"," %}
+                            <span class="badge bg-secondary">{{ tag }}</span>
+                            {% endfor %}
                             {% else %}
                             <span class="text-muted small">Sin tags</span>
                             {% endif %}
                         </td>
-                        <td class="text-center">
+                        <td class="text-center col-acciones">
                             <a href="/actividades/{{ activity.date.year }}/{{ activity.title|slugify }}/"
                                 target="_blank" class="btn btn-sm btn-outline-secondary ms-1" title="Previsualizar">
                                 <i class="fa fa-eye"></i>

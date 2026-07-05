@@ -1,0 +1,22 @@
+{{ define "main" }}
+
+    {{ partial "header" .}}
+
+    <div class="container">
+        <h3 class="my-5"><b>{{ .Title }}</b></h3>
+        <div class="panel">
+            <div class="gallery-container" style="flex-direction: column; align-items: stretch;">
+                {{ .Content }}
+                <div class="timeline">
+                    {{ range .Pages.GroupByDate "2006" }}
+                    <div class="timeline-year">{{ .Key }}</div>
+                    {{ range .Pages }}
+                        {{ partial "listado-noticias" . }}
+                    {{ end }}
+                    {{ end }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+{{ end }}

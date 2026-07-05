@@ -1,0 +1,13 @@
+{{ $meses := slice "Ene" "Feb" "Mar" "Abr" "May" "Jun" "Jul" "Ago" "Sep" "Oct" "Nov" "Dic" }}
+{{ $mes := index $meses (sub (.Date.Month) 1) }}
+
+<div class="timeline-item">
+    <div class="timeline-dot"></div>
+    <div class="timeline-date">{{ $mes }} {{ .Date.Day }}</div>
+    <div class="timeline-content">
+        <a href="{{.RelPermalink}}" class="timeline-title">{{ .Title }}</a>
+        {{ with .Description }}
+        <p class="timeline-desc">{{ . }}</p>
+        {{ end }}
+    </div>
+</div>

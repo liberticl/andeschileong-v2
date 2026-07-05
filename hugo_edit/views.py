@@ -23,6 +23,7 @@ class StaffMixin:
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
+
 class ActivityListView(StaffMixin, ListView):
     model = Activity
     template_name = 'hugo_edit/activity_list.html'

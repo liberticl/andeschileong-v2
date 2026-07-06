@@ -336,6 +336,10 @@ ENV="prod"
 | `/accounts/solicitud-exitosa/` | `RegistrationRequestSuccessView` | accounts | Éxito solicitud |
 | `/accounts/activar/<token>/` | `ActivateAccountView` | accounts | Activar cuenta con token |
 | `/accounts/activacion-completa/` | `ActivationCompleteView` | accounts | Activación completada |
+| `/accounts/password-reset/` | `PasswordResetView` | accounts | Formulario de restablecimiento |
+| `/accounts/password-reset/done/` | `PasswordResetDoneView` | accounts | Correo enviado |
+| `/accounts/password-reset/<uidb64>/<token>/` | `PasswordResetConfirmView` | accounts | Nueva contraseña |
+| `/accounts/password-reset-complete/` | `PasswordResetCompleteView` | accounts | Contraseña restablecida |
 | `/accounts/api/zonas/` | `ZonesAPIView` | accounts | API JSON zonas (fetch) |
 | `/accounts/api/regiones/` | `RegionsAPIView` | accounts | API JSON regiones por país |
 | `/accounts/api/comunas/` | `ComunasByRegionAPIView` | accounts | API JSON comunas por región |
@@ -471,11 +475,17 @@ docker-compose exec web bash -c "<comando>"  # Ejecutar bash en el contenedor
 | `templates/email/welcome.html` | Email de bienvenida con link de activación |
 | `templates/email/registration_rejected.html` | Email de rechazo de solicitud |
 | `templates/email/new_registration_request.html` | Email de notificación al admin |
+| `templates/email/password_reset.html` | Email de restablecimiento de contraseña |
+| `templates/email/password_reset_subject.txt` | Asunto del email de reset |
 | `templates/accounts/registration_request.html` | Formulario 2 pasos de solicitud (JS) |
 | `templates/accounts/registration_request_list.html` | Listado de solicitudes (staff) |
 | `templates/accounts/registration_request_detail.html` | Detalle solicitud + aprobar/rechazar |
 | `templates/accounts/activate_account.html` | Formulario para establecer contraseña |
 | `templates/accounts/activation_complete.html` | Página de éxito de activación |
+| `templates/accounts/password_reset.html` | Formulario de solicitud de reset |
+| `templates/accounts/password_reset_done.html` | Confirmación de envío de correo |
+| `templates/accounts/password_reset_confirm.html` | Formulario de nueva contraseña |
+| `templates/accounts/password_reset_complete.html` | Confirmación de reset completado |
 | `apps/mediciones/models.py` | Device, TrafficCount |
 | `apps/mediciones/views.py` | API IoT TrafficCountAPIView, DeviceRegisterView, DeviceNameUpdateView |
 | `apps/mediciones/templates/mediciones/contador.html` | Aplicación de detección YOLO26n + ONNX (fingerprint, reverse geocoding, sync) |

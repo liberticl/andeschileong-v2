@@ -1,118 +1,109 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container"
-    style="max-width: 800px; margin-top: 40px; margin-bottom: 60px; z-index: 10; position: relative;">
-    <h3 style="color: #000000;"><b>Detalle de Solicitud</b></h3>
+<div class="container mt-5 pt-5 mb-5" style="max-width: 800px;">
+    <h3 class="ac-title">Detalle de Solicitud</h3>
     <hr>
 
-    <div class="card mb-3">
-        <div class="card-header" style="background-color: #2241a8; color: #fff;">
-            <b>Datos Personales</b>
-        </div>
-        <div class="card-body">
-            <div class="row mb-2">
-                <div class="col-sm-4"><strong>Email:</strong></div>
-                <div class="col-sm-8">{{ request_obj.email }}</div>
+    <div class="card ac-card">
+        <div class="card-header ac-card-header">Datos Personales</div>
+        <div class="card-body ac-card-body">
+            <div class="ac-info-row">
+                <span class="ac-info-label">Email:</span>
+                <span class="ac-info-value">{{ request_obj.email }}</span>
             </div>
-            <div class="row mb-2">
-                <div class="col-sm-4"><strong>Nombre:</strong></div>
-                <div class="col-sm-8">{{ request_obj.first_name }} {{ request_obj.last_name }}</div>
+            <div class="ac-info-row">
+                <span class="ac-info-label">Nombre:</span>
+                <span class="ac-info-value">{{ request_obj.first_name }} {{ request_obj.last_name }}</span>
             </div>
-            <div class="row mb-2">
-                <div class="col-sm-4"><strong>Celular:</strong></div>
-                <div class="col-sm-8">{{ request_obj.cellphone|default:"-" }}</div>
+            <div class="ac-info-row">
+                <span class="ac-info-label">Celular:</span>
+                <span class="ac-info-value">{{ request_obj.cellphone|default:"-" }}</span>
             </div>
         </div>
     </div>
 
-    <div class="card mb-3">
-        <div class="card-header" style="background-color: #2241a8; color: #fff;">
-            <b>Organización</b>
-        </div>
-        <div class="card-body">
-            <div class="row mb-2">
-                <div class="col-sm-4"><strong>Nombre:</strong></div>
-                <div class="col-sm-8">{{ request_obj.organization_name }}</div>
+    <div class="card ac-card">
+        <div class="card-header ac-card-header">Organización</div>
+        <div class="card-body ac-card-body">
+            <div class="ac-info-row">
+                <span class="ac-info-label">Nombre:</span>
+                <span class="ac-info-value">{{ request_obj.organization_name }}</span>
             </div>
-            <div class="row mb-2">
-                <div class="col-sm-4"><strong>Tipo:</strong></div>
-                <div class="col-sm-8">{{ request_obj.organization_type }}</div>
+            <div class="ac-info-row">
+                <span class="ac-info-label">Tipo:</span>
+                <span class="ac-info-value">{{ request_obj.organization_type }}</span>
             </div>
-            <div class="row mb-2">
-                <div class="col-sm-4"><strong>RUT:</strong></div>
-                <div class="col-sm-8">{{ request_obj.organization_rut|default:"-" }}</div>
+            <div class="ac-info-row">
+                <span class="ac-info-label">RUT:</span>
+                <span class="ac-info-value">{{ request_obj.organization_rut|default:"-" }}</span>
             </div>
-            <div class="row mb-2">
-                <div class="col-sm-4"><strong>País:</strong></div>
-                <div class="col-sm-8">{{ request_obj.organization_country }}</div>
+            <div class="ac-info-row">
+                <span class="ac-info-label">País:</span>
+                <span class="ac-info-value">{{ request_obj.organization_country }}</span>
             </div>
         </div>
     </div>
 
-    <div class="card mb-3">
-        <div class="card-header" style="background-color: #2241a8; color: #fff;">
-            <b>Acceso</b>
-        </div>
-        <div class="card-body">
-            <div class="row mb-2">
-                <div class="col-sm-4"><strong>Sección:</strong></div>
-                <div class="col-sm-8">{{ request_obj.get_access_section_display }}</div>
+    <div class="card ac-card">
+        <div class="card-header ac-card-header">Acceso</div>
+        <div class="card-body ac-card-body">
+            <div class="ac-info-row">
+                <span class="ac-info-label">Sección:</span>
+                <span class="ac-info-value">{{ request_obj.get_access_section_display }}</span>
             </div>
             {% if request_obj.zone %}
-            <div class="row mb-2">
-                <div class="col-sm-4"><strong>Zona:</strong></div>
-                <div class="col-sm-8">{{ request_obj.zone }}</div>
+            <div class="ac-info-row">
+                <span class="ac-info-label">Zona:</span>
+                <span class="ac-info-value">{{ request_obj.zone }}</span>
             </div>
             {% endif %}
         </div>
     </div>
 
-    <div class="card mb-3">
-        <div class="card-header" style="background-color: #2241a8; color: #fff;">
-            <b>Estado</b>
-        </div>
-        <div class="card-body">
-            <div class="row mb-2">
-                <div class="col-sm-4"><strong>Estado:</strong></div>
-                <div class="col-sm-8">
+    <div class="card ac-card">
+        <div class="card-header ac-card-header">Estado</div>
+        <div class="card-body ac-card-body">
+            <div class="ac-info-row">
+                <span class="ac-info-label">Estado:</span>
+                <span class="ac-info-value">
                     {% if request_obj.status == 'pending' %}
-                    <span class="badge bg-warning text-dark">Pendiente</span>
+                    <span class="ac-badge ac-badge--pending">Pendiente</span>
                     {% elif request_obj.status == 'approved' %}
-                    <span class="badge bg-success">Aprobada</span>
+                    <span class="ac-badge ac-badge--approved">Aprobada</span>
                     {% elif request_obj.status == 'rejected' %}
-                    <span class="badge bg-danger">Rechazada</span>
+                    <span class="ac-badge ac-badge--rejected">Rechazada</span>
                     {% endif %}
-                </div>
+                </span>
             </div>
             {% if request_obj.reviewed_by %}
-            <div class="row mb-2">
-                <div class="col-sm-4"><strong>Revisado por:</strong></div>
-                <div class="col-sm-8">{{ request_obj.reviewed_by }}</div>
+            <div class="ac-info-row">
+                <span class="ac-info-label">Revisado por:</span>
+                <span class="ac-info-value">{{ request_obj.reviewed_by }}</span>
             </div>
             {% endif %}
             {% if request_obj.reviewed_at %}
-            <div class="row mb-2">
-                <div class="col-sm-4"><strong>Fecha revisión:</strong></div>
-                <div class="col-sm-8">{{ request_obj.reviewed_at|date:"d/m/Y H:i" }}</div>
+            <div class="ac-info-row">
+                <span class="ac-info-label">Fecha revisión:</span>
+                <span class="ac-info-value">{{ request_obj.reviewed_at|date:"d/m/Y H:i" }}</span>
             </div>
             {% endif %}
             {% if request_obj.rejection_reason %}
-            <div class="row mb-2">
-                <div class="col-sm-4"><strong>Motivo rechazo:</strong></div>
-                <div class="col-sm-8 text-danger">{{ request_obj.rejection_reason }}</div>
+            <div class="ac-info-row">
+                <span class="ac-info-label">Motivo rechazo:</span>
+                <span class="ac-info-value text-danger">{{ request_obj.rejection_reason }}</span>
             </div>
             {% endif %}
         </div>
     </div>
 
     {% if request_obj.status == 'pending' %}
-    <div class="d-flex gap-2">
+    <div class="ac-btn-group">
         <form method="post" action="{% url 'hugo_registration_request_approve' request_obj.pk %}">
             {% csrf_token %}
-            <button type="submit" class="btn btn-success">Aprobar</button>
+            <button type="submit" class="btn ac-btn-success">Aprobar</button>
         </form>
-        <a href="{% url 'hugo_registration_request_reject' request_obj.pk %}" class="btn btn-danger">Rechazar</a>
+        <a href="{% url 'hugo_registration_request_reject' request_obj.pk %}" class="btn ac-btn-danger">Rechazar</a>
     </div>
     {% endif %}
 

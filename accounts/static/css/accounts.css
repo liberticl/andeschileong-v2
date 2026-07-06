@@ -1,0 +1,286 @@
+/* ==========================================================================
+   accounts.css — Estilos para cuentas, solicitudes y formularios de intranet
+   Andes Chile ONG | Ciudades Pendientes V2
+   ========================================================================== */
+
+/* ---------- Variables ---------- */
+:root {
+    --ac-primary: #2241a8;
+    --ac-primary-dark: #1a3380;
+    --ac-text: #333;
+    --ac-text-muted: #555;
+    --ac-text-light: #999;
+    --ac-bg-page: #f4f4f4;
+    --ac-bg-card: #ffffffdd;
+    --ac-radius: 8px;
+    --ac-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ---------- Page container ---------- */
+.ac-page {
+    max-width: 700px;
+    margin-top: 40px;
+    margin-bottom: 60px;
+    z-index: 10;
+    position: relative;
+}
+
+.ac-page--wide {
+    max-width: 800px;
+}
+
+.ac-page--narrow {
+    max-width: 500px;
+}
+
+.ac-page--full {
+    max-width: 100%;
+}
+
+/* ---------- Form / card container ---------- */
+.ac-container {
+    background-color: var(--ac-bg-card);
+    border-radius: var(--ac-radius);
+    padding: 32px;
+    box-shadow: var(--ac-shadow);
+}
+
+.ac-container--center {
+    text-align: center;
+}
+
+/* ---------- Headings ---------- */
+.ac-title {
+    color: #000000;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.ac-title--center {
+    text-align: center;
+}
+
+.ac-title--danger {
+    color: #dc3545;
+}
+
+.ac-subtitle {
+    color: var(--ac-primary);
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+/* ---------- Card (used in detail views) ---------- */
+.ac-card {
+    margin-bottom: 1rem;
+}
+
+.ac-card-header {
+    background-color: var(--ac-primary);
+    color: #fff;
+    font-weight: 700;
+    padding: 10px 16px;
+}
+
+.ac-card-body {
+    padding: 16px;
+}
+
+/* ---------- Status badges ---------- */
+.ac-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.ac-badge--pending {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.ac-badge--approved {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.ac-badge--rejected {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+/* ---------- Tabs (intranet/solicitudes) ---------- */
+.ac-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.ac-tab-item {
+    margin-right: 2px;
+}
+
+.ac-tab-link {
+    display: block;
+    padding: 8px 18px;
+    color: var(--ac-primary);
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.15s ease;
+}
+
+.ac-tab-link:hover {
+    color: var(--ac-primary-dark);
+    background-color: rgba(34, 65, 168, 0.08);
+}
+
+.ac-tab-link--active {
+    color: #fff !important;
+    background-color: var(--ac-primary);
+    border-color: var(--ac-primary);
+}
+
+.ac-tab-link--active:hover {
+    color: #fff !important;
+    background-color: var(--ac-primary-dark);
+}
+
+/* ---------- Table ---------- */
+.ac-table {
+    margin-bottom: 1rem;
+}
+
+.ac-table thead {
+    background-color: var(--ac-primary);
+    color: #fff;
+}
+
+.ac-table thead th {
+    border: none;
+    font-weight: 600;
+}
+
+.ac-table td {
+    vertical-align: middle;
+}
+
+.ac-table-actions {
+    white-space: nowrap;
+}
+
+/* ---------- Buttons ---------- */
+.ac-btn-primary {
+    background-color: var(--ac-primary);
+    border-color: var(--ac-primary);
+    color: #fff;
+}
+
+.ac-btn-primary:hover {
+    background-color: var(--ac-primary-dark);
+    border-color: var(--ac-primary-dark);
+    color: #fff;
+}
+
+.ac-btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: #fff;
+}
+
+.ac-btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: #fff;
+}
+
+/* ---------- Info row (detail views) ---------- */
+.ac-info-row {
+    display: flex;
+    padding: 6px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.ac-info-row:last-child {
+    border-bottom: none;
+}
+
+.ac-info-label {
+    flex: 0 0 33.333%;
+    font-weight: 600;
+    color: var(--ac-text);
+}
+
+.ac-info-value {
+    flex: 1;
+    color: var(--ac-text);
+}
+
+/* ---------- Success / info icons ---------- */
+.ac-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.ac-icon--success {
+    color: #28a745;
+}
+
+.ac-icon--info {
+    color: var(--ac-primary);
+}
+
+/* ---------- Text helpers ---------- */
+.ac-text-muted {
+    color: var(--ac-text-muted);
+    font-size: 16px;
+    margin-top: 20px;
+}
+
+.ac-text-light {
+    color: var(--ac-text-light);
+    font-size: 13px;
+}
+
+/* ---------- Step indicator (2-step form) ---------- */
+.ac-step-title {
+    color: var(--ac-primary);
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+/* ---------- New org card ---------- */
+.ac-org-card {
+    border-color: var(--ac-primary);
+}
+
+.ac-org-card .ac-card-header {
+    background-color: var(--ac-primary);
+    color: #fff;
+    padding: 8px 16px;
+}
+
+/* ---------- Button group ---------- */
+.ac-btn-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* ---------- Back link ---------- */
+.ac-back-link {
+    color: var(--ac-primary);
+    text-decoration: none;
+}
+
+.ac-back-link:hover {
+    text-decoration: underline;
+}

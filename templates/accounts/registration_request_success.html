@@ -1,16 +1,15 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container"
-    style="max-width: 600px; margin-top: 60px; margin-bottom: 60px; z-index: 10; position: relative; background-color: #ffffffdd; border-radius: 8px; padding: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center;">
-    <div style="font-size: 48px; color: #28a745; margin-bottom: 16px;">
+<div class="container ac-page ac-container ac-container--center">
+    <div class="ac-icon ac-icon--success">
         <i class="fa fa-check-circle"></i>
     </div>
-    <h3 style="color: #000000;"><b>¡Solicitud enviada!</b></h3>
-    <p style="color: #555; font-size: 16px; margin-top: 20px;">
+    <h3 class="ac-title">¡Solicitud enviada!</h3>
+    <p class="ac-text-muted">
         Tu solicitud está siendo revisada. Recibirás un correo electrónico cuando sea aprobada.
     </p>
     <hr>
-    <a href="/login/" class="btn btn-primary">Ir al Login</a>
+    <a href="/login/" class="btn ac-btn-primary">Ir al Login</a>
 </div>
 {% endblock %}

@@ -36,7 +36,7 @@ Dominio estático (Hugo): `https://andeschileong.cl`
 | App | Función | Ubicación |
 |---|---|---|
 | `ciudadespendientes` | Core del sistema: modelos Zone/StravaData, visualización de mapas interactivos, carga de datos Strava, clasificación de flujos | `ciudadespendientes/` |
-| `accounts` | Sistema de autenticación custom: Account (custom user), Organization, Permission | `accounts/` |
+| `accounts` | Sistema de autenticación custom: Account (custom user), Organization, Permission, RegistrationRequest, AccountActivationToken | `accounts/` |
 | `measuring` | API IoT para dispositivos de conteo de tráfico: Device, TrafficCount | `measuring/` |
 | `hugo_edit` | CMS para el sitio Hugo: CRUD de Actividades/Noticias/Estudios → genera .md → rebuild Hugo via Celery. Gestión de borradores, soft delete, papelera | `hugo_edit/` |
 | `licitaciones` | Dashboard de licitaciones de infraestructura ciclista desde Mercado Público | `licitaciones/` |
@@ -234,6 +234,8 @@ Los listados incluyen:
 | `Account` | accounts | Custom user (email = username), zonas, permisos, organizaciones |
 | `Organization` | accounts | Organizaciones adscritas a la plataforma |
 | `Permission` | accounts | Permisos granulares (ej: `view_strava_data`) |
+| `RegistrationRequest` | accounts | Solicitudes de registro (status, sección, org, zona, revisión) |
+| `AccountActivationToken` | accounts | Tokens UUID para activar cuenta (24h, uso único) |
 | `Device` | mediciones | Dispositivos IoT: fingerprint (SHA-256), nombre legible, token JWT, coordenadas (5 dec), user_agent, last_seen |
 | `TrafficCount` | mediciones | Registros de conteo vehicular: car, person, bicycle, motorcycle, truck, bus, skater, pet_count |
 | `Activity` | hugo_edit | Actividades del sitio Hugo (is_published, is_deleted) |
@@ -273,6 +275,10 @@ Device (JWT auth) ──FK──→ TrafficCount
 Activity (independiente) ──genera──→ .md en hugo_site/
 Noticia (independiente)  ──genera──→ .md en hugo_site/
 Estudio (independiente)  ──genera──→ .md en hugo_site/
+                          │
+RegistrationRequest ──FK──→ Account (reviewed_by)
+                     ──FK──→ Zone (zone, optional)
+AccountActivationToken ──OneToOne──→ Account (user)
 ```
 
 ### Cuenta custom (AUTH_USER_MODEL)
@@ -326,6 +332,18 @@ ENV="prod"
 |---|---|---|---|
 | `/login/` | `CustomLoginView` | accounts | Login |
 | `/logout/` | `LogoutView` | accounts | Logout |
+| `/accounts/registro/` | `RegistrationRequestCreateView` | accounts | Solicitud de registro (pública) |
+| `/accounts/solicitud-exitosa/` | `RegistrationRequestSuccessView` | accounts | Éxito solicitud |
+| `/accounts/activar/<token>/` | `ActivateAccountView` | accounts | Activar cuenta con token |
+| `/accounts/activacion-completa/` | `ActivationCompleteView` | accounts | Activación completada |
+| `/accounts/api/zonas/` | `ZonesAPIView` | accounts | API JSON zonas (fetch) |
+| `/accounts/api/regiones/` | `RegionsAPIView` | accounts | API JSON regiones por país |
+| `/accounts/api/comunas/` | `ComunasByRegionAPIView` | accounts | API JSON comunas por región |
+| `/accounts/api/organizaciones/` | `OrganizationsAPIView` | accounts | API JSON organizaciones activas |
+| `/intranet/solicitudes/` | `RegistrationRequestListView` | hugo_edit | Listado solicitudes (staff) |
+| `/intranet/solicitudes/<pk>/` | `RegistrationRequestDetailView` | hugo_edit | Detalle solicitud (staff) |
+| `/intranet/solicitudes/<pk>/aprobar/` | `RegistrationRequestApproveView` | hugo_edit | Aprobar solicitud (staff) |
+| `/intranet/solicitudes/<pk>/rechazar/` | `RegistrationRequestRejectView` | hugo_edit | Rechazar solicitud (staff) |
 | `/apps/` | `welcome` | ciudadespendientes | Dashboard principal |
 | `/apps/ciudadespendientes/` | `find` | ciudadespendientes | Búsqueda de datos |
 | `/apps/ciudadespendientes/mapa/` | `show_data` | ciudadespendientes | Mapa interactivo DeckGL |
@@ -442,10 +460,22 @@ docker-compose exec web bash -c "<comando>"  # Ejecutar bash en el contenedor
 | `ciudadespendientes/admin.py` | Admin con upload ZIP a MongoDB |
 | `ciudadespendientes/external_apis.py` | Geocodificación (local first → OSM fallback), reverse geocoding, parse User-Agent |
 | `ciudadespendientes/management/commands/download_chile_boundaries.py` | Descarga polígonos comunas Chile |
-| `accounts/models.py` | Account, Organization, Permission |
+| `accounts/models.py` | Account, Organization, Permission, RegistrationRequest, AccountActivationToken |
+| `accounts/choices.py` | ORGANIZATION_TYPES, ACCESS_SECTIONS, REQUEST_STATUS |
+| `accounts/forms.py` | AccountCreationForm, AccountChangeForm, RegistrationRequestForm, RegistrationRequestRejectForm |
+| `accounts/views.py` | CustomLoginView, StaffMixin, RegistrationRequest views, ActivateAccountView, ZonesAPIView, RegionsAPIView, ComunasByRegionAPIView, OrganizationsAPIView |
+| `accounts/urls.py` | URLs de registro, activación, solicitudes (staff), API zonas |
 | `accounts/utils.py` | Función `send_email()` para envío de emails HTML con templates |
 | `templates/email/base_email.html` | Template base para emails HTML (branding Andes Chile ONG) |
 | `templates/email/generic.html` | Template genérico para emails (extiende base_email) |
+| `templates/email/welcome.html` | Email de bienvenida con link de activación |
+| `templates/email/registration_rejected.html` | Email de rechazo de solicitud |
+| `templates/email/new_registration_request.html` | Email de notificación al admin |
+| `templates/accounts/registration_request.html` | Formulario 2 pasos de solicitud (JS) |
+| `templates/accounts/registration_request_list.html` | Listado de solicitudes (staff) |
+| `templates/accounts/registration_request_detail.html` | Detalle solicitud + aprobar/rechazar |
+| `templates/accounts/activate_account.html` | Formulario para establecer contraseña |
+| `templates/accounts/activation_complete.html` | Página de éxito de activación |
 | `apps/mediciones/models.py` | Device, TrafficCount |
 | `apps/mediciones/views.py` | API IoT TrafficCountAPIView, DeviceRegisterView, DeviceNameUpdateView |
 | `apps/mediciones/templates/mediciones/contador.html` | Aplicación de detección YOLO26n + ONNX (fingerprint, reverse geocoding, sync) |

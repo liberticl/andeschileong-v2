@@ -6,6 +6,8 @@ from .views import (
     NoticiaListView, NoticiaCreateView, NoticiaUpdateView, NoticiaDeleteView,
     EstudioListView, EstudioCreateView, EstudioUpdateView, EstudioDeleteView,
     ActivityDeletedView, NoticiaDeletedView, EstudioDeletedView,
+    RegistrationRequestListView, RegistrationRequestDetailView,
+    RegistrationRequestApproveView, RegistrationRequestRejectView,
 )
 
 urlpatterns = [
@@ -31,4 +33,9 @@ urlpatterns = [
     path('intranet/estudios/<int:pk>/delete/', EstudioDeleteView.as_view(), name='hugo_estudio_delete'),
     path('intranet/estudios/<int:pk>/restore/', restore_estudio, name='hugo_estudio_restore'),
     path('intranet/estudios/eliminados/', EstudioDeletedView.as_view(), name='hugo_estudio_deleted'),
+
+    path('intranet/solicitudes/', RegistrationRequestListView.as_view(), name='hugo_registration_request_list'),
+    path('intranet/solicitudes/<int:pk>/', RegistrationRequestDetailView.as_view(), name='hugo_registration_request_detail'),
+    path('intranet/solicitudes/<int:pk>/aprobar/', RegistrationRequestApproveView.as_view(), name='hugo_registration_request_approve'),
+    path('intranet/solicitudes/<int:pk>/rechazar/', RegistrationRequestRejectView.as_view(), name='hugo_registration_request_reject'),
 ]

@@ -1,0 +1,17 @@
+{% extends 'email/base_email.html' %}
+
+{% block content %}
+<h2 style="color: #2241a8; margin-top: 0;">Bienvenido a Andes Chile ONG</h2>
+<div style="color: #333; line-height: 1.6;">
+    <p>Hola {{ user.first_name }},</p>
+    <p>Tu cuenta ha sido creada en Andes Chile ONG.</p>
+    <p>Para activar tu cuenta y configurar tu contraseña, haz clic en el siguiente enlace:</p>
+    <p style="text-align: center; margin: 24px 0;">
+        <a href="{{ activation_url }}"
+           style="background-color: #2241a8; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: 600;">
+            Activar mi cuenta
+        </a>
+    </p>
+    <p style="color: #999; font-size: 13px;">Este enlace expira en 24 horas.</p>
+</div>
+{% endblock %}

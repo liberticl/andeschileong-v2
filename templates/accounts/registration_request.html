@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="max-width: 700px; margin-top: 40px; margin-bottom: 60px; z-index: 10; position: relative; background-color: #ffffffdd; border-radius: 8px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <h3 style="text-align: center; color: #2241a8;"><b>Solicitar Cuenta</b></h3>
+    <hr>
+    <form method="post" id="registrationForm">
+        {% csrf_token %}
+
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <strong>Por favor corrige los siguientes errores:</strong>
+            {{ form.errors }}
+        </div>
+        {% endif %}
+
+        <div id="step1">
+            <h5 style="color: #2241a8; margin-bottom: 20px;">Datos Personales</h5>
+            <div class="mb-3">
+                <label for="id_email" class="form-label">Email <span class="text-danger">*</span></label>
+                <input type="email" name="email" id="id_email" class="form-control" required
+                       value="{{ form.email.value|default:'' }}">
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="id_first_name" class="form-label">Nombre(s) <span class="text-danger">*</span></label>
+                    <input type="text" name="first_name" id="id_first_name" class="form-control" required
+                           value="{{ form.first_name.value|default:'' }}">
+                </div>
+                <div class="col-md-6">
+                    <label for="id_last_name" class="form-label">Apellido(s) <span class="text-danger">*</span></label>
+                    <input type="text" name="last_name" id="id_last_name" class="form-control" required
+                           value="{{ form.last_name.value|default:'' }}">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="id_cellphone" class="form-label">Celular</label>
+                <input type="text" name="cellphone" id="id_cellphone" class="form-control"
+                       placeholder="+56912345678" value="{{ form.cellphone.value|default:'' }}">
+            </div>
+            <div class="mb-3">
+                <label for="id_access_section" class="form-label">Sección de acceso <span class="text-danger">*</span></label>
+                <select name="access_section" id="id_access_section" class="form-control" required>
+                    <option value="">-- Selecciona una sección --</option>
+                    <option value="ciudadespendientes">Ciudades Pendientes</option>
+                    <option value="intranet">Intranet CMS</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="step2" style="display: none;">
+            <h5 style="color: #2241a8; margin-bottom: 20px;">Organización y Zona</h5>
+
+            <div id="zone-section" style="display: none;">
+                <div class="mb-3">
+                    <label for="id_zone" class="form-label">Zona <span class="text-danger">*</span></label>
+                    <select name="zone" id="id_zone" class="form-control">
+                        <option value="">-- Selecciona una zona --</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="id_organization" class="form-label">Organización <span class="text-danger">*</span></label>
+                <select name="organization" id="id_organization" class="form-control" required>
+                    <option value="">-- Selecciona tu organización --</option>
+                </select>
+            </div>
+
+            <div id="new-org-fields" style="display: none;">
+                <div class="card mb-3" style="border-color: #2241a8;">
+                    <div class="card-header" style="background-color: #2241a8; color: #fff; padding: 8px 16px;">
+                        <b>Nueva Organización</b>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="id_new_org_name" class="form-label">Nombre <span class="text-danger">*</span></label>
+                            <input type="text" name="new_org_name" id="id_new_org_name" class="form-control">
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_new_org_type" class="form-label">Tipo <span class="text-danger">*</span></label>
+                                <select name="new_org_type" id="id_new_org_type" class="form-control">
+                                    <option value="">-- Selecciona --</option>
+                                    <option value="ong">ONG</option>
+                                    <option value="empresa">Empresa</option>
+                                    <option value="municipalidad">Municipalidad</option>
+                                    <option value="gobierno">Gobierno</option>
+                                    <option value="universidad">Universidad</option>
+                                    <option value="asociacion">Asociación</option>
+                                    <option value="cooperativa">Cooperativa</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_new_org_rut" class="form-label">RUT</label>
+                                <input type="text" name="new_org_rut" id="id_new_org_rut" class="form-control"
+                                       placeholder="12.345.678-9">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_new_org_country" class="form-label">País <span class="text-danger">*</span></label>
+                            <select name="new_org_country" id="id_new_org_country" class="form-control">
+                                <option value="">-- Selecciona un país --</option>
+                                <option value="Chile">Chile</option>
+                                <option value="Argentina">Argentina</option>
+                            </select>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_new_org_region" class="form-label">Región <span class="text-danger">*</span></label>
+                                <select name="new_org_region" id="id_new_org_region" class="form-control" disabled>
+                                    <option value="">-- Selecciona un país primero --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_new_org_comuna" class="form-label">Comuna <span class="text-danger">*</span></label>
+                                <select name="new_org_comuna" id="id_new_org_comuna" class="form-control" disabled>
+                                    <option value="">-- Selecciona una región primero --</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <button type="button" id="btnNext" class="btn btn-primary" style="display: inline-block;">Siguiente</button>
+            <button type="button" id="btnBack" class="btn btn-secondary" style="display: none;">Volver</button>
+            <button type="submit" id="btnSubmit" class="btn btn-success" style="display: none;">Enviar solicitud</button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var accessSection = document.getElementById('id_access_section');
+    var step1 = document.getElementById('step1');
+    var step2 = document.getElementById('step2');
+    var btnNext = document.getElementById('btnNext');
+    var btnBack = document.getElementById('btnBack');
+    var btnSubmit = document.getElementById('btnSubmit');
+    var zoneSection = document.getElementById('zone-section');
+    var zoneSelect = document.getElementById('id_zone');
+    var orgSelect = document.getElementById('id_organization');
+    var newOrgFields = document.getElementById('new-org-fields');
+    var orgCountry = document.getElementById('id_new_org_country');
+    var orgRegion = document.getElementById('id_new_org_region');
+    var orgComuna = document.getElementById('id_new_org_comuna');
+
+    function showStep2() {
+        step1.style.display = 'none';
+        step2.style.display = 'block';
+        btnNext.style.display = 'none';
+        btnBack.style.display = 'inline-block';
+        btnSubmit.style.display = 'inline-block';
+        if (accessSection.value === 'ciudadespendientes') {
+            zoneSection.style.display = 'block';
+            loadZones();
+        } else {
+            zoneSection.style.display = 'none';
+        }
+        loadOrganizations();
+    }
+
+    function showStep1() {
+        step1.style.display = 'block';
+        step2.style.display = 'none';
+        btnNext.style.display = 'inline-block';
+        btnBack.style.display = 'none';
+        btnSubmit.style.display = 'none';
+    }
+
+    function loadZones() {
+        fetch('/accounts/api/zonas/?country=Chile')
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                zoneSelect.innerHTML = '<option value="">-- Selecciona una zona --</option>';
+                data.forEach(function(zone) {
+                    var opt = document.createElement('option');
+                    opt.value = zone.id;
+                    opt.textContent = zone.name + ' (' + zone.zone_type + ')';
+                    zoneSelect.appendChild(opt);
+                });
+            });
+    }
+
+    function loadOrganizations() {
+        fetch('/accounts/api/organizaciones/')
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                orgSelect.innerHTML = '<option value="">-- Selecciona tu organización --</option>';
+                data.forEach(function(org) {
+                    var opt = document.createElement('option');
+                    opt.value = org.id;
+                    opt.textContent = org.name;
+                    orgSelect.appendChild(opt);
+                });
+                var otherOpt = document.createElement('option');
+                otherOpt.value = '__nueva__';
+                otherOpt.textContent = 'Otra (nueva organización)';
+                orgSelect.appendChild(otherOpt);
+            });
+    }
+
+    orgSelect.addEventListener('change', function() {
+        if (this.value === '__nueva__') {
+            newOrgFields.style.display = 'block';
+        } else {
+            newOrgFields.style.display = 'none';
+        }
+    });
+
+    orgCountry.addEventListener('change', function() {
+        var country = this.value;
+        orgRegion.innerHTML = '<option value="">Cargando regiones...</option>';
+        orgRegion.disabled = true;
+        orgComuna.innerHTML = '<option value="">-- Selecciona una región primero --</option>';
+        orgComuna.disabled = true;
+
+        if (!country) {
+            orgRegion.innerHTML = '<option value="">-- Selecciona un país primero --</option>';
+            return;
+        }
+
+        fetch('/accounts/api/regiones/?country=' + encodeURIComponent(country))
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                orgRegion.innerHTML = '<option value="">-- Selecciona una región --</option>';
+                data.forEach(function(r) {
+                    var opt = document.createElement('option');
+                    opt.value = r.name;
+                    opt.textContent = r.name;
+                    orgRegion.appendChild(opt);
+                });
+                orgRegion.disabled = false;
+            });
+    });
+
+    orgRegion.addEventListener('change', function() {
+        var country = orgCountry.value;
+        var region = this.value;
+        orgComuna.innerHTML = '<option value="">Cargando comunas...</option>';
+        orgComuna.disabled = true;
+
+        if (!region) {
+            orgComuna.innerHTML = '<option value="">-- Selecciona una región primero --</option>';
+            return;
+        }
+
+        fetch('/accounts/api/comunas/?country=' + encodeURIComponent(country) + '&region=' + encodeURIComponent(region))
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                orgComuna.innerHTML = '<option value="">-- Selecciona una comuna --</option>';
+                data.forEach(function(c) {
+                    var opt = document.createElement('option');
+                    opt.value = c.name;
+                    opt.textContent = c.name;
+                    orgComuna.appendChild(opt);
+                });
+                orgComuna.disabled = false;
+            });
+    });
+
+    btnNext.addEventListener('click', function() {
+        if (accessSection.value) {
+            showStep2();
+        }
+    });
+
+    btnBack.addEventListener('click', function() {
+        showStep1();
+    });
+});
+</script>
+{% endblock %}

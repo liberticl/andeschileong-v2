@@ -101,3 +101,23 @@ class OrganizationAdmin(admin.ModelAdmin):
 class PermissionAdmin(admin.ModelAdmin):
     list_display = ('name', 'code',)
     list_filter = ('name', 'code',)
+
+
+@admin.register(models.RegistrationRequest)
+class RegistrationRequestAdmin(admin.ModelAdmin):
+    list_display = ('email', 'first_name', 'last_name', 'organization_name',
+                    'access_section', 'status', 'created_at')
+    list_filter = ('status', 'access_section', 'organization_type')
+    search_fields = ('email', 'first_name', 'last_name', 'organization_name')
+    readonly_fields = ('email', 'first_name', 'last_name', 'cellphone',
+                       'access_section', 'organization_name', 'organization_type',
+                       'organization_rut', 'organization_country', 'zone',
+                       'reviewed_by', 'reviewed_at', 'rejection_reason', 'created_at')
+
+
+@admin.register(models.AccountActivationToken)
+class AccountActivationTokenAdmin(admin.ModelAdmin):
+    list_display = ('user', 'token', 'created_at', 'expires_at', 'is_used')
+    list_filter = ('is_used',)
+    search_fields = ('user__email',)
+    readonly_fields = ('user', 'token', 'created_at', 'expires_at', 'is_used')

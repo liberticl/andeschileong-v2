@@ -1,0 +1,32 @@
+{% extends 'email/base_email.html' %}
+
+{% block content %}
+<h2 style="color: #2241a8; margin-top: 0;">Nueva solicitud de registro</h2>
+<div style="color: #333; line-height: 1.6;">
+    <p>Se ha recibido una nueva solicitud de registro en la plataforma:</p>
+    <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+        <tr>
+            <td style="padding: 8px; border-bottom: 1px solid #e9ecef; font-weight: 600; width: 140px;">Nombre:</td>
+            <td style="padding: 8px; border-bottom: 1px solid #e9ecef;">{{ request_obj.get_full_name }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 8px; border-bottom: 1px solid #e9ecef; font-weight: 600;">Email:</td>
+            <td style="padding: 8px; border-bottom: 1px solid #e9ecef;">{{ request_obj.email }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 8px; border-bottom: 1px solid #e9ecef; font-weight: 600;">Organización:</td>
+            <td style="padding: 8px; border-bottom: 1px solid #e9ecef;">{{ request_obj.organization_name }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 8px; font-weight: 600;">Sección:</td>
+            <td style="padding: 8px;">{{ request_obj.get_access_section_display }}</td>
+        </tr>
+    </table>
+    <p style="text-align: center; margin: 24px 0;">
+        <a href="https://andeschileong.cl/intranet/solicitudes/"
+           style="background-color: #2241a8; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: 600;">
+            Ver solicitud
+        </a>
+    </p>
+</div>
+{% endblock %}

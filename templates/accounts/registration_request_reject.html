@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="max-width: 600px; margin-top: 40px; margin-bottom: 60px; z-index: 10; position: relative; background-color: #ffffffdd; border-radius: 8px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <h3 style="color: #dc3545;"><b>Rechazar Solicitud</b></h3>
+    <hr>
+    <p>Solicitud de: <strong>{{ request_obj.first_name }} {{ request_obj.last_name }}</strong> ({{ request_obj.email }})</p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="id_reason" class="form-label">Motivo del rechazo</label>
+            <textarea name="reason" id="id_reason" class="form-control" rows="4"
+                      placeholder="Indica el motivo del rechazo...">{{ form.reason.value|default:'' }}</textarea>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-danger">Rechazar solicitud</button>
+            <a href="{% url 'registration_request_detail' request_obj.pk %}" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container"
+    style="max-width: 800px; margin-top: 40px; margin-bottom: 60px; z-index: 10; position: relative;">
+    <h3 style="color: #000000;"><b>Detalle de Solicitud</b></h3>
+    <hr>
+
+    <div class="card mb-3">
+        <div class="card-header" style="background-color: #2241a8; color: #fff;">
+            <b>Datos Personales</b>
+        </div>
+        <div class="card-body">
+            <div class="row mb-2">
+                <div class="col-sm-4"><strong>Email:</strong></div>
+                <div class="col-sm-8">{{ request_obj.email }}</div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-sm-4"><strong>Nombre:</strong></div>
+                <div class="col-sm-8">{{ request_obj.first_name }} {{ request_obj.last_name }}</div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-sm-4"><strong>Celular:</strong></div>
+                <div class="col-sm-8">{{ request_obj.cellphone|default:"-" }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header" style="background-color: #2241a8; color: #fff;">
+            <b>Organización</b>
+        </div>
+        <div class="card-body">
+            <div class="row mb-2">
+                <div class="col-sm-4"><strong>Nombre:</strong></div>
+                <div class="col-sm-8">{{ request_obj.organization_name }}</div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-sm-4"><strong>Tipo:</strong></div>
+                <div class="col-sm-8">{{ request_obj.organization_type }}</div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-sm-4"><strong>RUT:</strong></div>
+                <div class="col-sm-8">{{ request_obj.organization_rut|default:"-" }}</div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-sm-4"><strong>País:</strong></div>
+                <div class="col-sm-8">{{ request_obj.organization_country }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header" style="background-color: #2241a8; color: #fff;">
+            <b>Acceso</b>
+        </div>
+        <div class="card-body">
+            <div class="row mb-2">
+                <div class="col-sm-4"><strong>Sección:</strong></div>
+                <div class="col-sm-8">{{ request_obj.get_access_section_display }}</div>
+            </div>
+            {% if request_obj.zone %}
+            <div class="row mb-2">
+                <div class="col-sm-4"><strong>Zona:</strong></div>
+                <div class="col-sm-8">{{ request_obj.zone }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header" style="background-color: #2241a8; color: #fff;">
+            <b>Estado</b>
+        </div>
+        <div class="card-body">
+            <div class="row mb-2">
+                <div class="col-sm-4"><strong>Estado:</strong></div>
+                <div class="col-sm-8">
+                    {% if request_obj.status == 'pending' %}
+                    <span class="badge bg-warning text-dark">Pendiente</span>
+                    {% elif request_obj.status == 'approved' %}
+                    <span class="badge bg-success">Aprobada</span>
+                    {% elif request_obj.status == 'rejected' %}
+                    <span class="badge bg-danger">Rechazada</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% if request_obj.reviewed_by %}
+            <div class="row mb-2">
+                <div class="col-sm-4"><strong>Revisado por:</strong></div>
+                <div class="col-sm-8">{{ request_obj.reviewed_by }}</div>
+            </div>
+            {% endif %}
+            {% if request_obj.reviewed_at %}
+            <div class="row mb-2">
+                <div class="col-sm-4"><strong>Fecha revisión:</strong></div>
+                <div class="col-sm-8">{{ request_obj.reviewed_at|date:"d/m/Y H:i" }}</div>
+            </div>
+            {% endif %}
+            {% if request_obj.rejection_reason %}
+            <div class="row mb-2">
+                <div class="col-sm-4"><strong>Motivo rechazo:</strong></div>
+                <div class="col-sm-8 text-danger">{{ request_obj.rejection_reason }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if request_obj.status == 'pending' %}
+    <div class="d-flex gap-2">
+        <form method="post" action="{% url 'registration_request_approve' request_obj.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">Aprobar</button>
+        </form>
+        <a href="{% url 'registration_request_reject' request_obj.pk %}" class="btn btn-danger">Rechazar</a>
+    </div>
+    {% endif %}
+
+    <div class="mt-3">
+        <a href="{% url 'registration_request_list' %}" class="btn btn-outline-secondary">Volver al listado</a>
+    </div>
+</div>
+{% endblock %}

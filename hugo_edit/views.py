@@ -1,11 +1,17 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
+from django.contrib import messages
 from django.utils.decorators import method_decorator
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.views import View
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, FormView
 from django.utils.text import slugify
+from django.utils import timezone
 from .models import Activity, Noticia, Estudio
 from .forms import ActivityForm, NoticiaForm, EstudioForm
+from accounts.models import RegistrationRequest, AccountActivationToken, Account, Organization
+from accounts.forms import RegistrationRequestRejectForm
+from accounts.utils import send_email
 
 
 def staff_required(u):
@@ -14,10 +20,12 @@ def staff_required(u):
 
 @user_passes_test(staff_required, login_url='/login/')
 def intranet_dashboard(request):
+    from accounts.models import RegistrationRequest
     context = {
         'actividades_count': Activity.objects.filter(is_deleted=False).count(),
         'noticias_count': Noticia.objects.filter(is_deleted=False).count(),
         'estudios_count': Estudio.objects.filter(is_deleted=False).count(),
+        'solicitudes_pendientes_count': RegistrationRequest.objects.filter(status='pending').count(),
     }
     return render(request, 'hugo_edit/intranet.html', context)
 
@@ -233,3 +241,62 @@ class EstudioDeletedView(StaffMixin, ListView):
 
     def get_queryset(self):
         return super().get_queryset().filter(is_deleted=True)
+
+
+class RegistrationRequestListView(StaffMixin, ListView):
+    model = RegistrationRequest
+    template_name = 'hugo_edit/registration_request_list.html'
+    context_object_name = 'requests'
+    paginate_by = 20
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        status = self.request.GET.get('status')
+        if status:
+            qs = qs.filter(status=status)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_filter'] = self.request.GET.get('status', '')
+        return context
+
+
+class RegistrationRequestDetailView(StaffMixin, DetailView):
+    model = RegistrationRequest
+    template_name = 'hugo_edit/registration_request_detail.html'
+    context_object_name = 'request_obj'
+
+
+class RegistrationRequestApproveView(StaffMixin, View):
+    def post(self, request, pk):
+        registration_request = RegistrationRequest.objects.get(pk=pk)
+        if registration_request.status != 'pending':
+            messages.error(request, 'Esta solicitud ya fue procesada.')
+            return redirect('hugo_registration_request_list')
+        account, token = registration_request.approve(request.user)
+        messages.success(
+            request,
+            f'Solicitud aprobada. Se envió email de activación a {account.email}.')
+        return redirect('hugo_registration_request_list')
+
+
+class RegistrationRequestRejectView(StaffMixin, FormView):
+    form_class = RegistrationRequestRejectForm
+    template_name = 'hugo_edit/registration_request_reject.html'
+    success_url = reverse_lazy('hugo_registration_request_list')
+
+    def form_valid(self, form):
+        registration_request = RegistrationRequest.objects.get(pk=self.kwargs['pk'])
+        if registration_request.status != 'pending':
+            messages.error(self.request, 'Esta solicitud ya fue procesada.')
+            return redirect('hugo_registration_request_list')
+        reason = form.cleaned_data.get('reason', '')
+        registration_request.reject(self.request.user, reason)
+        messages.success(self.request, 'Solicitud rechazada.')
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['request_obj'] = RegistrationRequest.objects.get(pk=self.kwargs['pk'])
+        return context

@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import datetime, timedelta
+import uuid
 from django.db import models
 from django.utils import timezone
 from django.db.models import Prefetch
@@ -8,6 +9,7 @@ from django.contrib.auth.models import (BaseUserManager,
 from ciudadespendientes.models import Zone, StravaData
 from django.db.models.query import QuerySet
 from ciudadespendientes.choices import COUNTRIES
+from accounts.choices import ORGANIZATION_TYPES, ACCESS_SECTIONS, REQUEST_STATUS
 
 SEPARATORS = ['_', '-', '.']
 
@@ -270,3 +272,145 @@ class Organization(models.Model):
     class Meta:
         verbose_name = u'organización'
         verbose_name_plural = u'Organizaciones'
+
+
+class RegistrationRequest(models.Model):
+    """
+    Solicitud de registro de nuevo usuario. El usuario solicita acceso
+    y un staff aprueba o rechaza.
+    """
+    status = models.CharField(
+        max_length=20, choices=REQUEST_STATUS, default='pending',
+        verbose_name='Estado')
+    access_section = models.CharField(
+        max_length=30, choices=ACCESS_SECTIONS,
+        verbose_name='Sección de acceso',
+        help_text='Sección a la que solicita acceso.')
+    email = models.EmailField(
+        unique=True, verbose_name='Correo electrónico')
+    first_name = models.CharField(
+        max_length=100, verbose_name='Nombre(s)')
+    last_name = models.CharField(
+        max_length=100, verbose_name='Apellido(s)')
+    cellphone = models.CharField(
+        max_length=56, blank=True, verbose_name='Celular')
+    organization_name = models.CharField(
+        max_length=255, verbose_name='Nombre de organización')
+    organization_type = models.CharField(
+        max_length=50, choices=ORGANIZATION_TYPES,
+        verbose_name='Tipo de organización')
+    organization_rut = models.CharField(
+        max_length=40, blank=True, verbose_name='RUT')
+    organization_country = models.CharField(
+        max_length=20, choices=COUNTRIES, default='Chile',
+        verbose_name='País')
+    zone = models.ForeignKey(
+        'ciudadespendientes.Zone', on_delete=models.SET_NULL,
+        null=True, blank=True, verbose_name='Zona',
+        help_text='Zona a la que solicita acceso (solo Ciudades Pendientes).')
+    reviewed_by = models.ForeignKey(
+        Account, on_delete=models.SET_NULL,
+        null=True, blank=True, verbose_name='Revisado por',
+        related_name='reviewed_requests')
+    reviewed_at = models.DateTimeField(
+        null=True, blank=True, verbose_name='Fecha de revisión')
+    rejection_reason = models.TextField(
+        blank=True, verbose_name='Motivo de rechazo')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de solicitud')
+
+    class Meta:
+        verbose_name = 'Solicitud de registro'
+        verbose_name_plural = 'Solicitudes de registro'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.get_full_name()} - {self.get_status_display()}"
+
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
+    def approve(self, reviewer):
+        account = Account.objects.create(
+            email=self.email,
+            first_name=self.first_name,
+            last_name=self.last_name,
+            cellphone=self.cellphone,
+            is_active=True,
+            is_staff=False,
+        )
+        org, _ = Organization.objects.get_or_create(
+            name=self.organization_name,
+            defaults={
+                'type': self.organization_type,
+                'rut': self.organization_rut,
+                'country': self.organization_country,
+                'is_active': True,
+            }
+        )
+        org.users.add(account)
+        if self.access_section == 'ciudadespendientes' and self.zone:
+            account.zones.add(self.zone)
+            perm, _ = Permission.objects.get_or_create(
+                code='view_strava_data',
+                defaults={'name': 'Ver datos Strava'}
+            )
+            account.permissions.add(perm)
+        self.status = 'approved'
+        self.reviewed_by = reviewer
+        self.reviewed_at = timezone.now()
+        self.save()
+        token = AccountActivationToken.objects.create(
+            user=account,
+            expires_at=timezone.now() + timedelta(hours=24)
+        )
+        from accounts.utils import send_email
+        activation_url = f"https://andeschileong.cl/accounts/activar/{token.token}/"
+        send_email(
+            subject='Bienvenido a Andes Chile ONG',
+            template_name='email/welcome.html',
+            context={
+                'user': account,
+                'activation_url': activation_url,
+                'organization': org,
+            },
+            recipients=[self.email]
+        )
+        return account, token
+
+    def reject(self, reviewer, reason=''):
+        self.status = 'rejected'
+        self.reviewed_by = reviewer
+        self.reviewed_at = timezone.now()
+        self.rejection_reason = reason
+        self.save()
+        from accounts.utils import send_email
+        send_email(
+            subject='Solicitud de registro - Andes Chile ONG',
+            template_name='email/registration_rejected.html',
+            context={
+                'user_name': self.get_full_name(),
+                'reason': reason,
+            },
+            recipients=[self.email]
+        )
+
+
+class AccountActivationToken(models.Model):
+    user = models.OneToOneField(
+        Account, on_delete=models.CASCADE, related_name='activation_token',
+        verbose_name='Usuario')
+    token = models.UUIDField(
+        default=uuid.uuid4, unique=True, verbose_name='Token')
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(verbose_name='Expira el')
+    is_used = models.BooleanField(default=False, verbose_name='Usado')
+
+    class Meta:
+        verbose_name = 'Token de activación'
+        verbose_name_plural = 'Tokens de activación'
+
+    def __str__(self):
+        return f"Token para {self.user.email}"
+
+    def is_valid(self):
+        return not self.is_used and timezone.now() < self.expires_at

@@ -36,6 +36,9 @@ urlpatterns = [
     path('404/', views.error_404, name='error_404'),
     path('403/', views.error_403, name='error_403'),
     
+    # Accounts (registration, activation, staff management)
+    path('accounts/', include('accounts.urls')),
+
     # Hugo admin e Intranet
     path('', include('hugo_edit.urls')),
 

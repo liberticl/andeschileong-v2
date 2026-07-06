@@ -307,6 +307,10 @@ SECRET_KEY="..."          # Django secret key
 # Mercado Público
 MERCADO_PUBLICO_TICKET="..."
 
+# Email (Gmail SMTP)
+EMAIL_HOST_USER="contacto@andeschileong.cl"
+EMAIL_HOST_PASSWORD="..."
+
 # Config
 DECKGL_VERSION="8.9.*"
 DATA_DIR="ciudadespendientes/data"
@@ -439,6 +443,9 @@ docker-compose exec web bash -c "<comando>"  # Ejecutar bash en el contenedor
 | `ciudadespendientes/external_apis.py` | Geocodificación (local first → OSM fallback), reverse geocoding, parse User-Agent |
 | `ciudadespendientes/management/commands/download_chile_boundaries.py` | Descarga polígonos comunas Chile |
 | `accounts/models.py` | Account, Organization, Permission |
+| `accounts/utils.py` | Función `send_email()` para envío de emails HTML con templates |
+| `templates/email/base_email.html` | Template base para emails HTML (branding Andes Chile ONG) |
+| `templates/email/generic.html` | Template genérico para emails (extiende base_email) |
 | `apps/mediciones/models.py` | Device, TrafficCount |
 | `apps/mediciones/views.py` | API IoT TrafficCountAPIView, DeviceRegisterView, DeviceNameUpdateView |
 | `apps/mediciones/templates/mediciones/contador.html` | Aplicación de detección YOLO26n + ONNX (fingerprint, reverse geocoding, sync) |

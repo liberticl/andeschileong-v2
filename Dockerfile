@@ -22,4 +22,7 @@ RUN nginx -t
 
 EXPOSE 80
 
-CMD python manage.py sync_hugo && service nginx start && gunicorn --workers 3 andeschileong.wsgi:application --bind 0.0.0.0:8000 --log-level debug
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]

@@ -21,3 +21,8 @@ docs
 # Hugo
 /hugo_site/public
 /hugo_site/resources
+
+# Hugo generated content (synced from DB on container start)
+/hugo_site/content/actividades/*/
+/hugo_site/content/noticias/*/
+/hugo_site/content/estudios/*/

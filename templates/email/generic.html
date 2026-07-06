@@ -1,0 +1,8 @@
+{% extends 'email/base_email.html' %}
+
+{% block content %}
+<h2 style="color: #2241a8; margin-top: 0;">{{ subject }}</h2>
+<div style="color: #333; line-height: 1.6;">
+    {{ message|linebreaks }}
+</div>
+{% endblock %}

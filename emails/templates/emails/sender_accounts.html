@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5 pt-5 mb-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h1 style="font-family: 'Urbanist', sans-serif; font-weight: 700; font-size: 1.8rem;">
+                        <i class="fa fa-user-secret me-2"></i>Cuentas Remitentes
+                    </h1>
+                    <p class="text-muted mb-0">Cuentas Gmail configuradas para envío</p>
+                </div>
+                <a href="{% url 'email_compose' %}" class="btn btn-primary btn-sm">
+                    <i class="fa fa-plus me-1"></i>Nuevo envío
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            {% for account in accounts %}
+            <div class="card shadow-sm border-0 mb-3" style="border-radius: 12px;">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <h5 class="mb-1">
+                            {{ account.display_name }}
+                            {% if account.is_active %}
+                            <span class="badge bg-success">Activa</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Inactiva</span>
+                            {% endif %}
+                        </h5>
+                        <p class="text-muted mb-0">{{ account.email }}</p>
+                    </div>
+                    <div class="text-end">
+                        <div class="mb-1">
+                            <small class="text-muted">Enviados hoy:</small>
+                            <strong>{{ account.sent_today }}</strong>
+                            <small class="text-muted">/ {{ account.daily_limit }}</small>
+                        </div>
+                        <div class="progress" style="width: 150px; height: 6px;">
+                            <div class="progress-bar bg-primary" role="progressbar"
+                                 style="width: {% widthratio account.sent_today account.daily_limit 100 %}%">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-5">
+                <i class="fa fa-user-plus text-muted" style="font-size: 3rem;"></i>
+                <p class="text-muted mt-3">No hay cuentas remitentes configuradas.</p>
+                <p class="text-muted">
+                    Agrega cuentas en el <a href="/admin/emails/senderaccount/">admin de Django</a>.
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

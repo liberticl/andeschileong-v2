@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5 pt-5 mb-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h1 style="font-family: 'Urbanist', sans-serif; font-weight: 700; font-size: 1.8rem;">
+                        <i class="fa fa-history me-2"></i>Historial de Correos
+                    </h1>
+                    <p class="text-muted mb-0">Lotes de envío registrados</p>
+                </div>
+                <a href="{% url 'email_compose' %}" class="btn btn-primary btn-sm">
+                    <i class="fa fa-plus me-1"></i>Nuevo envío
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            {% if batches %}
+            <div class="card shadow-sm border-0" style="border-radius: 15px;">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead style="background: #f8f9fa;">
+                            <tr>
+                                <th>Lote</th>
+                                <th class="text-center">Total</th>
+                                <th class="text-center">Enviados</th>
+                                <th class="text-center">Fallidos</th>
+                                <th class="text-center">Pendientes</th>
+                                <th>Enviado por</th>
+                                <th>Fecha</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for batch in batches %}
+                            <tr>
+                                <td>
+                                    <strong>{{ batch.batch_label|default:"Sin nombre" }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ batch.batch_id|truncatechars:8 }}</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-secondary">{{ batch.total }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-success">{{ batch.sent }}</span>
+                                </td>
+                                <td class="text-center">
+                                    {% if batch.failed > 0 %}
+                                    <span class="badge bg-danger">{{ batch.failed }}</span>
+                                    {% else %}
+                                    <span class="badge bg-light text-dark">0</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if batch.pending > 0 %}
+                                    <span class="badge bg-warning text-dark">{{ batch.pending }}</span>
+                                    {% else %}
+                                    <span class="badge bg-light text-dark">0</span>
+                                    {% endif %}
+                                </td>
+                                <td><small>{{ batch.sent_by__email }}</small></td>
+                                <td><small>{{ batch.created_at|date:"d/m/Y H:i" }}</small></td>
+                                <td>
+                                    <a href="{% url 'email_log_detail' batch.batch_id %}"
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fa fa-inbox text-muted" style="font-size: 3rem;"></i>
+                <p class="text-muted mt-3">No hay envíos registrados aún.</p>
+                <a href="{% url 'email_compose' %}" class="btn btn-primary">
+                    <i class="fa fa-plus me-1"></i>Primer envío
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

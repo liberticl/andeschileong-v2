@@ -21,11 +21,13 @@ def staff_required(u):
 @user_passes_test(staff_required, login_url='/login/')
 def intranet_dashboard(request):
     from accounts.models import RegistrationRequest
+    from emails.models import EmailLog
     context = {
         'actividades_count': Activity.objects.filter(is_deleted=False).count(),
         'noticias_count': Noticia.objects.filter(is_deleted=False).count(),
         'estudios_count': Estudio.objects.filter(is_deleted=False).count(),
         'solicitudes_pendientes_count': RegistrationRequest.objects.filter(status='pending').count(),
+        'emails_pending_count': EmailLog.objects.filter(status='pending').count(),
     }
     return render(request, 'hugo_edit/intranet.html', context)
 

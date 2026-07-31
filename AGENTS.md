@@ -40,6 +40,7 @@ Dominio estático (Hugo): `https://andeschileong.cl`
 | `measuring` | API IoT para dispositivos de conteo de tráfico: Device, TrafficCount | `measuring/` |
 | `hugo_edit` | CMS para el sitio Hugo: CRUD de Actividades/Noticias/Estudios → genera .md → rebuild Hugo via Celery. Gestión de borradores, soft delete, papelera | `hugo_edit/` |
 | `licitaciones` | Dashboard de licitaciones de infraestructura ciclista desde Mercado Público | `licitaciones/` |
+| `emails` | Sistema de envío de correos masivos: Celery batch processing, logging, rotación de cuentas Gmail. Envío a usuarios, grupos, o listas externas | `emails/` |
 
 ---
 
@@ -243,6 +244,8 @@ Los listados incluyen:
 | `Estudio` | hugo_edit | Estudios del sitio Hugo (is_published, is_deleted) |
 | `Licitacion` | licitaciones | Licitaciones de infraestructura ciclista/peatonal de Mercado Público |
 | `SyncLog` | licitaciones | Logs de sincronización con API de Mercado Público |
+| `SenderAccount` | emails | Cuentas Gmail para envío (email, display_name, daily_limit, is_active) |
+| `EmailLog` | emails | Logs de correos enviados: destinatario, asunto, batch_id, estado (pending/sent/failed), error, sent_by, sent_at |
 
 ### MongoDB (trazas espaciales)
 
@@ -317,6 +320,11 @@ MERCADO_PUBLICO_TICKET="..."
 EMAIL_HOST_USER="contacto@andeschileong.cl"
 EMAIL_HOST_PASSWORD="..."
 
+# Email Batch Config (smtp-relay: 10,000/día por cuenta)
+EMAIL_BATCH_SIZE=100
+EMAIL_BATCH_DELAY_SECONDS=1
+EMAIL_DAILY_LIMIT_PER_ACCOUNT=10000
+
 # Config
 DECKGL_VERSION="8.9.*"
 DATA_DIR="ciudadespendientes/data"
@@ -344,6 +352,11 @@ ENV="prod"
 | `/accounts/api/regiones/` | `RegionsAPIView` | accounts | API JSON regiones por país |
 | `/accounts/api/comunas/` | `ComunasByRegionAPIView` | accounts | API JSON comunas por región |
 | `/accounts/api/organizaciones/` | `OrganizationsAPIView` | accounts | API JSON organizaciones activas |
+| `/intranet/correos/` | `email_logs` | emails | Historial de envíos (staff) |
+| `/intranet/correos/nuevo/` | `compose_email` | emails | Formulario de envío de correos (staff) |
+| `/intranet/correos/cuentas/` | `sender_accounts` | emails | Cuentas remitentes configuradas (staff) |
+| `/intranet/correos/<batch_id>/` | `email_log_detail` | emails | Detalle de un lote de envío (staff) |
+| `/intranet/correos/<batch_id>/reintentar/` | `email_retry_failed` | emails | Reintentar envíos fallidos (staff) |
 | `/intranet/solicitudes/` | `RegistrationRequestListView` | hugo_edit | Listado solicitudes (staff) |
 | `/intranet/solicitudes/<pk>/` | `RegistrationRequestDetailView` | hugo_edit | Detalle solicitud (staff) |
 | `/intranet/solicitudes/<pk>/aprobar/` | `RegistrationRequestApproveView` | hugo_edit | Aprobar solicitud (staff) |

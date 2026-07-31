@@ -1,6 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<style>
+    .intranet-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .intranet-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+    }
+</style>
 <div class="container mt-5 pt-5 mb-5">
     <div class="row mb-4">
         <div class="col-12 text-center">
@@ -13,7 +22,7 @@
         <!-- Actividades -->
         <div class="col-md-4 mb-3">
             <a href="{% url 'hugo_activity_list' %}" class="text-decoration-none d-block h-100" style="color: inherit;">
-                <div class="card shadow-sm h-100 border-0" style="border-radius: 15px; overflow: hidden;">
+                <div class="card intranet-card shadow-sm h-100 border-0" style="border-radius: 15px; overflow: hidden;">
                     <div class="card-body text-center p-5">
                         <i class="fa fa-calendar-check-o mb-3" style="font-size: 4rem; color: #2241a8;"></i>
                         <h3 class="card-title font-weight-bold text-dark" style="font-family: 'Urbanist', sans-serif;">Actividades</h3>
@@ -26,7 +35,7 @@
         <!-- Noticias -->
         <div class="col-md-4 mb-3">
             <a href="{% url 'hugo_noticia_list' %}" class="text-decoration-none d-block h-100" style="color: inherit;">
-                <div class="card shadow-sm h-100 border-0" style="border-radius: 15px; overflow: hidden;">
+                <div class="card intranet-card shadow-sm h-100 border-0" style="border-radius: 15px; overflow: hidden;">
                     <div class="card-body text-center p-5">
                         <i class="fa fa-newspaper-o mb-3" style="font-size: 4rem; color: #2241a8;"></i>
                         <h3 class="card-title font-weight-bold text-dark" style="font-family: 'Urbanist', sans-serif;">Noticias</h3>
@@ -39,7 +48,7 @@
         <!-- Estudios -->
         <div class="col-md-4 mb-3">
             <a href="{% url 'hugo_estudio_list' %}" class="text-decoration-none d-block h-100" style="color: inherit;">
-                <div class="card shadow-sm h-100 border-0" style="border-radius: 15px; overflow: hidden;">
+                <div class="card intranet-card shadow-sm h-100 border-0" style="border-radius: 15px; overflow: hidden;">
                     <div class="card-body text-center p-5">
                         <i class="fa fa-bar-chart mb-3" style="font-size: 4rem; color: #2241a8;"></i>
                         <h3 class="card-title font-weight-bold text-dark" style="font-family: 'Urbanist', sans-serif;">Estudios</h3>
@@ -52,11 +61,24 @@
         <!-- Solicitudes de Registro -->
         <div class="col-md-4 mb-3">
             <a href="{% url 'hugo_registration_request_list' %}" class="text-decoration-none d-block h-100" style="color: inherit;">
-                <div class="card shadow-sm h-100 border-0" style="border-radius: 15px; overflow: hidden;">
+                <div class="card intranet-card shadow-sm h-100 border-0" style="border-radius: 15px; overflow: hidden;">
                     <div class="card-body text-center p-5">
                         <i class="fa fa-user-plus mb-3" style="font-size: 4rem; color: #2241a8;"></i>
                         <h3 class="card-title font-weight-bold text-dark" style="font-family: 'Urbanist', sans-serif;">Solicitudes</h3>
                         <p class="card-text text-muted">{{ solicitudes_pendientes_count }} pendientes</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Correos -->
+        <div class="col-md-4 mb-3">
+            <a href="{% url 'email_logs' %}" class="text-decoration-none d-block h-100" style="color: inherit;">
+                <div class="card intranet-card shadow-sm h-100 border-0" style="border-radius: 15px; overflow: hidden;">
+                    <div class="card-body text-center p-5">
+                        <i class="fa fa-envelope-o mb-3" style="font-size: 4rem; color: #2241a8;"></i>
+                        <h3 class="card-title font-weight-bold text-dark" style="font-family: 'Urbanist', sans-serif;">Correos</h3>
+                        <p class="card-text text-muted">Envío masivo</p>
                     </div>
                 </div>
             </a>

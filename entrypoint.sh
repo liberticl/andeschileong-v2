@@ -13,6 +13,11 @@ cleanup() {
 # Trap SIGTERM and SIGINT to run cleanup
 trap cleanup SIGTERM SIGINT
 
+# If the command is celery, skip nginx/gunicorn and run celery directly
+if [ "$1" = "celery" ]; then
+    exec "$@"
+fi
+
 # Sync Hugo content from DB
 python manage.py sync_hugo
 

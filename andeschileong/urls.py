@@ -44,6 +44,9 @@ urlpatterns = [
 
     # API IoT (measuring)
     path('api/', include((api_urlpatterns, 'mediciones-api'), namespace='mediciones-api')),
+
+    # Emails (staff)
+    path('', include('emails.urls')),
 ]
 
 

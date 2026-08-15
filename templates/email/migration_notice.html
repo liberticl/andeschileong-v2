@@ -1,0 +1,24 @@
+{% extends 'email/base_email.html' %}
+
+{% block content %}
+<h2 style="color: #2241a8; margin-top: 0; font-size: 22px;">Ciudades Pendientes se muda a Andes Chile ONG</h2>
+<div style="color: #333; line-height: 1.6; font-size: 14px;">
+    <p>Hola {{ user.first_name }},</p>
+    <p>Te informamos que la plataforma <strong>Ciudades Pendientes</strong> ahora forma parte de <strong>Andes Chile ONG</strong>.</p>
+
+    <p>Podrás encontrar la funcionalidad de <strong>Flujos de Strava</strong> en la sección de <strong>Recursos</strong> del sitio.</p>
+
+    <p style="text-align: center; margin: 24px 0;">
+        <a href="https://andeschileong.cl/recursos/ciudadespendientes"
+           style="background-color: #2241a8; color: #ffffff; padding: 12px 28px; text-decoration: none; border-radius: 4px; font-weight: 600; display: inline-block; font-size: 14px;">
+            Visitar sitio
+        </a>
+    </p>
+
+    <hr style="border: none; border-top: 1px solid #e9ecef; margin: 24px 0;">
+
+    <p style="color: #555;">Ahora también puedes <strong>recuperar tu contraseña</strong> desde el login si no la recuerdas.</p>
+
+    <p style="color: #555; font-size: 14px;">Si tienes problemas para acceder, contacta a <a href="mailto:contacto@andeschileong.cl" style="color: #2241a8;">contacto@andeschileong.cl</a></p>
+</div>
+{% endblock %}

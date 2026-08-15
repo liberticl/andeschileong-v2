@@ -174,7 +174,7 @@ nombre_lugar = reverse_geocode(-33.05896, -71.61998)
 # → "Providencia, Región Metropolitana"
 ```
 
-### 7. Sistema de Conteo de Tránsito (`apps/mediciones/`)
+### 7. Sistema de Conteo de Tránsito (`recursos/mediciones/`)
 
 Aplicación de visión artificial para conteo de tránsito en tiempo real usando YOLO26n + ONNX Runtime Web.
 
@@ -198,7 +198,7 @@ Aplicación de visión artificial para conteo de tránsito en tiempo real usando
   - Recibe conteos de 8 categorías: car, person, bicycle, motorcycle, truck, bus, skater, pet
   - Actualiza `last_seen` del dispositivo en cada POST
 
-**Modelo `Device` (`apps/mediciones/models.py`):**
+**Modelo `Device` (`recursos/mediciones/models.py`):**
 
 | Campo | Tipo | Descripción |
 |---|---|---|

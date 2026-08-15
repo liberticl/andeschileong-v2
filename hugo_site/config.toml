@@ -79,7 +79,7 @@ buildDrafts = false
 # url = "https://v2.ciudadespendientes.cl/"
 
 [[menu.main]]
-name = "Aplicaciones"
+name = "Recursos"
 weight = 700
-identifier = "apps"
-url = "/apps/"
+identifier = "recursos"
+url = "/recursos/"

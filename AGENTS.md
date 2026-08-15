@@ -361,9 +361,9 @@ ENV="prod"
 | `/intranet/solicitudes/<pk>/` | `RegistrationRequestDetailView` | hugo_edit | Detalle solicitud (staff) |
 | `/intranet/solicitudes/<pk>/aprobar/` | `RegistrationRequestApproveView` | hugo_edit | Aprobar solicitud (staff) |
 | `/intranet/solicitudes/<pk>/rechazar/` | `RegistrationRequestRejectView` | hugo_edit | Rechazar solicitud (staff) |
-| `/apps/` | `welcome` | ciudadespendientes | Dashboard principal |
-| `/apps/ciudadespendientes/` | `find` | ciudadespendientes | Búsqueda de datos |
-| `/apps/ciudadespendientes/mapa/` | `show_data` | ciudadespendientes | Mapa interactivo DeckGL |
+| `/recursos/` | `welcome` | ciudadespendientes | Dashboard principal |
+| `/recursos/ciudadespendientes/` | `find` | ciudadespendientes | Búsqueda de datos |
+| `/recursos/ciudadespendientes/mapa/` | `show_data` | ciudadespendientes | Mapa interactivo DeckGL |
 | `/intranet/` | `intranet_dashboard` | hugo_edit | Dashboard CMS (solo is_staff) |
 | `/intranet/actividades/` | `ActivityListView` | hugo_edit | Listado actividades |
 | `/intranet/actividades/add/` | `ActivityCreateView` | hugo_edit | Crear actividad |
@@ -384,15 +384,15 @@ ENV="prod"
 | `/intranet/estudios/eliminados/` | `EstudioDeletedView` | hugo_edit | Papelera estudios |
 | `/intranet/estudios/<pk>/restore/` | `restore_estudio` | hugo_edit | Restaurar estudio |
 | `/admin/` | Django admin | - | Admin general |
-| `/apps/mediciones/contador/` | `contador` | mediciones | Contador de tránsito (ONNX + YOLO26n) |
-| `/apps/mediciones/contador/model/` | `contador_model` | mediciones | Modelo ONNX (320/640px según RAM) |
+| `/recursos/mediciones/contador/` | `contador` | mediciones | Contador de tránsito (ONNX + YOLO26n) |
+| `/recursos/mediciones/contador/model/` | `contador_model` | mediciones | Modelo ONNX (320/640px según RAM) |
 | `/api/trafico/` | `TrafficCountAPIView` | mediciones | API IoT (JWT auth) |
 | `/api/trafico/register/` | `DeviceRegisterView` | mediciones | Auto-registro de dispositivos (sin auth) |
 | `/api/trafico/device/` | `DeviceNameUpdateView` | mediciones | Renombrar dispositivo (JWT auth) |
-| `/apps/licitaciones/` | `dashboard` | licitaciones | Dashboard licitaciones ciclistas |
-| `/apps/licitaciones/lista/` | `licitaciones_list` | licitaciones | Listado de licitaciones |
-| `/apps/licitaciones/<codigo>/` | `licitacion_detalle` | licitaciones | Detalle de licitación |
-| `/apps/licitaciones/api/stats/` | `api_stats` | licitaciones | API JSON para charts |
+| `/recursos/licitaciones/` | `dashboard` | licitaciones | Dashboard licitaciones ciclistas |
+| `/recursos/licitaciones/lista/` | `licitaciones_list` | licitaciones | Listado de licitaciones |
+| `/recursos/licitaciones/<codigo>/` | `licitacion_detalle` | licitaciones | Detalle de licitación |
+| `/recursos/licitaciones/api/stats/` | `api_stats` | licitaciones | API JSON para charts |
 
 ---
 
@@ -499,9 +499,9 @@ docker-compose exec web bash -c "<comando>"  # Ejecutar bash en el contenedor
 | `templates/accounts/password_reset_done.html` | Confirmación de envío de correo |
 | `templates/accounts/password_reset_confirm.html` | Formulario de nueva contraseña |
 | `templates/accounts/password_reset_complete.html` | Confirmación de reset completado |
-| `apps/mediciones/models.py` | Device, TrafficCount |
-| `apps/mediciones/views.py` | API IoT TrafficCountAPIView, DeviceRegisterView, DeviceNameUpdateView |
-| `apps/mediciones/templates/mediciones/contador.html` | Aplicación de detección YOLO26n + ONNX (fingerprint, reverse geocoding, sync) |
+| `recursos/mediciones/models.py` | Device, TrafficCount |
+| `recursos/mediciones/views.py` | API IoT TrafficCountAPIView, DeviceRegisterView, DeviceNameUpdateView |
+| `recursos/mediciones/templates/mediciones/contador.html` | Aplicación de detección YOLO26n + ONNX (fingerprint, reverse geocoding, sync) |
 | `hugo_edit/models.py` | Activity, Noticia, Estudio (genera .md y trigger rebuild Hugo via Celery) |
 | `hugo_edit/tasks.py` | Tarea Celery `rebuild_hugo()` — ejecuta `hugo --minify` asincrónicamente |
 | `hugo_edit/templatetags/split_tags.py` | Filtro personalizado `{% split "," %}` para separar tags en badges |

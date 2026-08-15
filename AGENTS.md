@@ -495,7 +495,7 @@ docker-compose exec web bash -c "<comando>"  # Ejecutar bash en el contenedor
 | `templates/accounts/registration_request_detail.html` | Detalle solicitud + aprobar/rechazar |
 | `templates/accounts/activate_account.html` | Formulario para establecer contraseña |
 | `templates/accounts/activation_complete.html` | Página de éxito de activación |
-| `templates/accounts/password_reset.html` | Formulario de solicitud de reset |
+| `templates/accounts/password_reset_request.html` | Formulario de solicitud de reset |
 | `templates/accounts/password_reset_done.html` | Confirmación de envío de correo |
 | `templates/accounts/password_reset_confirm.html` | Formulario de nueva contraseña |
 | `templates/accounts/password_reset_complete.html` | Confirmación de reset completado |
@@ -528,23 +528,25 @@ docker-compose exec web bash -c "<comando>"  # Ejecutar bash en el contenedor
 
 ---
 
-## 13. Constantes de Configuración
+## 13. Convención de Botones
 
-### Control de Acceso (hugo_edit)
+El botón estándar del sitio se define en `ciudadespendientes/static/ciudadespendientes/main.css` (línea 128):
 
-| Usuario | Email | is_active | is_staff | is_superuser |
-|---|---|---|---|---|
-| Francisco | francisco@andeschileong.cl | ✅ | ✅ | ✅ |
-| Daniela | daniela@andeschileong.cl | ✅ | ✅ | ❌ |
-| Juan | juan@andeschileong.cl | ✅ | ✅ | ❌ |
-| Katherine | katherine@andeschileong.cl | ❌ | ❌ | ❌ |
-| Natalia | natalia@andeschileong.cl | ✅ | ✅ | ❌ |
-| Nicolas | nicolas@andeschileong.cl | ✅ | ✅ | ❌ |
-| Pablo | pablo@andeschileong.cl | ✅ | ✅ | ❌ |
-| Rafaela | rafaela@andeschileong.cl | ✅ | ✅ | ❌ |
-| Rafael | rafael@andeschileong.cl | ✅ | ✅ | ❌ |
-| Rodrigo | rodrigo@andeschileong.cl | ✅ | ✅ | ❌ |
-| Sebastian | sebastian@andeschileong.cl | ✅ | ❌ | ❌ |
+| Propiedad | Valor |
+|---|---|
+| Clase | `class="btn"` |
+| Fondo | `white` |
+| Borde | `2px solid #2241a8` |
+| Texto | `black` |
+| Border-radius | `0.375rem` (Bootstrap 5 default) |
+| Hover - fondo | `#2241a8` |
+| Hover - texto | `white` |
+
+**No usar** `ac-btn-primary` (fondo azul sólido). Usar siempre `class="btn"` para botones principales.
+
+---
+
+## 14. Constantes de Configuración
 
 ### Capas de colores (DeckGL)
 

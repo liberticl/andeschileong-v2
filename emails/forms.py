@@ -59,6 +59,7 @@ class ComposeEmailForm(forms.Form):
         label='Asunto',
         widget=forms.TextInput(attrs={
             'class': 'form-control',
+            'id': 'subject',
         }))
 
     message = forms.CharField(
@@ -66,6 +67,7 @@ class ComposeEmailForm(forms.Form):
         widget=forms.Textarea(attrs={
             'class': 'form-control',
             'rows': 10,
+            'id': 'message',
         }),
         help_text='Cuerpo del correo. Se enviará como HTML.')
 

@@ -7,6 +7,18 @@
         <br>
         <form method="post">
             {% csrf_token %}
+            {% if form.errors %}
+            <div class="alert alert-danger" style="text-align: center;">
+                Usuario o credenciales inválidos.
+            </div>
+            {% endif %}
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" style="text-align: center;">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
             <div style="display: flex; align-items: center; padding-bottom: 5px;">
                 <label for="username" style="width: 100px;">Usuario</label>
                 {{ form.username }}

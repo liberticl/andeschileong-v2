@@ -5,6 +5,8 @@ from django.shortcuts import redirect
 from django.views import View
 from django.views.generic import FormView, TemplateView
 from django.http import JsonResponse
+from django.utils import timezone
+from datetime import timedelta
 
 from ciudadespendientes.utils import get_client_ip, get_location_from_ip
 from ciudadespendientes.models import Zone
@@ -133,10 +135,11 @@ class ActivateAccountView(FormView):
         activation_token = self.activation_token
         user = activation_token.user
         user.set_password(form.cleaned_data['password'])
+        user.change_password = False
         user.save()
         activation_token.is_used = True
         activation_token.save()
-        messages.success(self.request, '¡Cuenta activada! Ya puedes iniciar sesión.')
+        messages.success(self.request, '¡Contraseña configurada! Ya puedes iniciar sesión.')
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -147,6 +150,56 @@ class ActivateAccountView(FormView):
 
 class ActivationCompleteView(TemplateView):
     template_name = 'accounts/activation_complete.html'
+
+
+class PasswordResetRequestView(FormView):
+    template_name = 'accounts/password_reset_request.html'
+    success_url = '/accounts/password-reset/enviado/'
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('welcome')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_class(self):
+        from django import forms as django_forms
+        class EmailForm(django_forms.Form):
+            email = django_forms.EmailField(
+                label='Correo electrónico',
+                widget=django_forms.EmailInput(attrs={
+                    'class': 'form-control',
+                    'placeholder': 'tu@correo.com'
+                })
+            )
+        return EmailForm
+
+    def form_valid(self, form):
+        email = form.cleaned_data['email']
+        users = Account.objects.filter(email=email, is_active=True)
+        if users.exists():
+            user = users.first()
+            user.change_password = True
+            user.save()
+            AccountActivationToken.objects.filter(user=user).delete()
+            token = AccountActivationToken.objects.create(
+                user=user,
+                expires_at=timezone.now() + timedelta(hours=24)
+            )
+            activation_url = f"https://andeschileong.cl/accounts/activar/{token.token}/"
+            send_email(
+                subject='Recuperar contraseña - Andes Chile ONG',
+                template_name='email/password_reset.html',
+                context={
+                    'user': user,
+                    'activation_url': activation_url,
+                },
+                recipients=[email]
+            )
+        return super().form_valid(form)
+
+
+class PasswordResetEmailSentView(TemplateView):
+    template_name = 'accounts/password_reset_email_sent.html'
 
 
 class ZonesAPIView(View):

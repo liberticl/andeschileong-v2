@@ -71,6 +71,9 @@ class Account(PermissionsMixin, AbstractBaseUser):
                                    verbose_name="Andes Chile ONG")
     is_superuser = models.BooleanField(default=False,
                                        verbose_name="Superusuario")
+    change_password = models.BooleanField(
+        default=False, verbose_name="Cambiar contraseña",
+        help_text="Si es True, el usuario debe configurar su contraseña.")
     date_joined = models.DateTimeField(
         "Fecha de registro", default=timezone.now)
     permissions = models.ManyToManyField(
@@ -337,6 +340,7 @@ class RegistrationRequest(models.Model):
             cellphone=self.cellphone,
             is_active=True,
             is_staff=False,
+            change_password=True,
         )
         org, _ = Organization.objects.get_or_create(
             name=self.organization_name,

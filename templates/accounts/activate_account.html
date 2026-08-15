@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container ac-page ac-page--narrow ac-container">
-    <h3 class="ac-title ac-title--center">Activar Cuenta</h3>
+    <h3 class="ac-title ac-title--center">Configura tu contraseña</h3>
     <hr>
     <form method="post">
         {% csrf_token %}
@@ -20,7 +20,7 @@
             <input type="password" name="password_confirm" id="id_password_confirm" class="form-control" required>
         </div>
         <div class="ac-btn-group" style="justify-content: center;">
-            <button type="submit" class="btn ac-btn-primary">Activar cuenta</button>
+            <button type="submit" class="btn">Guardar contraseña</button>
         </div>
     </form>
 </div>

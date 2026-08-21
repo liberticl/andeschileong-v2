@@ -1,0 +1,430 @@
+---
+title: "Bahía Blanca: Movilidad Ciclista"
+description: "Análisis de movilidad en bicicleta en Bahía Blanca, Argentina — Datos GPS Mov3s, Strava y OpenStreetMap."
+date: 2026-08-21
+featured_image: "/img/estudios/2026/bahia-blanca.png"
+layout: "bahia-blanca"
+---
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+<style>
+  .bb-container {
+    max-width: 800px;
+    text-align: center;
+    margin: 40px auto;
+    background-color: rgba(255,255,255,0.67);
+    border-radius: 1rem;
+    padding: 2rem;
+  }
+  .bb-header { margin-bottom: 1.5rem; }
+  .bb-header h1 { font-size: 2rem; font-weight: 800; color: #333; margin-bottom: 0.3rem; }
+  .bb-header p { font-size: 1rem; color: #6c757d; }
+  .bb-header a { color: #2241a8; text-decoration: none; }
+  .bb-header a:hover { color: #2b22a8; }
+  .map-wrapper {
+    width: 95%; margin: 0 auto 1.5rem; border-radius: 1rem;
+    overflow: hidden; box-shadow: 0 20px 27px 0 rgba(0,0,0,0.05); background: #fff;
+  }
+  .map-wrapper iframe { width: 100%; height: 500px; border: none; display: block; }
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center;
+    margin: 1rem 0; font-size: 0.9rem; color: #555;
+  }
+  .legend-item { display: flex; align-items: center; gap: 0.4rem; }
+  .legend-dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+  .cards-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 1rem; margin: 1.5rem 0;
+  }
+  .stat-card {
+    position: relative; background-color: #fff; border-radius: 1rem;
+    padding: 1.2rem 1rem; box-shadow: 0 20px 27px 0 rgba(0,0,0,0.05);
+    border: 0 solid rgba(0,0,0,0.125); text-align: center;
+    transition: transform 0.3s; overflow: hidden;
+  }
+  .stat-card:hover { transform: scale(1.05); }
+  .stat-card .card-value { font-size: 2rem; font-weight: 800; color: #2241a8; }
+  .stat-card .card-label { font-size: 0.85rem; color: #6c757d; margin-top: 0.25rem; }
+  .info-icon {
+    display: inline-block; width: 16px; height: 16px; border-radius: 50%;
+    background: #2241a8; color: #fff; font-size: 11px; font-weight: 700;
+    text-align: center; line-height: 16px; cursor: help; position: relative;
+    vertical-align: middle; margin-left: 4px;
+  }
+  .info-icon .info-tip {
+    display: none; position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: #333; color: #fff; font-size: 0.72rem; font-weight: 400;
+    padding: 6px 10px; border-radius: 6px; width: 240px; text-align: left;
+    z-index: 100; line-height: 1.4; white-space: normal; pointer-events: none;
+  }
+  .info-icon:hover .info-tip { display: block; }
+  .stat-card.green .card-value { color: #4CAF50; }
+  .stat-card.orange .card-value { color: #f97316; }
+  .section-title {
+    text-align: left; font-size: 1.2rem; font-weight: 700; color: #333;
+    margin-bottom: 1rem; padding-bottom: 0.4rem; border-bottom: 2px solid #333;
+  }
+  .content-section {
+    background: #fff; border-radius: 1rem; padding: 1.5rem;
+    box-shadow: 0 20px 27px 0 rgba(0,0,0,0.05); margin-bottom: 1.5rem; text-align: left;
+  }
+  .content-section h3 { font-size: 1.1rem; font-weight: 700; color: #2241a8; margin: 1.2rem 0 0.5rem; }
+  .content-section p, .content-section li {
+    font-size: 1rem; color: #555; line-height: 1.7; margin-bottom: 0.5rem;
+  }
+  .content-section ul { padding-left: 1.5rem; margin-bottom: 1rem; }
+  .table-section {
+    background: #fff; border-radius: 1rem; padding: 1.5rem;
+    box-shadow: 0 20px 27px 0 rgba(0,0,0,0.05); margin-bottom: 1.5rem; overflow-x: auto;
+  }
+  .ac-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; margin: 0; }
+  .ac-table thead { background-color: #2241a8; color: #fff; }
+  .ac-table thead th { padding: 12px 14px; font-weight: 600; border: none !important; text-align: left; }
+  .ac-table td { padding: 10px 14px; border: none !important; border-bottom: 1px solid #eee !important; vertical-align: middle; }
+  .ac-table tbody tr:nth-child(even) { background-color: rgba(34,65,168,0.02); }
+  .ac-table tbody tr:hover { background-color: rgba(34,65,168,0.06); }
+  .highlight-box {
+    background: rgba(34,65,168,0.05); border-left: 4px solid #2241a8;
+    padding: 1rem; margin: 1rem 0; border-radius: 0 0.5rem 0.5rem 0;
+    font-size: 1rem; color: #333; line-height: 1.7; text-align: left;
+  }
+  .highlight-box strong { color: #2241a8; }
+  .pipeline-step { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; }
+  .pipeline-step .step-number {
+    flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%;
+    background: #2241a8; color: #fff; font-size: 0.9rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pipeline-step .step-content { flex: 1; }
+  .pipeline-step .step-content h4 { font-size: 1rem; font-weight: 700; color: #333; margin-bottom: 0.3rem; }
+  .pipeline-step .step-content p { font-size: 0.95rem; color: #666; margin: 0; }
+  .map-section { margin-bottom: 2rem; }
+  .map-section h2 { text-align: left; font-size: 1.3rem; font-weight: 800; color: #333; margin-bottom: 0.3rem; }
+  .map-section .map-desc { font-size: 1rem; color: #666; margin-bottom: 1rem; text-align: left; }
+  .code-block {
+    background: #f5f5f5; border-radius: 0.5rem; padding: 1rem;
+    font-family: 'Courier New', monospace; font-size: 0.9rem;
+    overflow-x: auto; margin: 1rem 0; text-align: left; color: #333;
+  }
+</style>
+
+<div class="bb-container">
+  <div class="bb-header">
+    <h1>Bahía Blanca: Movilidad Ciclista</h1>
+    <p>Análisis de movilidad en bicicleta — Datos GPS Mov3s, Strava y OpenStreetMap</p>
+  </div>
+
+  <div class="cards-grid">
+    <div class="stat-card"><div class="card-value">3,188</div><div class="card-label">Viajes en bicicleta</div></div>
+    <div class="stat-card green"><div class="card-value">930</div><div class="card-label">Calles mapeadas</div></div>
+    <div class="stat-card orange"><div class="card-value">26</div><div class="card-label">Ciclovías</div></div>
+    <div class="stat-card"><div class="card-value">105</div><div class="card-label">Puntos de Interés</div></div>
+  </div>
+
+  <!-- INTRODUCCIÓN -->
+  <div class="content-section">
+    <h2 class="section-title">Introducción</h2>
+    <p>Este estudio analiza la movilidad en bicicleta en Bahía Blanca utilizando datos de la plataforma <strong>Mov3s</strong> (viajes GPS registrados) y <strong>Strava</strong> (segmentos públicos). Se generaron tres mapas interactivos que permiten visualizar distintas dimensiones del uso de bicicleta en la ciudad, con el objetivo de evaluar la infraestructura ciclista existente y fundamentar propuestas de extensión.</p>
+
+    <h3>Fuentes de datos</h3>
+    <ul>
+      <li><strong>Mov3s:</strong> Base de datos SQL con 3,650 viajes totales, de los cuales 3,188 son en bicicleta.</li>
+      <li><strong>Strava:</strong> Segmentos de Metroview exportados para los años 2023, 2024 y 2025.</li>
+      <li><strong>Ciclovías:</strong> 26 segmentos extraídos del sitio web del <a href="https://www.bahia.gob.ar/mapas/ciclovias/" target="_blank">Municipio de Bahía Blanca</a>.</li>
+      <li><strong>Puntos de Interés:</strong> 295 puntos obtenidos de Overpass API (OpenStreetMap), filtrados a 350m de las ciclovías (105 relevantes).</li>
+    </ul>
+
+    <h3>Base de datos espacial</h3>
+    <p>930 calles obtenidas de OpenStreetMap con geometrías completas, cubriendo el 99.8% de los puntos GPS del dataset.</p>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- MAPA 1                                        -->
+  <!-- ============================================ -->
+  <div class="map-section">
+    <h2>Mapa 1: Heatmap de Densidad de Viajes</h2>
+    <p class="map-desc">Densidad de puntos GPS proyectados sobre calles. Los colores indican intensidad de uso: azul claro (baja), amarillo (media), rojo (alto). Las ciclovías aparecen en azul sólido.</p>
+    <div class="map-wrapper">
+      <iframe src="mapa1.html"></iframe>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:#ADD8E6"></span> Baja</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#fbc02d"></span> Media</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#d32f2f"></span> Alta</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#508be2; width:20px; height:4px; border-radius:2px;"></span> Ciclovía</div>
+    </div>
+  </div>
+
+  <div class="content-section">
+    <h2 class="section-title">Lógica de obtención — Mapa 1</h2>
+    <p><strong>Fuente:</strong> Archivo SQL con viajes de Mov3s extraídos con Python.</p>
+
+    <h3>Procesamiento de coordenadas (WKB Hex)</h3>
+    <p>Las coordenadas GPS de cada viaje están almacenadas en formato <a href="https://www.ibm.com/docs/es/db2/11.5.x?topic=formats-well-known-binary-wkb-format" target="_blank">WKB</a> (Well-Known Binary) en hexadecimal, con prefijo <a href="https://desktop.arcgis.com/es/arcmap/latest/manage-data/using-sql-with-gdbs/what-is-an-srid.htm" target="_blank">SRID</a> de 4 bytes:</p>
+    <div class="code-block">0x [4 bytes SRID] [4 bytes count] [cada punto: 8 bytes lon + 8 bytes lat (little-endian double)]</div>
+
+    <h3>Filtros aplicados</h3>
+    <div class="pipeline-step"><div class="step-number">1</div><div class="step-content"><h4>Transporte</h4><p>Solo viajes en bicicleta: 3,188 de 3,650.</p></div></div>
+    <div class="pipeline-step"><div class="step-number">2</div><div class="step-content"><h4>Deduplicación</h4><p>Se eliminan puntos repetidos dentro de cada viaje.</p></div></div>
+    <div class="pipeline-step"><div class="step-number">3</div><div class="step-content"><h4>Bounding box</h4><p>Solo puntos dentro del área de estudio de Bahía Blanca.</p></div></div>
+    <div class="pipeline-step"><div class="step-number">4</div><div class="step-content"><h4>Mínimo de puntos</h4><p>Viajes con menos de 2 puntos válidos descartados.</p></div></div>
+    <div class="pipeline-step"><div class="step-number">5</div><div class="step-content"><h4>Hotspots</h4><p>Se eliminan puntos con más de 60 apariciones en la misma ubicación. Se detectaron <strong>3 hotspots</strong>. Resultado: <strong>1,510 viajes válidos</strong>.</p></div></div>
+
+    <h3>Método de asignación GPS → Calles (NN + Proyección)</h3>
+    <p>Los puntos GPS tienen ruido y no caen exactamente sobre las calles. Se utiliza un método de <strong>Vecino Más Cercano con Proyección</strong>:</p>
+    <div class="pipeline-step"><div class="step-number">1</div><div class="step-content"><h4>Proyección UTM</h4><p>Puntos y calles se proyectan a UTM zona 21S (EPSG:32721) para trabajar en metros.</p></div></div>
+    <div class="pipeline-step"><div class="step-number">2</div><div class="step-content"><h4>Índice espacial STRtree</h4><p>Se construye un árbol espacial con las 930 calles para consultas eficientes.</p></div></div>
+    <div class="pipeline-step"><div class="step-number">3</div><div class="step-content"><h4>Búsqueda de candidatos</h4><p>Para cada punto GPS, se buscan calles dentro de un radio de <strong>50 metros</strong>.</p></div></div>
+    <div class="pipeline-step"><div class="step-number">4</div><div class="step-content"><h4>Selección y proyección</h4><p>Se selecciona la calle más cercana y el punto se proyecta sobre ella mediante interpolación: <code>distancia = line.project(point)</code>, <code>punto_asignado = line.interpolate(distancia)</code>.</p></div></div>
+    <div class="pipeline-step"><div class="step-number">5</div><div class="step-content"><h4>Conversión inversa</h4><p>El punto asignado se convierte de vuelta a WGS84. Cobertura: <strong>99.8%</strong> de los 19,049 puntos GPS.</p></div></div>
+
+    <h3>Teoría detrás del heatmap</h3>
+    <p>Un heatmap de <em>kernel density estimation</em> (KDE) estima la densidad de puntos en el espacio. Cada punto GPS contribuye con un kernel gaussiano que se suma al acumulado de sus vecinos:</p>
+    <ul>
+      <li><strong>Baja densidad</strong> (azul claro): zonas con pocos puntos o dispersos.</li>
+      <li><strong>Media densidad</strong> (amarillo): zonas con uso moderado.</li>
+      <li><strong>Alta densidad</strong> (rojo): zonas de alta concentración de actividad ciclista.</li>
+    </ul>
+
+    <h3>Conclusiones del Mapa 1</h3>
+    <div class="highlight-box">
+      <strong>1.</strong> Las ciclovías capturan parte del flujo, pero hay demanda insatisfecha.<br>
+      <strong>2.</strong> Calles troncales sin ciclovías concentran alto tráfico ciclista — candidatas para nueva infraestructura.<br>
+      <strong>3.</strong> Los viajes son predominantemente <strong>urbanos y cortos</strong>, típicos de movilidad diaria.
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- MAPA 2                                        -->
+  <!-- ============================================ -->
+  <div class="map-section">
+    <h2>Mapa 2: Evolución Strava + Ciclovías + Puntos de Interés</h2>
+    <p class="map-desc">Segmentos Strava coloreados por intensidad de uso (verde: bajo, naranja: medio, rojo: alto). Ciclovías punteadas en azul. 105 puntos de interés cercanos categorizados por tipo.</p>
+    <div class="map-wrapper">
+      <iframe src="mapa2_strava.html"></iframe>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:#008000"></span> Flujo bajo</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#ffa500"></span> Flujo medio</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#ff0000"></span> Flujo alto</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#508be2; width:20px; height:4px; border-radius:2px;"></span> Ciclovía</div>
+    </div>
+  </div>
+
+  <div class="content-section">
+    <h2 class="section-title">Lógica de obtención — Mapa 2</h2>
+    <p><strong>Fuente:</strong> Datos Strava exportados para 2023, 2024 y 2025.</p>
+
+    <h3>Clasificación por intensidad de uso</h3>
+    <p>Se calculan estadísticas globales (media y desviación estándar) sobre el total de viajes de todos los segmentos de todos los años:</p>
+    <div class="code-block">global_mean = 244.0 viajes/segmento<br>global_std  = 1,094.9 viajes/segmento</div>
+
+    <h3>Fórmula de clasificación</h3>
+    <div class="code-block">def classify(trips, mean, std):<br>&nbsp;&nbsp;&nbsp;&nbsp;if trips &gt; mean + std: &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#999"># &gt; 1,338.9</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return ROJO &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#999"># Flujo alto</span><br>&nbsp;&nbsp;&nbsp;&nbsp;elif trips &gt; mean: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#999"># &gt; 244.0</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return NARANJA &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#999"># Flujo medio</span><br>&nbsp;&nbsp;&nbsp;&nbsp;else: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#999"># ≤ 244.0</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return VERDE &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#999"># Flujo bajo</span></div>
+
+    <p><strong>Nota:</strong> El desvío estándar es muy alto (1,094.9) comparado con la media (244.0), lo que indica una distribución altamente sesgada: la mayoría de segmentos tienen bajo flujo, pero unos pocos concentran miles de viajes.</p>
+
+    <h3>Puntos de Interés (105 dentro de 350m de ciclovías)</h3>
+    <p>De los 295 puntos obtenidos de Overpass API, se seleccionaron los que están dentro de un radio de <strong>350 metros</strong> (fórmula haversine) de algún segmento de ciclovía.</p>
+
+    <table class="ac-table" style="margin-top: 1rem;">
+      <thead><tr><th>Tipo</th><th style="text-align:right">Cantidad</th></tr></thead>
+      <tbody>
+        <tr><td>Farmacias</td><td style="text-align:right">23</td></tr>
+        <tr><td>Restaurantes</td><td style="text-align:right">22</td></tr>
+        <tr><td>Cafés</td><td style="text-align:right">20</td></tr>
+        <tr><td>Minimercados</td><td style="text-align:right">16</td></tr>
+        <tr><td>Escuelas</td><td style="text-align:right">7</td></tr>
+        <tr><td>Supermercados</td><td style="text-align:right">5</td></tr>
+        <tr><td>Clínicas</td><td style="text-align:right">5</td></tr>
+        <tr><td>Policía</td><td style="text-align:right">3</td></tr>
+        <tr><td>Bancos</td><td style="text-align:right">2</td></tr>
+        <tr><td>Hospitales</td><td style="text-align:right">1</td></tr>
+        <tr><td>Casas de bicis</td><td style="text-align:right">1</td></tr>
+        <tr style="font-weight:bold"><td>Total</td><td style="text-align:right">105</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="content-section">
+    <h3>Teoría detrás de la clasificación</h3>
+    <p>La clasificación por percentiles estadísticos (media y desvío estándar) es un método robusto para datos con distribución sesgada:</p>
+    <ul>
+      <li><strong>Comparabilidad temporal:</strong> Los mismos umbrales se aplican a todos los años.</li>
+      <li><strong>Detección de outliers:</strong> Los segmentos rojos (&gt; mean + std) son anomalías de alta demanda.</li>
+      <li><strong>Identificación de tendencias:</strong> El crecimiento de segmentos naranjas/rojos entre años indica expansión del uso.</li>
+    </ul>
+
+    <h3>Conclusiones del Mapa 2</h3>
+    <div class="highlight-box">
+      <strong>1.</strong> Crecimiento sostenido de segmentos con flujo alto de 2023 a 2025.<br>
+      <strong>2.</strong> Unos pocos corredores concentran la mayor parte del flujo ciclista.<br>
+      <strong>3.</strong> Corredores de medio/alto flujo sin ciclovías = candidatos a nueva infraestructura.<br>
+      <strong>4.</strong> Puntos de Interés importantes (escuelas, hospitales, comercios) cerca de ciclovías validan su utilidad.
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- MAPA 3                                        -->
+  <!-- ============================================ -->
+  <div class="map-section">
+    <h2>Mapa 3: Origen-Destino de Viajes en Bicicleta</h2>
+    <p class="map-desc">Arcos de viajes O/D del 2025. Verde: origen, rojo: destino. Vista 3D con inclinación para visualizar la estructura de flujos. Los puntos más grandes indican mayor concentración de viajes.</p>
+    <div class="map-wrapper">
+      <iframe src="mapa3_od.html"></iframe>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:#4caf50"></span> Origen</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#f44336"></span> Destino</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#508be2; width:20px; height:4px; border-radius:2px;"></span> Ciclovía</div>
+    </div>
+  </div>
+
+  <div class="content-section">
+    <h2 class="section-title">Lógica de obtención — Mapa 3</h2>
+    <p><strong>Fuente:</strong> Registro de Mov3s — 1,266 viajes en bicicleta del año 2025.</p>
+
+    <h3>Extracción de pares Origen/Destino</h3>
+    <p>Cada registro contiene campos <code>origin</code> y <code>destination</code> como coordenadas. Solo se conservan viajes donde origen ≠ destino: <strong>536 arcos</strong> de los 1,266 viajes.</p>
+
+    <h3>Clusterización espacial (Vecindario de 20m)</h3>
+    <p><strong>Algoritmo:</strong> Clustering greedy por distancia euclídea (haversine):</p>
+    <div class="code-block">Para cada punto no visitado i:<br>&nbsp;&nbsp;&nbsp;&nbsp;Crear nuevo cluster<br>&nbsp;&nbsp;&nbsp;&nbsp;Agregar todos los puntos no visitados j tal que:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;haversine(i, j) ≤ 20 metros<br>&nbsp;&nbsp;&nbsp;&nbsp;Calcular centroide = promedio de coordenadas del cluster</div>
+
+    <h3>Función haversine</h3>
+    <div class="code-block">R = 6,371,000 &nbsp;<span style="color:#999"># Radio terrestre en metros</span><br>a = sin²(Δφ/2) + cos(φ₁)·cos(φ₂)·sin²(Δλ/2)<br>d = R · 2 · atan2(√a, √(1-a))</div>
+  </div>
+
+  <div class="table-section">
+    <table class="ac-table">
+      <thead><tr><th>Tipo</th><th style="text-align:right">Clusters</th><th style="text-align:right">Máx viajes</th><th style="text-align:right">Promedio</th></tr></thead>
+      <tbody>
+        <tr><td>Origen</td><td style="text-align:right">403</td><td style="text-align:right">156</td><td style="text-align:right">3.1</td></tr>
+        <tr><td>Destino</td><td style="text-align:right">600</td><td style="text-align:right">101</td><td style="text-align:right">2.1</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="content-section">
+    <p><strong>Interpretación:</strong> Los orígenes son más concentrados (menos clusters, mayor promedio) porque la gente sale de pocos lugares conocidos (hogar, trabajo). Los destinos son más dispersos porque se reparten en más ubicaciones.</p>
+    <p><strong>Arcos resultantes:</strong> Después de snapping a clusters y filtrar origen ≠ destino: <strong>1,028 arcos</strong>.</p>
+
+    <h3>Capas del mapa</h3>
+    <ul>
+      <li><strong>Arcos O/D (ArcLayer):</strong> Color origen (verde) → destino (rojo), grosor 1.5px.</li>
+      <li><strong>Puntos de origen (ScatterplotLayer):</strong> Verde, radio 5m, tooltip "N viaje(s) (origen)".</li>
+      <li><strong>Puntos de destino (ScatterplotLayer):</strong> Rojo, radio 5m, tooltip "N viaje(s) (destino)".</li>
+      <li><strong>Vista 3D:</strong> Pitch 45°, Bearing -30° — permite visualizar la estructura espacial de los flujos.</li>
+    </ul>
+
+    <h3>Teoría detrás del clustering</h3>
+    <p>El clustering por umbral de distancia (20m) es un método de agrupación espacial simple pero efectivo:</p>
+    <ul>
+      <li><strong>Agrupar puntos GPS cercanos:</strong> Los dispositivos GPS tienen precisión de ~5-10m, por lo que puntos del mismo lugar aparecen ligeramente desplazados.</li>
+      <li><strong>Identificar centros de actividad:</strong> Los centroides representan ubicaciones reales de inicio/fin de viajes.</li>
+      <li><strong>Reducir ruido espacial:</strong> Convierte cientos de puntos dispersos en clusters representativos.</li>
+    </ul>
+
+    <h3>Conclusiones del Mapa 3</h3>
+    <div class="highlight-box">
+      <strong>1.</strong> Orígenes concentrados vs. destinos dispersos — patrón residencial → servicios.<br>
+      <strong>2.</strong> Flujo hacia el centro: el casco central es el principal polo de atracción.<br>
+      <strong>3.</strong> Arcos que no siguen ciclovías = corridors de demanda no atendidos.<br>
+      <strong>4.</strong> Zonas con alta concentración O/D sin ciclovías = candidatas prioritarias.
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- ESTIMACIÓN                                    -->
+  <!-- ============================================ -->
+  <div class="content-section">
+    <h2 class="section-title">Estimación de Ciclistas Reales</h2>
+    <p>Los datos de Mov3s y Strava representan una fracción de los ciclistas reales de Bahía Blanca. No todos los ciclistas usan apps de seguimiento, y Strava tiene una base de usuarios más reducida y sesgada hacia ciclistas recreativos/deportivos.</p>
+
+    <h3>Supuestos</h3>
+    <ul>
+      <li><strong>Mov3s:</strong> App de movilidad sostenible con adopción local limitada. Captura alrededor del <strong>5%</strong> de los ciclistas activos.</li>
+      <li><strong>Strava:</strong> App popular entre ciclistas deportivos, pero no representativa del ciclista promedio urbano. Captura aproximadamente el <strong>10%</strong> de los ciclistas activos.</li>
+    </ul>
+
+    <div class="highlight-box">
+      <strong>Estimación conservadora:</strong> Entre <strong>8,000 y 10,000 ciclistas activos</strong> en Bahía Blanca (~300,000 habitantes), lo que implica que aproximadamente el <strong>2.5-3.5%</strong> de la población se desplaza en bicicleta de forma activa.
+    </div>
+
+    <h3>Implicancias</h3>
+    <ul>
+      <li><strong>La demanda real es mayor de lo visible:</strong> Los mapas muestran solo una fracción del flujo ciclista real.</li>
+      <li><strong>Infraestructura para miles, no para cientos:</strong> Si hay ~10,000 ciclistas activos, la red ciclista debe dimensionarse para esa escala.</li>
+      <li><strong>Potencial de crecimiento:</strong> Con mejor infraestructura, la tasa de uso podría crecer significativamente, como ha ocurrido en ciudades colombianas que duplicaron su ciclabilidad en 5 años.</li>
+    </ul>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- CONCLUSIONES GENERALES                        -->
+  <!-- ============================================ -->
+  <div class="content-section">
+    <h2 class="section-title">Conclusiones Generales</h2>
+
+    <div class="highlight-box">
+      <strong>1. Las ciclovías son útiles pero insuficientes:</strong> La infraestructura existente captura una parte significativa del flujo, pero existe demanda insatisfecha. Calles sin ciclovías muestran alta densidad de uso (Mapa 1) y muchos arcos O/D las atraviesan (Mapa 3).
+    </div>
+
+    <div class="highlight-box">
+      <strong>2. Patrón de uso diario y urbano:</strong> Traslados cortos urbanos (&lt;5km), conexión con servicios (puntos de interés cercanos a ciclovías), movilidad diaria en horarios laborales/educativos.
+    </div>
+
+    <div class="highlight-box">
+      <strong>3. Necesidad de extensión de la red ciclista:</strong><br>
+      • Mapa 1: Calles con densidad naranja/roja sin ciclovías = candidatas.<br>
+      • Mapa 2: Segmentos Strava con flujo alto en zonas sin ciclovías = demanda no atendida.<br>
+      • Mapa 3: Arcos O/D que no siguen ciclovías = rutas deseadas sin infraestructura.
+    </div>
+
+    <div class="highlight-box">
+      <strong>4. Recomendaciones:</strong><br>
+      • Priorizar corredores troncales donde confluyen alta densidad, alto flujo Strava y múltiples arcos O/D.<br>
+      • Conectar polos de atracción: escuelas, hospitales, centros comerciales.<br>
+      • Completar la red con estructura radial y conexiones perimetrales.
+    </div>
+
+    <div class="highlight-box">
+      <strong>5. Validación cruzada:</strong> La combinación de tres fuentes independientes (Mov3s, Strava, OSM) fortalece las conclusiones y reduce el sesgo de cualquier fuente individual.
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- ESPECIFICACIONES TÉCNICAS                     -->
+  <!-- ============================================ -->
+  <div class="content-section">
+    <h2 class="section-title">Especificaciones Técnicas</h2>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+      <div class="highlight-box" style="margin: 0;">
+        <strong>Visualización</strong><br>deck.gl v9.x + MapLibre GL v4.x
+      </div>
+      <div class="highlight-box" style="margin: 0;">
+        <strong>Proyección espacial</strong><br>UTM zona 21S (EPSG:32721)
+      </div>
+      <div class="highlight-box" style="margin: 0;">
+        <strong>Base de datos espacial</strong><br>OpenStreetMap (930 calles)
+      </div>
+      <div class="highlight-box" style="margin: 0;">
+        <strong>Datos GPS</strong><br>Mov3s (WKB hex, MySQL 8.0.37)
+      </div>
+      <div class="highlight-box" style="margin: 0;">
+        <strong>Datos Strava</strong><br>Segmentos públicos 2023–2025
+      </div>
+      <div class="highlight-box" style="margin: 0;">
+        <strong>Puntos de Interés</strong><br>Overpass API → 105 en 350m de ciclovías
+      </div>
+      <div class="highlight-box" style="margin: 0;">
+        <strong>Ciclovías</strong><br>26 segmentos KMZ → GeoJSON
+      </div>
+      <div class="highlight-box" style="margin: 0;">
+        <strong>Basemap</strong><br>CartoDB Positron (light theme)
+      </div>
+      <div class="highlight-box" style="margin: 0;">
+        <strong>Lenguaje</strong><br>Python 3.12 + JavaScript
+      </div>
+    </div>
+  </div>
+
+</div>

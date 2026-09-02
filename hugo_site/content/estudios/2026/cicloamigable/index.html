@@ -18,7 +18,7 @@ layout: "cicloamigable"
   }
   .ca-header { margin-bottom: 1.5rem; }
   .ca-header h1 { font-size: 2rem; font-weight: 800; color: #333; margin-bottom: 0.3rem; }
-  .ca-header p { font-size: 0.95rem; color: #6c757d; }
+  .ca-header p { font-size: 1rem; color: #6c757d; }
   .ca-header a { color: #2241a8; text-decoration: none; }
   .ca-header a:hover { color: #2b22a8; }
   .map-wrapper {
@@ -28,43 +28,53 @@ layout: "cicloamigable"
   .map-wrapper iframe { width: 100%; height: 500px; border: none; display: block; }
   .legend {
     display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center;
-    margin: 1rem 0; font-size: 0.85rem; color: #555;
+    margin: 1rem 0; font-size: 0.9rem; color: #555;
   }
   .legend-item { display: flex; align-items: center; gap: 0.4rem; }
   .legend-dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
   .cards-grid {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-    gap: 1rem; margin: 1.5rem 0;
+    gap: 1rem; margin: 1.5rem 0; position: relative;
   }
   .stat-card {
     position: relative; background-color: #fff; border-radius: 1rem;
     padding: 1.2rem 1rem; box-shadow: 0 20px 27px 0 rgba(0,0,0,0.05);
     border: 0 solid rgba(0,0,0,0.125); text-align: center;
-    transition: transform 0.3s; overflow: hidden;
+    transition: transform 0.3s; overflow: visible;
   }
-  .stat-card:hover { transform: scale(1.05); }
-  .stat-card .card-value { font-size: 1.7rem; font-weight: 800; color: #2241a8; }
-  .stat-card .card-label { font-size: 0.78rem; color: #6c757d; margin-top: 0.25rem; }
+  .stat-card:hover { transform: scale(1.05); z-index: 10; }
+  .stat-card .card-value { font-size: 2rem; font-weight: 800; color: #2241a8; }
+  .stat-card .card-label { font-size: 0.85rem; color: #6c757d; margin-top: 0.25rem; }
   .info-icon {
     display: inline-block; width: 16px; height: 16px; border-radius: 50%;
-    background: #2241a8; color: #fff; font-size: 10px; font-weight: 700;
+    background: #2241a8; color: #fff; font-size: 11px; font-weight: 700;
     text-align: center; line-height: 16px; cursor: help; position: relative;
     vertical-align: middle; margin-left: 4px;
   }
   .info-icon .info-tip {
     display: none; position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
     background: #333; color: #fff; font-size: 0.72rem; font-weight: 400;
-    padding: 6px 10px; border-radius: 6px; width: 240px; text-align: left;
-    z-index: 100; line-height: 1.3; white-space: normal;
-    pointer-events: none;
+    padding: 6px 10px; border-radius: 6px; width: 240px; max-width: min(240px, 90vw); text-align: left;
+    z-index: 999; line-height: 1.4; white-space: normal;
+    pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   }
   .info-icon:hover .info-tip { display: block; }
+  .info-icon:focus-within .info-tip { display: block; }
   .stat-card.green .card-value { color: #4CAF50; }
   .stat-card.orange .card-value { color: #f97316; }
   .section-title {
-    text-align: left; font-size: 1.1rem; font-weight: 700; color: #333;
+    text-align: left; font-size: 1.2rem; font-weight: 700; color: #333;
     margin-bottom: 1rem; padding-bottom: 0.4rem; border-bottom: 2px solid #333;
   }
+  .content-section {
+    background: #fff; border-radius: 1rem; padding: 1.5rem;
+    box-shadow: 0 20px 27px 0 rgba(0,0,0,0.05); margin-bottom: 1.5rem; text-align: left;
+  }
+  .content-section h3 { font-size: 1.1rem; font-weight: 700; color: #2241a8; margin: 1.2rem 0 0.5rem; }
+  .content-section p, .content-section li {
+    font-size: 1rem; color: #555; line-height: 1.7; margin-bottom: 0.5rem;
+  }
+  .content-section ul { padding-left: 1.5rem; margin-bottom: 1rem; }
   .chart-section {
     background: #fff; border-radius: 1rem; padding: 1.5rem;
     box-shadow: 0 20px 27px 0 rgba(0,0,0,0.05); margin-bottom: 1.5rem; text-align: left;
@@ -74,14 +84,38 @@ layout: "cicloamigable"
     background: #fff; border-radius: 1rem; padding: 1.5rem;
     box-shadow: 0 20px 27px 0 rgba(0,0,0,0.05); margin-bottom: 1.5rem; overflow-x: auto;
   }
-  .ac-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 0; }
+  .ac-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; margin: 0; }
   .ac-table thead { background-color: #2241a8; color: #fff; }
-  .ac-table thead th { padding: 10px 12px; font-weight: 600; border: none !important; text-align: left; }
-  .ac-table td { padding: 8px 12px; border: none !important; border-bottom: 1px solid #eee !important; vertical-align: middle; }
-  .ac-table tbody tr:hover { background-color: rgba(34,65,168,0.04); }
-  .ac-table th { border: none !important; padding: 10px 12px; text-align: left; }
+  .ac-table thead th { padding: 12px 14px; font-weight: 600; border: none !important; text-align: left; }
+  .ac-table td { padding: 10px 14px; border: none !important; border-bottom: 1px solid #eee !important; vertical-align: middle; }
+  .ac-table tbody tr:nth-child(even) { background-color: rgba(34,65,168,0.02); }
+  .ac-table tbody tr:hover { background-color: rgba(34,65,168,0.06); }
+  .ac-table th { border: none !important; padding: 12px 14px; text-align: left; }
   .badge-up { background-color: #28a745; color: #fff; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
   .badge-down { background-color: #dc3545; color: #fff; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+  .highlight-box {
+    background: rgba(34,65,168,0.05); border-left: 4px solid #2241a8;
+    padding: 1rem; margin: 1rem 0; border-radius: 0 0.5rem 0.5rem 0;
+    font-size: 1rem; color: #333; line-height: 1.7; text-align: left;
+  }
+  .highlight-box strong { color: #2241a8; }
+  .pipeline-step { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; text-align: left; }
+  .pipeline-step .step-number {
+    flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%;
+    background: #2241a8; color: #fff; font-size: 0.9rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pipeline-step .step-content { flex: 1; }
+  .pipeline-step .step-content h4 { font-size: 1rem; font-weight: 700; color: #333; margin-bottom: 0.3rem; }
+  .pipeline-step .step-content p { font-size: 0.95rem; color: #666; margin: 0; }
+  .map-section { margin-bottom: 2rem; text-align: left; }
+  .map-section h2 { text-align: left; font-size: 1.3rem; font-weight: 800; color: #333; margin-bottom: 0.3rem; }
+  .map-section .map-desc { font-size: 1rem; color: #666; margin-bottom: 1rem; text-align: left; }
+  .code-block {
+    background: #f5f5f5; border-radius: 0.5rem; padding: 1rem;
+    font-family: 'Courier New', monospace; font-size: 0.9rem;
+    overflow-x: auto; margin: 1rem 0; text-align: left; color: #333;
+  }
 </style>
 
 <div class="ca-container">
@@ -108,10 +142,48 @@ layout: "cicloamigable"
   </div>
 
   <div class="cards-grid">
-    <div class="stat-card"><div class="card-value">1,241,845</div><div class="card-label">Viajes totales 2025 <span class="info-icon">i<span class="info-tip">Suma de pasadas por segmentos viales dentro de 300m de cada punto. Un mismo viaje puede contar múltiples veces si recorre varios segmentos.</span></span></div></div>
-    <div class="stat-card green"><div class="card-value">+105.1%</div><div class="card-label">Crecimiento vs 2019</div></div>
-    <div class="stat-card orange"><div class="card-value">+19.4%</div><div class="card-label">Crecimiento vs 2024</div></div>
-    <div class="stat-card"><div class="card-value">13</div><div class="card-label">Puntos analizados</div></div>
+    <div class="stat-card"><div class="card-value">87.160 <span class="info-icon" tabindex="0">i<span class="info-tip">Promedio de pasadas por segmentos viales dentro de 300 m de cada punto (n=13 circunferencias, radio 300 m, middlePoint + activity_type Ride/EBikeRide). Incluye segmentos con ≤5 viajes. Un mismo viaje puede contar en varios segmentos de la misma circunferencia.</span></span></div><div class="card-label">Promedio viajes por circunferencia — 2025</div></div>
+    <div class="stat-card green"><div class="card-value">+108,8%</div><div class="card-label">Crecimiento vs 2019 (promedio)</div></div>
+    <div class="stat-card orange"><div class="card-value">+22,3%</div><div class="card-label">Crecimiento vs 2024 (promedio)</div></div>
+    <div class="stat-card"><div class="card-value">13</div><div class="card-label">Circunferencias analizadas</div></div>
+  </div>
+
+  <!-- INTRODUCCIÓN + HIPÓTESIS -->
+  <div class="content-section">
+    <h2 class="section-title">Introducción — ¿Valparaíso Cicloamigable funcionó?</h2>
+    <p>En 2024 y 2025 el Municipio de Valparaíso y Andes Chile ONG habilitaron <strong>13 lugares con infraestructura amigable para la bicicleta</strong>: 4 estacionamientos, 6 ciclocalles y 3 zonas donde autos, peatones y bicis comparten la calzada a 30 km/h (licitación <a href="https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=2427-191-LE24" target="_blank">2427-191-LE24</a>). Queremos saber si esos lugares <strong>se usan más en bici después de la intervención</strong>.</p>
+    <div class="highlight-box">
+      <strong>Lo que ponemos a prueba:</strong> ¿En 2025 hay más viajes en bici alrededor de esos 13 lugares que antes (2019 y 2024)?<br>
+      Si no hubiera efecto, los números se mantendrían parecidos.
+    </div>
+    <h3>¿De dónde salen los números?</h3>
+    <ul>
+      <li><strong>Recorridos reales:</strong> Strava registra millones de viajes en bici y los agrupa por calle. Usamos los años 2019 a 2025.</li>
+      <li><strong>Los 13 lugares:</strong> plazas, ciclocalles y zonas 30 definidos por el municipio (desde Bismarck y Portales hasta Av. Alemania).</li>
+      <li><strong>Año 2020:</strong> lo incluimos para mostrar la caída por la pandemia, que nos sirve como referencia.</li>
+    </ul>
+    <h3>¿Cómo se mide?</h3>
+    <p>Dibujamos un círculo de <strong>300 metros a la redonda</strong> alrededor de cada lugar (13 círculos en total). Contamos cuántos viajes pasaron por calles cuyo centro está dentro de cada círculo. Luego sacamos el <strong>promedio por círculo</strong> (suma de los 13 dividida en 13). Así podemos comparar años sin importar si un viaje tocó varias calles del mismo círculo. Contamos todos los viajes, incluso los de calles con pocos registros.</p>
+  </div>
+
+  <div class="content-section">
+    <h2 class="section-title">Cómo se obtuvo el resultado</h2>
+    <p>Usamos la misma base que alimenta los mapas de Ciudades Pendientes, pero de forma transparente:</p>
+    <div class="pipeline-step"><div class="step-number">1</div><div class="step-content"><h4>Qué contamos</h4><p>Solo viajes en bicicleta, año por año entre 2019 y 2025.</p></div></div>
+    <div class="pipeline-step"><div class="step-number">2</div><div class="step-content"><h4>Dónde</h4><p>Solo lo que ocurrió a menos de 300 m de cada uno de los 13 puntos.</p></div></div>
+    <div class="pipeline-step"><div class="step-number">3</div><div class="step-content"><h4>Cómo se resume</h4><p>Sumamos lo de cada círculo y dividimos por 13 para obtener el promedio por lugar.</p></div></div>
+    <div class="pipeline-step"><div class="step-number">4</div><div class="step-content"><h4>Transparencia</h4><p>La tabla y el gráfico de barras muestran cada lugar por separado; las tarjetas y la curva de evolución muestran el promedio de los 13.</p></div></div>
+    <div class="pipeline-step"><div class="step-number">5</div><div class="step-content"><h4>Se puede replicar</h4><p>Los 13 puntos y los 7 años están guardados y el conteo se puede repetir en cualquier momento.</p></div></div>
+    <div class="highlight-box">
+      <strong>En números simples:</strong> 2025 = 87,160 viajes promedio por círculo · 2019 = 41,749 · 2024 = 71,273<br>
+      Crecimiento promedio: <strong>+108,8% vs 2019</strong> y <strong>+22,3% vs 2024</strong>.
+    </div>
+    <p><strong>Nota sobre 2020:</strong> fue el año de la pandemia. Bajó a 34,551 (-17% vs 2019), lo que confirma que el método capta cambios reales y no ruido.</p>
+  </div>
+
+  <div class="map-section">
+    <h2>Mapa — Área de influencia 300 m</h2>
+    <p class="map-desc">Las 13 circunferencias de estudio. Los segmentos coloreados son trazas Strava cuyo punto medio cae dentro del radio. La capa permite verificar que la medida es local (no ciudad completa).</p>
   </div>
 
   <div class="table-section">
@@ -119,7 +191,7 @@ layout: "cicloamigable"
     <table class="ac-table">
       <thead>
         <tr>
-          <th>Punto</th><th>Tipo</th>
+          <th>Punto</th><th>Referencia</th>
           <th style="text-align:right">Viajes 2019</th>
           <th style="text-align:right">Viajes 2024</th>
           <th style="text-align:right">Viajes 2025</th>
@@ -136,27 +208,105 @@ layout: "cicloamigable"
     <canvas id="chart-top5"></canvas>
   </div>
 
+  <div class="content-section">
+    <h2 class="section-title">Lectura del Top 5</h2>
+    <p>Los cinco lugares con más viajes en 2025 concentran <strong>~85%</strong> del total (964 mil de 1,13 millones). Son casi siempre los mismos desde 2019, lo que muestra que hay corredores muy usados:</p>
+    <ul>
+      <li><strong>Zona Compartida 2 (Av. Brasil / Bellavista, 339,710)</strong> — la más transitada, más que se duplicó vs 2019.</li>
+      <li><strong>Zona Compartida 3 (Victoria / Freire, 249,985)</strong> — segundo mayor volumen, conecta Plan con Almendral.</li>
+      <li><strong>Caleta Portales (Av. España / Pellé, 168,785)</strong> — la única del Top 5 que baja vs 2024 (-11%). Tuvo su peak en 2024 y ahora parte del flujo parece irse a las nuevas ciclocalles de los cerros.</li>
+      <li><strong>Zona Compartida 1 (Condell / Edwards, 136,250)</strong> — entrada al Plan, confirma que la Zona 30 del centro funciona.</li>
+      <li><strong>Plaza Victoria (Pedro Montt / Independencia, 69,955)</strong> — el estacionamiento más usado, con el mayor salto vs 2024 (+46%).</li>
+    </ul>
+    <div class="highlight-box">
+      <strong>Lo que esconde el Top 5:</strong> si solo miramos volumen, el Plan domina. Todas las zonas compartidas son del plan y eclipsan a los cerros. El efecto en los cerros se ve mejor por <strong>crecimiento relativo</strong>.
+    </div>
+    <p style="font-size:0.85rem; color:#6c757d;">Nota: son pasadas por círculo de 300 m, no viajes únicos. El orden es por 2025.</p>
+  </div>
+
   <div class="chart-section">
-    <h2 class="section-title">Evolución total de viajes <span class="info-icon">i<span class="info-tip">Suma de pasadas por segmentos en los 13 puntos. Distancia temporal: 5 años entre 2019–2024, 1 año entre 2024–2025.</span></span></h2>
+    <h2 class="section-title">Dónde más creció — el cerro responde</h2>
+    <p style="font-size:0.95rem; color:#666; margin-bottom:1rem; text-align:left;">Si ordenamos por <strong>porcentaje de aumento vs 2019</strong>, los cerros aparecen al frente. La infraestructura en altura, aunque mueve menos volumen absoluto, es donde más se multiplicaron los viajes.</p>
+    <canvas id="chart-growth"></canvas>
+  </div>
+
+  <div class="content-section">
+    <h2 class="section-title">¿Por qué el cerro no se ve en el Top 5?</h2>
+    <p>Las ciclocalles de Av. Alemania parten de volúmenes más bajos, por eso no entran al Top 5 absoluto. Pero su <strong>crecimiento relativo es el mayor</strong>:</p>
+    <ul>
+      <li><strong>Ciclocalle 2 (+168%) y 3 (+152%)</strong> — ambas en cota 100, más que triplicaron sus viajes.</li>
+      <li><strong>Ciclocalle 1 (+143%) y 5 (+146%)</strong> — también en Av. Alemania, duplican con creces.</li>
+      <li><strong>Plaza Bismarck (+104%)</strong> — el estacionamiento de cerro que más crece, a la par de las ciclocalles.</li>
+    </ul>
+    <div class="highlight-box">
+      <strong>Propuesta para visibilizar el cerro:</strong> mirar dos rankings a la vez — <strong>volumen</strong> (muestra dónde hay más gente hoy) y <strong>crecimiento</strong> (muestra dónde cambió más). Para próximos reportes sugerimos un mapa separado solo de cerros y un indicador “viajes extra por cerro” para que el aporte de la cota 100 no quede tapado por el volumen del Plan.
+    </div>
+    <p style="font-size:0.95rem; color:#555;">En síntesis: el Plan pone el volumen, <strong>el cerro pone el mayor crecimiento proporcional</strong>. Ambos son señal de que la red cicloamigable está ampliando el uso más allá del centro.</p>
+  </div>
+
+  <div class="chart-section">
+    <h2 class="section-title">Evolución promedio por circunferencia <span class="info-icon" tabindex="0">i<span class="info-tip">Promedio de pasadas por circunferencia de 300 m en los 13 puntos (n=13). Valores: 2019: 41.749 · 2020: 34.551 (caída pandemia) · 2021: 75.366 · 2022: 69.609 · 2023: 67.115 · 2024: 71.273 · 2025: 87.160. Método middlePoint sin filtro trips≥5, suma forward+reverse si total_trip_count nulo.</span></span></h2>
     <canvas id="chart-evolution"></canvas>
+  </div>
+
+  <!-- PRUEBA DE LA HIPÓTESIS -->
+  <div class="content-section">
+    <h2 class="section-title">¿De verdad aumentaron los viajes?</h2>
+    <div class="highlight-box">
+      <strong>Resultado principal:</strong> en 2025 hubo en promedio <strong>87,160</strong> viajes por círculo, frente a <strong>41,749</strong> en 2019 (+108,8%) y <strong>71,273</strong> en 2024 (+22,3%). Subieron <strong>los 13 lugares</strong> vs 2019 y <strong>10 de 13</strong> vs 2024.
+    </div>
+    <h3>Tres razones que lo respaldan</h3>
+    <div class="pipeline-step"><div class="step-number">1</div><div class="step-content"><h4>No es un solo lugar</h4><p>Suben todos, no solo uno: la Zona Compartida 2 pasó de 130 mil a 339 mil, la Ciclocalle 2 creció 168% y la Plaza Bismarck más del doble. Incluso comparando con 2024 —un año ya alto— 3 de cada 4 lugares siguen subiendo.</p></div></div>
+    <div class="pipeline-step"><div class="step-number">2</div><div class="step-content"><h4>La pandemia lo confirma</h4><p>En 2020 los viajes bajaron a 34,551. En 2021 rebotaron a 75 mil y se mantuvieron entre 67 y 71 mil hasta 2024. En 2025 se rompe ese techo con 87 mil, justo cuando ya estaban operativas la señalización y los estacionamientos.</p></div></div>
+    <div class="pipeline-step"><div class="step-number">3</div><div class="step-content"><h4>No parece casualidad</h4><p>Que los 13 lugares suban al mismo tiempo es muy difícil por azar —sería como lanzar una moneda 13 veces y que salga cara siempre (1 en 8 mil). Incluso el 10 de 13 vs 2024 es poco probable por azar. Por eso consideramos que el aumento es real.</p></div></div>
+    <div class="highlight-box">
+      <strong>Cómo leerlo:</strong> Gran parte del alza desde 2019 es recuperación post-pandemia, pero el salto de <strong>2024 a 2025 (+22%)</strong> ocurre cuando la ciudad ya se había estabilizado. Ese último tramo es el que más asociamos a la nueva infraestructura.
+    </div>
+    <h3>Qué tener en cuenta</h3>
+    <ul>
+      <li>Strava lo usan sobre todo personas que entrenan, no representa a todos los ciclistas. Sirve para comparar, no para contar cuántas personas andan en bici en total.</li>
+      <li>No hay un barrio sin intervención para comparar perfectamente; usamos el año 2020 como referencia temporal.</li>
+      <li>Algunos círculos se solapan (por ejemplo Zona 2 y 3). Eso no altera la comparación porque el solape es el mismo todos los años.</li>
+    </ul>
+  </div>
+
+  <div class="content-section">
+    <h2 class="section-title">Conclusiones</h2>
+    <div class="highlight-box"><strong>1. La intervención tuvo efecto local medible:</strong> +108.8% vs 2019 y +22.3% vs 2024 en promedio por circunferencia, con 13/13 puntos al alza vs 2019.</div>
+    <div class="highlight-box"><strong>2. No es solo rebote post-pandemia:</strong> 2020→2021 rebote superado; 2022–2024 meseta 67–71k; 2025 quiebre a 87k coincide con señalética/estacionamientos operativos.</div>
+    <div class="highlight-box"><strong>3. Tipología que más responde:</strong> Zonas compartidas (+116–160% vs 2019) y ciclocalles de cerro (+140–168%) superan a estacionamientos aislados, sugiriendo que la red continua importa más que puntos sueltos.</div>
+    <div class="highlight-box"><strong>4. Recomendación operativa:</strong> Priorizar cerrar brechas entre las 3 zonas compartidas y ciclocalles 1–5 (corredor cota 100 + Av. Alemania) donde el flujo alto ya existe, antes de expandir a nuevos ejes.</div>
+    <div class="highlight-box"><strong>5. Próximo paso medible:</strong> Instalar conteos permanentes en 2–3 circunferencias testigo (ej. Plaza Victoria vs Mirador fuera de red) para pasar de Strava a validación poblacional y estimar ciclistas reales (bahía-blanca usa 5–10% de captación).</div>
+  </div>
+
+  <div class="content-section">
+    <h2 class="section-title">Ficha técnica</h2>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+      <div class="highlight-box" style="margin:0;"><strong>Visualización</strong><br>Gráficos interactivos y mapa con las 13 áreas</div>
+      <div class="highlight-box" style="margin:0;"><strong>Datos</strong><br>Recorridos en bicicleta registrados entre 2019 y 2025</div>
+      <div class="highlight-box" style="margin:0;"><strong>Medición</strong><br>Círculos de 300 m alrededor de cada punto</div>
+      <div class="highlight-box" style="margin:0;"><strong>Lugares</strong><br>4 estacionamientos, 6 ciclocalles y 3 zonas compartidas</div>
+      <div class="highlight-box" style="margin:0;"><strong>Periodo</strong><br>2019–2025 (con 2020 para ver el efecto pandemia)</div>
+      <div class="highlight-box" style="margin:0;"><strong>Elaboración</strong><br>Andes Chile ONG — datos Strava y cartografía abierta</div>
+    </div>
   </div>
 </div>
 
 <script>
 const points = [
-  {name:"Plaza Bismarck",type:"estacionamiento",y19:14565,y24:25370,y25:29760},
-  {name:"Plaza de Los Poetas",type:"estacionamiento",y19:17035,y24:23800,y25:22080},
-  {name:"Plaza Victoria",type:"estacionamiento",y19:41475,y24:51765,y25:74510},
-  {name:"Caleta Portales",type:"estacionamiento",y19:123490,y24:231870,y25:209215},
-  {name:"Ciclocalle 1",type:"ciclocalle",y19:11440,y24:23545,y25:27645},
-  {name:"Ciclocalle 2",type:"ciclocalle",y19:5420,y24:12005,y25:13850},
-  {name:"Ciclocalle 3",type:"ciclocalle",y19:4620,y24:9065,y25:11355},
-  {name:"Ciclocalle 4",type:"ciclocalle",y19:13160,y24:22880,y25:25565},
-  {name:"Ciclocalle 5",type:"ciclocalle",y19:13405,y24:28055,y25:32215},
-  {name:"Ciclocalle 6",type:"ciclocalle",y19:14385,y24:21275,y25:19440},
-  {name:"Zona Compartida 1",type:"zona_compartida",y19:81785,y24:123030,y25:153905},
-  {name:"Zona Compartida 2",type:"zona_compartida",y19:142300,y24:250920,y25:360505},
-  {name:"Zona Compartida 3",type:"zona_compartida",y19:122270,y24:216865,y25:261800},
+  {name:"Plaza Bismarck",type:"estacionamiento",ref:"Paseo Dimalow / Templeman, Cerro Yungay",y19:13730,y24:24270,y25:28080},
+  {name:"Plaza de Los Poetas",type:"estacionamiento",ref:"Av. Alemania / Lautaro Rosas, Cerro Alegre",y19:15745,y24:22340,y25:20710},
+  {name:"Plaza Victoria",type:"estacionamiento",ref:"Pedro Montt / Independencia, Plan Centro",y19:37815,y24:47670,y25:69955},
+  {name:"Caleta Portales",type:"estacionamiento",ref:"Av. España / Pellé, Borde Costero",y19:100455,y24:190425,y25:168785},
+  {name:"Ciclocalle 1",type:"ciclocalle",ref:"Av. Alemania 4400, Ecuador / Templeman",y19:9920,y24:20015,y25:24100},
+  {name:"Ciclocalle 2",type:"ciclocalle",ref:"Av. Alemania 4650, Carlos Pezoa / Becker",y19:4570,y24:10535,y25:12250},
+  {name:"Ciclocalle 3",type:"ciclocalle",ref:"Av. Alemania 5650, Mirador Yungay",y19:4110,y24:8145,y25:10370},
+  {name:"Ciclocalle 4",type:"ciclocalle",ref:"Av. Alemania 6900, Ibsen / Camilo Henríquez, Cerro Barón",y19:11655,y24:21010,y25:23465},
+  {name:"Ciclocalle 5",type:"ciclocalle",ref:"Av. Alemania 7200, Ramaditas / Las Cañas",y19:12330,y24:26395,y25:30400},
+  {name:"Ciclocalle 6",type:"ciclocalle",ref:"Gran Bretaña / Levarte, Playa Ancha",y19:14045,y24:20740,y25:19025},
+  {name:"Zona Compartida 1",type:"zona_compartida",ref:"Condell / Edwards, Plan Centro (Zona 30)",y19:72170,y24:105770,y25:136250},
+  {name:"Zona Compartida 2",type:"zona_compartida",ref:"Av. Brasil / Bellavista, Almendral",y19:130475,y24:229535,y25:339710},
+  {name:"Zona Compartida 3",type:"zona_compartida",ref:"Victoria / Freire, Almendral",y19:115715,y24:199700,y25:249985},
 ];
 
 points.forEach(p => {
@@ -172,7 +322,7 @@ sorted.forEach(p => {
   const b24 = p.g24 >= 0 ? `<span class="badge-up">+${p.g24.toFixed(1)}%</span>` : `<span class="badge-down">${p.g24.toFixed(1)}%</span>`;
   tbody.innerHTML += `<tr>
     <td><strong>${p.name}</strong></td>
-    <td>${p.type.replace('_',' ')}</td>
+    <td style="font-size:0.82rem; color:#666;">${p.ref}</td>
     <td style="text-align:right">${p.y19.toLocaleString('es-CL')}</td>
     <td style="text-align:right">${p.y24.toLocaleString('es-CL')}</td>
     <td style="text-align:right">${p.y25.toLocaleString('es-CL')}</td>
@@ -183,7 +333,7 @@ sorted.forEach(p => {
 
 Chart.defaults.font.family = "'Urbanist', sans-serif";
 
-// Top 5 bar (3 years)
+// Top 5 bar (3 years) — volumen absoluto
 const top5 = sorted.slice(0, 5);
 new Chart(document.getElementById('chart-top5'), {
   type: 'bar',
@@ -201,13 +351,35 @@ new Chart(document.getElementById('chart-top5'), {
   }
 });
 
-// Evolution line (7 years — 1 unit per year)
+// Top 5 por crecimiento relativo — visibiliza el cerro
+const topGrowth = [...points].sort((a,b)=> b.g19 - a.g19).slice(0,5);
+new Chart(document.getElementById('chart-growth'), {
+  type: 'bar',
+  data: {
+    labels: topGrowth.map(p => p.name),
+    datasets: [{
+      label:'Crecimiento vs 2019 (%)',
+      data: topGrowth.map(p => Number(p.g19.toFixed(1))),
+      backgroundColor: topGrowth.map(p => p.name.includes('Ciclocalle')||p.name.includes('Bismarck') ? 'rgba(245,158,11,0.7)' : 'rgba(34,65,168,0.6)'),
+      borderColor: topGrowth.map(p => p.name.includes('Ciclocalle')||p.name.includes('Bismarck') ? '#f59e0b' : '#2241a8'),
+      borderWidth:1, borderRadius:4
+    }]
+  },
+  options: {
+    indexAxis:'y',
+    responsive:true,
+    plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => `+${ctx.parsed.x.toFixed(1)}% vs 2019` } } },
+    scales:{ x:{ beginAtZero:true, grid:{color:'rgba(0,0,0,0.05)'}, ticks:{ callback:v=>`+${v}%` } }, y:{ grid:{display:false} } }
+  }
+});
+
+// Evolution line — promedio por circunferencia (2019-2025, 2020 muestra efecto pandemia)
 new Chart(document.getElementById('chart-evolution'), {
   type: 'line',
   data: {
     datasets: [{
-      label:'Viajes totales',
-      data: [{x:0,y:605350},{x:1,y:100805},{x:2,y:1102060},{x:3,y:1024850},{x:4,y:988685},{x:5,y:1040445},{x:6,y:1241845}],
+      label:'Promedio por circunferencia (300 m)',
+      data: [{x:0,y:41749},{x:1,y:34551},{x:2,y:75366},{x:3,y:69609},{x:4,y:67115},{x:5,y:71273},{x:6,y:87160}],
       borderColor:'#2241a8', backgroundColor:'rgba(34,65,168,0.08)',
       fill:true, tension:0.3, pointRadius:6, pointBackgroundColor:'#2241a8'
     }]

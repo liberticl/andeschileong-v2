@@ -57,6 +57,9 @@ class EmailLog(models.Model):
         max_length=200, blank=True, verbose_name="Nombre destinatario")
     subject = models.CharField(
         max_length=500, verbose_name="Asunto")
+    message_body = models.TextField(
+        blank=True, default='', verbose_name="Cuerpo del mensaje",
+        help_text="HTML del correo (se renderiza con |safe)")
     template_name = models.CharField(
         max_length=100, verbose_name="Template utilizado")
     status = models.CharField(

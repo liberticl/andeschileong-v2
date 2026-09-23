@@ -23,6 +23,7 @@ def compose_email(request):
             batch_id = uuid.uuid4()
             batch_label = form.cleaned_data['batch_label']
             subject = form.cleaned_data['subject']
+            message_body = form.cleaned_data['message']
             template_name = 'email/generic.html'
 
             logs = []
@@ -33,6 +34,7 @@ def compose_email(request):
                     recipient_email=r['email'],
                     recipient_name=r.get('name', ''),
                     subject=subject,
+                    message_body=message_body,
                     template_name=template_name,
                     status='pending',
                     sent_by=request.user,

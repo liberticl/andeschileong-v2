@@ -245,7 +245,7 @@ Los listados incluyen:
 | `Licitacion` | licitaciones | Licitaciones de infraestructura ciclista/peatonal de Mercado Público |
 | `SyncLog` | licitaciones | Logs de sincronización con API de Mercado Público |
 | `SenderAccount` | emails | Cuentas Gmail para envío (email, display_name, daily_limit, is_active) |
-| `EmailLog` | emails | Logs de correos enviados: destinatario, asunto, batch_id, estado (pending/sent/failed), error, sent_by, sent_at |
+| `EmailLog` | emails | Logs de correos enviados: destinatario, asunto, message_body (HTML con |safe), batch_id, estado (pending/sent/failed), error, sent_by, sent_at |
 
 ### MongoDB (trazas espaciales)
 
@@ -484,7 +484,7 @@ docker-compose exec web bash -c "<comando>"  # Ejecutar bash en el contenedor
 | `accounts/urls.py` | URLs de registro, activación, solicitudes (staff), API zonas |
 | `accounts/utils.py` | Función `send_email()` para envío de emails HTML con templates |
 | `templates/email/base_email.html` | Template base para emails HTML (branding Andes Chile ONG) |
-| `templates/email/generic.html` | Template genérico para emails (extiende base_email) |
+| `templates/email/generic.html` | Template genérico para emails (extiende base_email, renderiza message_body con \|safe) |
 | `templates/email/welcome.html` | Email de bienvenida con link de activación |
 | `templates/email/registration_rejected.html` | Email de rechazo de solicitud |
 | `templates/email/new_registration_request.html` | Email de notificación al admin |

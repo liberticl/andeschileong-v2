@@ -32,7 +32,7 @@ def send_single_email(email_log, sender_account):
     try:
         html_content = render_to_string(
             email_log.template_name,
-            {'subject': email_log.subject, 'message': ''}
+            {'subject': email_log.subject, 'message': email_log.message_body}
         )
         text_content = strip_tags(html_content)
 

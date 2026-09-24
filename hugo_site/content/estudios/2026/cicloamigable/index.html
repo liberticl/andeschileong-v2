@@ -142,9 +142,9 @@ layout: "cicloamigable"
   </div>
 
   <div class="cards-grid">
-    <div class="stat-card"><div class="card-value">87.160 <span class="info-icon" tabindex="0">i<span class="info-tip">Promedio de pasadas por segmentos viales dentro de 300 m de cada punto (n=13 circunferencias, radio 300 m, middlePoint + activity_type Ride/EBikeRide). Incluye segmentos con ≤5 viajes. Un mismo viaje puede contar en varios segmentos de la misma circunferencia.</span></span></div><div class="card-label">Promedio viajes por circunferencia — 2025</div></div>
-    <div class="stat-card green"><div class="card-value">+108,8%</div><div class="card-label">Crecimiento vs 2019 (promedio)</div></div>
-    <div class="stat-card orange"><div class="card-value">+22,3%</div><div class="card-label">Crecimiento vs 2024 (promedio)</div></div>
+    <div class="stat-card"><div class="card-value">387.850 <span class="info-icon" tabindex="0">i<span class="info-tip">Total de viajes en 2025 en los 13 círculos de 300 m, contando cada segmento (osmId) una sola vez aunque esté presente en varios círculos (no duplicados). Un mismo viaje que use varios segmentos puede seguir contándose varias veces.</span></span></div><div class="card-label">Viajes no duplicados 2025</div></div>
+    <div class="stat-card green"><div class="card-value">+147,4%</div><div class="card-label">Crecimiento vs 2019</div></div>
+    <div class="stat-card orange"><div class="card-value">+36,2%</div><div class="card-label">Crecimiento vs 2024</div></div>
     <div class="stat-card"><div class="card-value">13</div><div class="card-label">Circunferencias analizadas</div></div>
   </div>
 
@@ -163,7 +163,7 @@ layout: "cicloamigable"
       <li><strong>Año 2020:</strong> lo incluimos para mostrar la caída por la pandemia, que nos sirve como referencia.</li>
     </ul>
     <h3>¿Cómo se mide?</h3>
-    <p>Dibujamos un círculo de <strong>300 metros a la redonda</strong> alrededor de cada lugar (13 círculos en total). Contamos cuántos viajes pasaron por calles cuyo centro está dentro de cada círculo. Luego sacamos el <strong>promedio por círculo</strong> (suma de los 13 dividida en 13). Así podemos comparar años sin importar si un viaje tocó varias calles del mismo círculo. Contamos todos los viajes, incluso los de calles con pocos registros.</p>
+    <p>Dibujamos un círculo de <strong>300 metros a la redonda</strong> alrededor de cada lugar (13 círculos en total). Contamos cuántos viajes pasaron por calles cuyo centro está dentro de cada círculo. Para evitar inflar el número, si una misma calle (segmento OsmId) cae dentro de varios círculos, la contamos <strong>una sola vez</strong> — el resultado son <strong>viajes no duplicados</strong>. Contamos todos los viajes, incluso los de calles con pocos registros.</p>
   </div>
 
   <div class="content-section">
@@ -171,14 +171,14 @@ layout: "cicloamigable"
     <p>Usamos la misma base que alimenta los mapas de Ciudades Pendientes, pero de forma transparente:</p>
     <div class="pipeline-step"><div class="step-number">1</div><div class="step-content"><h4>Qué contamos</h4><p>Solo viajes en bicicleta, año por año entre 2019 y 2025.</p></div></div>
     <div class="pipeline-step"><div class="step-number">2</div><div class="step-content"><h4>Dónde</h4><p>Solo lo que ocurrió a menos de 300 m de cada uno de los 13 puntos.</p></div></div>
-    <div class="pipeline-step"><div class="step-number">3</div><div class="step-content"><h4>Cómo se resume</h4><p>Sumamos lo de cada círculo y dividimos por 13 para obtener el promedio por lugar.</p></div></div>
-    <div class="pipeline-step"><div class="step-number">4</div><div class="step-content"><h4>Transparencia</h4><p>La tabla y el gráfico de barras muestran cada lugar por separado; las tarjetas y la curva de evolución muestran el promedio de los 13.</p></div></div>
+    <div class="pipeline-step"><div class="step-number">3</div><div class="step-content"><h4>Cómo se resume</h4><p>Unimos los 13 círculos, eliminamos segmentos repetidos (cada calle contada una sola vez) y sumamos los viajes — así obtenemos <strong>viajes no duplicados</strong>.</p></div></div>
+    <div class="pipeline-step"><div class="step-number">4</div><div class="step-content"><h4>Transparencia</h4><p>La tabla y el gráfico de barras muestran cada lugar por separado; las tarjetas y la curva de evolución muestran el total no duplicado de los 13.</p></div></div>
     <div class="pipeline-step"><div class="step-number">5</div><div class="step-content"><h4>Se puede replicar</h4><p>Los 13 puntos y los 7 años están guardados y el conteo se puede repetir en cualquier momento.</p></div></div>
     <div class="highlight-box">
-      <strong>En números simples:</strong> 2025 = 87,160 viajes promedio por círculo · 2019 = 41,749 · 2024 = 71,273<br>
-      Crecimiento promedio: <strong>+108,8% vs 2019</strong> y <strong>+22,3% vs 2024</strong>.
+      <strong>En números simples:</strong> 2025 = 387.850 viajes no duplicados · 2019 = 156.765 · 2024 = 284.765<br>
+      Crecimiento: <strong>+147,4% vs 2019</strong> y <strong>+36,2% vs 2024</strong>.<br>
     </div>
-    <p><strong>Nota sobre 2020:</strong> fue el año de la pandemia. Bajó a 34,551 (-17% vs 2019), lo que confirma que el método capta cambios reales y no ruido.</p>
+    <p><strong>Nota sobre 2020:</strong> fue el año de la pandemia. Bajó a 109.960 (-30% vs 2019), lo que confirma que el método capta cambios reales y no ruido.</p>
   </div>
 
   <div class="map-section">
@@ -210,7 +210,7 @@ layout: "cicloamigable"
 
   <div class="content-section">
     <h2 class="section-title">Lectura del Top 5</h2>
-    <p>Los cinco lugares con más viajes en 2025 concentran <strong>~85%</strong> del total (964 mil de 1,13 millones). Son casi siempre los mismos desde 2019, lo que muestra que hay corredores muy usados:</p>
+    <p>Los cinco lugares con más viajes en 2025 concentran la mayor parte del volumen registrado en las 13 circunferencias. Son casi siempre los mismos desde 2019, lo que muestra que hay corredores muy usados:</p>
     <ul>
       <li><strong>Zona Compartida 2 (Av. Brasil / Bellavista, 339,710)</strong> — la más transitada, más que se duplicó vs 2019.</li>
       <li><strong>Zona Compartida 3 (Victoria / Freire, 249,985)</strong> — segundo mayor volumen, conecta Plan con Almendral.</li>
@@ -221,7 +221,7 @@ layout: "cicloamigable"
     <div class="highlight-box">
       <strong>Lo que esconde el Top 5:</strong> si solo miramos volumen, el Plan domina. Todas las zonas compartidas son del plan y eclipsan a los cerros. El efecto en los cerros se ve mejor por <strong>crecimiento relativo</strong>.
     </div>
-    <p style="font-size:0.85rem; color:#6c757d;">Nota: son pasadas por círculo de 300 m, no viajes únicos. El orden es por 2025.</p>
+    <p style="font-size:0.85rem; color:#6c757d;">Nota: los valores por punto son pasadas por círculo de 300 m (sin deduplicar entre círculos). El total del encabezado (viajes no duplicados) sí deduplica segmentos repetidos entre círculos. El orden es por 2025.</p>
   </div>
 
   <div class="chart-section">
@@ -245,7 +245,7 @@ layout: "cicloamigable"
   </div>
 
   <div class="chart-section">
-    <h2 class="section-title">Evolución promedio por circunferencia <span class="info-icon" tabindex="0">i<span class="info-tip">Promedio de pasadas por circunferencia de 300 m en los 13 puntos (n=13). Valores: 2019: 41.749 · 2020: 34.551 (caída pandemia) · 2021: 75.366 · 2022: 69.609 · 2023: 67.115 · 2024: 71.273 · 2025: 87.160. Método middlePoint sin filtro trips≥5, suma forward+reverse si total_trip_count nulo.</span></span></h2>
+    <h2 class="section-title">Evolución viajes no duplicados <span class="info-icon" tabindex="0">i<span class="info-tip">Viajes no duplicados por año en los 13 círculos de 300 m (cada segmento OsmId contado una sola vez). Valores: 2019: 156.765 · 2020: 109.960 (caída pandemia) · 2021: 288.915 · 2022: 297.500 · 2023: 295.915 · 2024: 284.765 · 2025: 387.850. Método middlePoint sin filtro trips≥5, suma forward+reverse si total_trip_count nulo.</span></span></h2>
     <canvas id="chart-evolution"></canvas>
   </div>
 
@@ -253,11 +253,11 @@ layout: "cicloamigable"
   <div class="content-section">
     <h2 class="section-title">¿De verdad aumentaron los viajes?</h2>
     <div class="highlight-box">
-      <strong>Resultado principal:</strong> en 2025 hubo en promedio <strong>87,160</strong> viajes por círculo, frente a <strong>41,749</strong> en 2019 (+108,8%) y <strong>71,273</strong> en 2024 (+22,3%). Subieron <strong>los 13 lugares</strong> vs 2019 y <strong>10 de 13</strong> vs 2024.
+      <strong>Resultado principal:</strong> en 2025 hubo <strong>387.850</strong> viajes no duplicados, frente a <strong>156.765</strong> en 2019 (+147,4%) y <strong>284.765</strong> en 2024 (+36,2%). Subieron <strong>los 13 lugares</strong> vs 2019 y <strong>10 de 13</strong> vs 2024.
     </div>
     <h3>Tres razones que lo respaldan</h3>
     <div class="pipeline-step"><div class="step-number">1</div><div class="step-content"><h4>No es un solo lugar</h4><p>Suben todos, no solo uno: la Zona Compartida 2 pasó de 130 mil a 339 mil, la Ciclocalle 2 creció 168% y la Plaza Bismarck más del doble. Incluso comparando con 2024 —un año ya alto— 3 de cada 4 lugares siguen subiendo.</p></div></div>
-    <div class="pipeline-step"><div class="step-number">2</div><div class="step-content"><h4>La pandemia lo confirma</h4><p>En 2020 los viajes bajaron a 34,551. En 2021 rebotaron a 75 mil y se mantuvieron entre 67 y 71 mil hasta 2024. En 2025 se rompe ese techo con 87 mil, justo cuando ya estaban operativas la señalización y los estacionamientos.</p></div></div>
+    <div class="pipeline-step"><div class="step-number">2</div><div class="step-content"><h4>La pandemia lo confirma</h4><p>En 2020 los viajes bajaron a 109.960. En 2021 rebotaron a 288 mil y se mantuvieron entre 284 mil y 297 mil hasta 2024. En 2025 se rompe ese techo con 387 mil, justo cuando ya estaban operativas la señalización y los estacionamientos.</p></div></div>
     <div class="pipeline-step"><div class="step-number">3</div><div class="step-content"><h4>No parece casualidad</h4><p>Que los 13 lugares suban al mismo tiempo es muy difícil por azar —sería como lanzar una moneda 13 veces y que salga cara siempre (1 en 8 mil). Incluso el 10 de 13 vs 2024 es poco probable por azar. Por eso consideramos que el aumento es real.</p></div></div>
     <div class="highlight-box">
       <strong>Cómo leerlo:</strong> Gran parte del alza desde 2019 es recuperación post-pandemia, pero el salto de <strong>2024 a 2025 (+22%)</strong> ocurre cuando la ciudad ya se había estabilizado. Ese último tramo es el que más asociamos a la nueva infraestructura.
@@ -272,7 +272,7 @@ layout: "cicloamigable"
 
   <div class="content-section">
     <h2 class="section-title">Conclusiones</h2>
-    <div class="highlight-box"><strong>1. La intervención tuvo efecto local medible:</strong> +108.8% vs 2019 y +22.3% vs 2024 en promedio por circunferencia, con 13/13 puntos al alza vs 2019.</div>
+    <div class="highlight-box"><strong>1. La intervención tuvo efecto local medible:</strong> +147,4% vs 2019 y +36,2% vs 2024 en viajes no duplicados, con 13/13 puntos al alza vs 2019.</div>
     <div class="highlight-box"><strong>2. No es solo rebote post-pandemia:</strong> 2020→2021 rebote superado; 2022–2024 meseta 67–71k; 2025 quiebre a 87k coincide con señalética/estacionamientos operativos.</div>
     <div class="highlight-box"><strong>3. Tipología que más responde:</strong> Zonas compartidas (+116–160% vs 2019) y ciclocalles de cerro (+140–168%) superan a estacionamientos aislados, sugiriendo que la red continua importa más que puntos sueltos.</div>
     <div class="highlight-box"><strong>4. Recomendación operativa:</strong> Priorizar cerrar brechas entre las 3 zonas compartidas y ciclocalles 1–5 (corredor cota 100 + Av. Alemania) donde el flujo alto ya existe, antes de expandir a nuevos ejes.</div>
@@ -378,8 +378,8 @@ new Chart(document.getElementById('chart-evolution'), {
   type: 'line',
   data: {
     datasets: [{
-      label:'Promedio por circunferencia (300 m)',
-      data: [{x:0,y:41749},{x:1,y:34551},{x:2,y:75366},{x:3,y:69609},{x:4,y:67115},{x:5,y:71273},{x:6,y:87160}],
+      label:'Viajes no duplicados',
+      data: [{x:0,y:156765},{x:1,y:109960},{x:2,y:288915},{x:3,y:297500},{x:4,y:295915},{x:5,y:284765},{x:6,y:387850}],
       borderColor:'#2241a8', backgroundColor:'rgba(34,65,168,0.08)',
       fill:true, tension:0.3, pointRadius:6, pointBackgroundColor:'#2241a8'
     }]

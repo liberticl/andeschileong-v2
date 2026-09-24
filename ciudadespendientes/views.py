@@ -195,6 +195,7 @@ def color_ride_map(city_bounds, center, years, collection, factor=1, anual=False
         layers=list(layers.values()),
         initial_view_state=view_state,
         map_style=get_carto_map_style(),
+        api_keys={'carto': settings.CARTO_API_KEY} if settings.CARTO_API_KEY else None,
         tooltip={"text": "Viajes totales: {trips}"},
     )
 

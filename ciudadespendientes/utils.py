@@ -189,42 +189,17 @@ CARTO_STYLE_URL = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json
 
 
 def get_carto_map_style():
-    """Estilo Positron de CARTO con la API key inyectada en cada URL de tiles.
+    """URL del estilo Positron de CARTO para pdk.Deck(map_style=...).
 
-    El endpoint style.json no propaga ?key= a las fuentes (tiles.json / .mvt /
-    glyphs / sprite), así que se reescriben las URLs del estilo aquí.
-    Sin key se devuelve la URL cruda (el estilo vectorial aún funciona sin key,
-    aunque CARTO puede exigirla en el futuro).
+    Devuelve SIEMPRE un string: pydeck 0.9.x solo acepta un dict en map_style
+    cuando map_provider='mapbox' (AssertionError con el default 'carto').
+    La API key se inyecta como query param en la URL del estilo; el resto de
+    la autenticación de tiles la resuelve pydeck vía api_keys={'carto': ...}
+    (lee CARTO_API_KEY del entorno) en el frontend deck.gl.
     """
     if not CARTO_API_KEY:
         return CARTO_STYLE_URL
-
-    def with_key(url):
-        if not isinstance(url, str):
-            return url
-        sep = '&' if '?' in url else '?'
-        return f'{url}{sep}key={CARTO_API_KEY}'
-
-    try:
-        resp = requests.get(CARTO_STYLE_URL, timeout=10)
-        resp.raise_for_status()
-        style = resp.json()
-    except Exception:
-        return CARTO_STYLE_URL
-
-    for field in ('sprite', 'glyphs'):
-        if isinstance(style.get(field), str):
-            style[field] = with_key(style[field])
-
-    for source in style.get('sources', {}).values():
-        if not isinstance(source, dict):
-            continue
-        if isinstance(source.get('url'), str):
-            source['url'] = with_key(source['url'])
-        if isinstance(source.get('tiles'), list):
-            source['tiles'] = [with_key(t) for t in source['tiles']]
-
-    return style
+    return f'{CARTO_STYLE_URL}?key={CARTO_API_KEY}'
 
 
 def get_html(html_text):

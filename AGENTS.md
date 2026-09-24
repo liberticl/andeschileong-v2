@@ -474,7 +474,7 @@ docker-compose exec web bash -c "<comando>"  # Ejecutar bash en el contenedor
 | `andeschileong/urls.py` | URL routing principal |
 | `ciudadespendientes/models.py` | Zone, StravaData, GeoRegionBoundary |
 | `ciudadespendientes/views.py` | show_data, color_ride_map, welcome, find |
-| `ciudadespendientes/utils.py` | Funciones geo, MongoDB, DeckGL HTML, `get_carto_map_style()` |
+| `ciudadespendientes/utils.py` | Funciones geo, MongoDB, DeckGL HTML, `get_carto_map_style()` (devuelve **str** URL del estilo Positron con `?key=`; pydeck 0.9.x revienta si `map_style` es dict) |
 | `ciudadespendientes/mongodb.py` | Pipelines de agregación MongoDB |
 | `ciudadespendientes/classifier.py` | Clasificación de flujos (SECTRA, general) |
 | `ciudadespendientes/choices.py` | Constantes: regiones, países, meses, años |

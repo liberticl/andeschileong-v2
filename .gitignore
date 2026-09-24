@@ -27,3 +27,4 @@ docs
 /hugo_site/content/noticias/*/
 /hugo_site/content/estudios/*/
 !/hugo_site/content/estudios/2026/cicloamigable/
+hugo_site/static/estudios/2026/cicloamigable/mapa-trazas-gt0.html

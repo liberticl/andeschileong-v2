@@ -11,7 +11,7 @@ from shapely.geometry import Polygon, LineString
 # from .decorators import calculate_execution_time
 from andeschileong.settings import (
     MONGO_DB, MONGO_CP_DB, CP_STRAVA_COLLECTION,
-    DECKGL_VERSION)
+    DECKGL_VERSION, CARTO_API_KEY)
 
 
 # Creates the mongodb files to upload
@@ -183,6 +183,48 @@ def change_gl_version(url: str):
         return url.replace(match.group(1), DECKGL_VERSION)
     else:
         return url
+
+
+CARTO_STYLE_URL = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json'
+
+
+def get_carto_map_style():
+    """Estilo Positron de CARTO con la API key inyectada en cada URL de tiles.
+
+    El endpoint style.json no propaga ?key= a las fuentes (tiles.json / .mvt /
+    glyphs / sprite), así que se reescriben las URLs del estilo aquí.
+    Sin key se devuelve la URL cruda (el estilo vectorial aún funciona sin key,
+    aunque CARTO puede exigirla en el futuro).
+    """
+    if not CARTO_API_KEY:
+        return CARTO_STYLE_URL
+
+    def with_key(url):
+        if not isinstance(url, str):
+            return url
+        sep = '&' if '?' in url else '?'
+        return f'{url}{sep}key={CARTO_API_KEY}'
+
+    try:
+        resp = requests.get(CARTO_STYLE_URL, timeout=10)
+        resp.raise_for_status()
+        style = resp.json()
+    except Exception:
+        return CARTO_STYLE_URL
+
+    for field in ('sprite', 'glyphs'):
+        if isinstance(style.get(field), str):
+            style[field] = with_key(style[field])
+
+    for source in style.get('sources', {}).values():
+        if not isinstance(source, dict):
+            continue
+        if isinstance(source.get('url'), str):
+            source['url'] = with_key(source['url'])
+        if isinstance(source.get('tiles'), list):
+            source['tiles'] = [with_key(t) for t in source['tiles']]
+
+    return style
 
 
 def get_html(html_text):

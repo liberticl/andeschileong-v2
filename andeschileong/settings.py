@@ -81,6 +81,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'andeschileong.context_processors.carto',
             ],
         },
     },
@@ -242,6 +243,10 @@ TRAFFICO_SYNC_INTERVAL_MINUTES = int(os.environ.get('TRAFFICO_SYNC_INTERVAL_MINU
 
 # Mercado Público
 MERCADO_PUBLICO_TICKET = os.environ.get('MERCADO_PUBLICO_TICKET', '')
+
+# CARTO Basemaps (https://carto.com/basemaps/apikey)
+# Clave pública de tiles — requerida desde 2025 para evitar watermark "API KEY REQUIRED"
+CARTO_API_KEY = os.environ.get('CARTO_API_KEY', '')
 
 # Celery
 from celery.schedules import crontab

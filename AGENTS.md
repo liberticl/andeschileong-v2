@@ -316,6 +316,9 @@ SECRET_KEY="..."          # Django secret key
 # Mercado Público
 MERCADO_PUBLICO_TICKET="..."
 
+# CARTO Basemaps (https://carto.com/basemaps/apikey)
+CARTO_API_KEY="..."           # Clave pública de tiles (sin ella: watermark "API KEY REQUIRED")
+
 # Email (Gmail SMTP)
 EMAIL_HOST_USER="contacto@andeschileong.cl"
 EMAIL_HOST_PASSWORD="..."
@@ -466,11 +469,12 @@ docker-compose exec web bash -c "<comando>"  # Ejecutar bash en el contenedor
 
 | Archivo | Propósito |
 |---|---|
-| `andeschileong/settings.py` | Configuración principal (DBs, apps, Hugo, colores capas) |
+| `andeschileong/settings.py` | Configuración principal (DBs, apps, Hugo, colores capas, CARTO_API_KEY) |
+| `andeschileong/context_processors.py` | Expone `CARTO_API_KEY` a los templates (tiles Leaflet) |
 | `andeschileong/urls.py` | URL routing principal |
 | `ciudadespendientes/models.py` | Zone, StravaData, GeoRegionBoundary |
 | `ciudadespendientes/views.py` | show_data, color_ride_map, welcome, find |
-| `ciudadespendientes/utils.py` | Funciones geo, MongoDB, DeckGL HTML |
+| `ciudadespendientes/utils.py` | Funciones geo, MongoDB, DeckGL HTML, `get_carto_map_style()` |
 | `ciudadespendientes/mongodb.py` | Pipelines de agregación MongoDB |
 | `ciudadespendientes/classifier.py` | Clasificación de flujos (SECTRA, general) |
 | `ciudadespendientes/choices.py` | Constantes: regiones, países, meses, años |
@@ -518,8 +522,9 @@ docker-compose exec web bash -c "<comando>"  # Ejecutar bash en el contenedor
 | `hugo_site/layouts/` | Layouts y partials customizados |
 | `hugo_site/content/` | Contenido Markdown del sitio |
 | `hugo_site/assets/css/main.css` | CSS custom del sitio |
-| `templates/` | Templates Django (base, navbar, 404, 403) |
+| `templates/` | Templates Django (base con mapa Leaflet + `?key={{ CARTO_API_KEY }}`, navbar, 404, 403) |
 | `Dockerfile` | Configuración de Docker |
+| `entrypoint.sh` | Arranque: makemigrations emails + migrate en cada deploy (web y worker), luego sync_hugo → nginx → gunicorn |
 | `docker-compose.yml` | Orquestación Docker |
 | `requirements.txt` | Dependencias Python |
 | `.env` | Variables de entorno |

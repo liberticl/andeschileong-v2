@@ -6,7 +6,8 @@ from django.conf import settings
 from .classifier import get_statistics
 from .utils import (get_middle_point, get_city_data, get_html,
                     get_ride_from_mongo, process_ride_data,
-                    get_client_ip, get_location_from_ip)
+                    get_client_ip, get_location_from_ip,
+                    get_carto_map_style)
 import pydeck as pdk
 from .models import StravaData
 from .decorators import user_has_zone_permission, user_has_permission
@@ -193,7 +194,7 @@ def color_ride_map(city_bounds, center, years, collection, factor=1, anual=False
     mapa = pdk.Deck(
         layers=list(layers.values()),
         initial_view_state=view_state,
-        map_style="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+        map_style=get_carto_map_style(),
         tooltip={"text": "Viajes totales: {trips}"},
     )
 

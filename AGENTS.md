@@ -61,7 +61,7 @@ El sitio público de la ONG, generado con Hugo.
 | Inicio | `content/_index.md` | Página principal | Manual |
 | Actividades | `content/actividades/` | 55 posts (2017-2026): cicletadas, refugios, foros, talleres | **hugo_edit** (Django) |
 | Noticias | `content/noticias/` | 15 artículos de prensa y comunicados | **hugo_edit** (Django) |
-| Estudios | `content/estudios/` | 2 investigaciones (INGELECTRA, Encuesta Uso Bici) | **hugo_edit** (Django) |
+| Estudios | `content/estudios/` | 2026/bahia-blanca (index.html + 3 mapas MapLibre/deck.gl con FullscreenControl + fix resize en fullscreen; los 3 recrean el `map` de MapLibre entero al estabilizar el resize/fullscreen (`recreateMap()` + `initOverlay()` + `hardRefreshDeck()`: el weightmap del HeatmapLayer de mapa1 quedaba congelado y sobrevivía a recrear overlay/capas)) y 2026/cicloamigable (HTML manual); 2020/2023 vacíos | Manual (HTML) + **hugo_edit** (Django) |
 | Nosotros | `content/nosotros/` | Sobre la organización | Manual |
 | Registro | `content/registro/` | Registro de locales ciclamigables | Manual |
 | Cicletada | `content/cicletada/` | Redirect a tracking GPS en vivo | Manual |

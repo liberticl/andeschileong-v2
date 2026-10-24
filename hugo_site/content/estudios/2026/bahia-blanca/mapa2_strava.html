@@ -11,6 +11,8 @@
   html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: Arial, sans-serif; background: #f5f5f5; }
   #map { width: 100%; height: 100%; }
   #map-container { width: 100vw; height: 100vh; position: relative; }
+  #map-container:fullscreen { width: 100vw; height: 100vh; }
+  #map-container:fullscreen #map { width: 100%; height: 100%; }
   #tooltip {
     position: absolute; z-index: 9999; pointer-events: none;
     background: rgba(255,255,255,0.95); color: #333; padding: 6px 10px;
@@ -232,20 +234,96 @@ function buildLayers(year) {
 
 function toggleLayer(name) {
   layerVisibility[name] = document.getElementById('toggle-' + name).checked;
-  overlay.setProps({ layers: buildLayers(activeYear) });
+  if (overlay) overlay.setProps({ layers: buildLayers(activeYear) });
 }
+
+var MAP_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
+var MAP_CENTER = [-62.2663, -38.7219];
+var MAP_ZOOM = 13;
 
 var map = new maplibregl.Map({
   container: 'map',
-  style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
-  center: [-62.2663, -38.7219],
-  zoom: 13
+  style: MAP_STYLE,
+  center: MAP_CENTER,
+  zoom: MAP_ZOOM
 });
 
-map.addControl(new maplibregl.NavigationControl());
-map.addControl(new maplibregl.FullscreenControl({ container: document.getElementById('map-container') }));
+function addMapControls() {
+  map.addControl(new maplibregl.NavigationControl());
+  map.addControl(new maplibregl.FullscreenControl({ container: document.getElementById('map-container') }));
+}
+addMapControls();
+const mapContainer = document.getElementById('map-container');
+// La transicion a fullscreen es asincrona: el tamano final del contenedor
+// no esta listo en el primer evento. Sondea hasta estabilizar (~1.5s max)
+// y al estabilizar recrea el map (paso final estable, patron de mapa1).
+function recreateMap() {
+  var center = MAP_CENTER, zoom = MAP_ZOOM, bearing = 0, pitch = 0;
+  try {
+    if (map) {
+      center = map.getCenter().toArray();
+      zoom = map.getZoom();
+      bearing = map.getBearing();
+      pitch = map.getPitch();
+    }
+  } catch (e) {}
+  try { if (overlay && map) { map.removeControl(overlay); } } catch (e) {}
+  overlay = null;
+  try { if (map) { map.remove(); } } catch (e) {}
+  map = new maplibregl.Map({
+    container: 'map',
+    style: MAP_STYLE,
+    center: center,
+    zoom: zoom,
+    bearing: bearing,
+    pitch: pitch
+  });
+  addMapControls();
+  map.on('load', initOverlay);
+}
+let fsTimer = null;
+var recreated = false;
+document.addEventListener('fullscreenchange', () => {
+  recreated = false;
+  hardRefreshDeck();
+  let lastW = 0, lastH = 0, stable = 0;
+  if (fsTimer) clearInterval(fsTimer);
+  fsTimer = setInterval(() => {
+    const w = mapContainer.clientWidth, h = mapContainer.clientHeight;
+    if (w === lastW && h === lastH) { stable++; } else { stable = 0; lastW = w; lastH = h; }
+    try { map.resize(); } catch (e) {}
+    if (stable >= 3) {
+      clearInterval(fsTimer); fsTimer = null;
+      if (!recreated) { recreated = true; recreateMap(); }
+    }
+  }, 120);
+  setTimeout(() => { if (fsTimer) { clearInterval(fsTimer); fsTimer = null; if (!recreated) { recreated = true; recreateMap(); } } }, 3000);
+});
+let roTimer = null;
+var roW = mapContainer.clientWidth, roH = mapContainer.clientHeight;
+var lastRoRecreate = 0;
+new ResizeObserver(() => {
+  try { map.resize(); } catch (e) {}
+  if (roTimer) clearTimeout(roTimer);
+  roTimer = setTimeout(() => {
+    if (fsTimer) return; // el polling de fullscreen es dueno del recreate
+    var w = mapContainer.clientWidth, h = mapContainer.clientHeight;
+    if (Math.abs(w - roW) < 2 && Math.abs(h - roH) < 2) return; // sin cambio real: no recrear (evita recreate al observar/cargar)
+    roW = w; roH = h;
+    if (Date.now() - lastRoRecreate < 2000) return; // cooldown anti-tormentas de resize
+    lastRoRecreate = Date.now();
+    recreateMap();
+  }, 250);
+}).observe(mapContainer);
 
 var overlay;
+
+// Sin HeatmapLayer: re-set normal (vacia primero para dispose limpio).
+function hardRefreshDeck() {
+  if (!overlay) { try { map.resize(); } catch (e) {} return; }
+  overlay.setProps({ layers: [] });
+  requestAnimationFrame(function() { try { map.resize(); } catch (e) {} if (overlay) { overlay.setProps({ layers: buildLayers(activeYear) }); } try { map.triggerRepaint(); } catch (e) {} });
+}
 
 function switchYear(year) {
   activeYear = year;
@@ -255,13 +333,15 @@ function switchYear(year) {
   });
 }
 
-map.on('load', function() {
+function initOverlay() {
   overlay = new deck.MapboxOverlay({
     layers: buildLayers(activeYear),
     interleaved: true
   });
   map.addControl(overlay);
-});
+}
+
+map.on('load', initOverlay);
 
 document.querySelectorAll('.year-btn').forEach(btn => {
   btn.addEventListener('click', () => switchYear(btn.dataset.year));

@@ -9,6 +9,8 @@
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; overflow: hidden; }
   #map { width: 100%; height: 100%; }
   #map-container { width: 100vw; height: 100vh; position: relative; }
+  #map-container:fullscreen { width: 100vw; height: 100vh; }
+  #map-container:fullscreen #map { width: 100%; height: 100%; }
   #legend {
     position: absolute; bottom: 12px; left: 12px; z-index: 9999;
     background: rgba(255,255,255,0.95); padding: 10px 14px; border-radius: 6px;
@@ -65,15 +67,87 @@ function showTooltipCiclo(info) {
   }
 }
 
+var MAP_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
+var MAP_CENTER = [-62.2663, -38.7219];
+var MAP_ZOOM = 13;
+
 var map = new maplibregl.Map({
   container: 'map',
-  style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
-  center: [-62.2663, -38.7219],
-  zoom: 13
+  style: MAP_STYLE,
+  center: MAP_CENTER,
+  zoom: MAP_ZOOM
 });
 
-map.addControl(new maplibregl.NavigationControl());
-map.addControl(new maplibregl.FullscreenControl({ container: document.getElementById('map-container') }));
+function addMapControls() {
+  map.addControl(new maplibregl.NavigationControl());
+  map.addControl(new maplibregl.FullscreenControl({ container: document.getElementById('map-container') }));
+}
+addMapControls();
+const mapContainer = document.getElementById('map-container');
+// El heatmap queda congelado tras un resize grande (fullscreen incluido):
+// ni recrear el overlay ni setProps con ids unicos lo descongelan (estado
+// estancado bajo Deck/capas). El paso final estable recrea el `map` entero.
+function recreateMap() {
+  var center = MAP_CENTER, zoom = MAP_ZOOM, bearing = 0, pitch = 0;
+  try {
+    if (map) {
+      center = map.getCenter().toArray();
+      zoom = map.getZoom();
+      bearing = map.getBearing();
+      pitch = map.getPitch();
+    }
+  } catch (e) {}
+  try { if (overlay && map) { map.removeControl(overlay); } } catch (e) {}
+  overlay = null;
+  try { if (map) { map.remove(); } } catch (e) {}
+  map = new maplibregl.Map({
+    container: 'map',
+    style: MAP_STYLE,
+    center: center,
+    zoom: zoom,
+    bearing: bearing,
+    pitch: pitch
+  });
+  addMapControls();
+  map.on('load', initOverlay);
+}
+// La transicion a fullscreen es asincrona: el tamano final del contenedor
+// no esta listo en el primer evento. Sondea hasta estabilizar (~1.5s max)
+// y al estabilizar recrea el map para descongelar el HeatmapLayer.
+let fsTimer = null;
+var recreated = false;
+document.addEventListener('fullscreenchange', () => {
+  recreated = false;
+  hardRefreshDeck();
+  let lastW = 0, lastH = 0, stable = 0;
+  if (fsTimer) clearInterval(fsTimer);
+  fsTimer = setInterval(() => {
+    const w = mapContainer.clientWidth, h = mapContainer.clientHeight;
+    if (w === lastW && h === lastH) { stable++; } else { stable = 0; lastW = w; lastH = h; }
+    try { map.resize(); } catch (e) {}
+    if (stable >= 3) {
+      clearInterval(fsTimer); fsTimer = null;
+      if (!recreated) { recreated = true; recreateMap(); }
+    }
+  }, 120);
+  setTimeout(() => { if (fsTimer) { clearInterval(fsTimer); fsTimer = null; if (!recreated) { recreated = true; recreateMap(); } } }, 3000);
+});
+let roTimer = null;
+var roW = mapContainer.clientWidth, roH = mapContainer.clientHeight;
+var lastRoRecreate = 0;
+new ResizeObserver(() => {
+  try { map.resize(); } catch (e) {}
+  if (roTimer) clearTimeout(roTimer);
+  roTimer = setTimeout(() => {
+    if (fsTimer) return; // el polling de fullscreen es dueno del recreate
+    var w = mapContainer.clientWidth, h = mapContainer.clientHeight;
+    if (Math.abs(w - roW) < 2 && Math.abs(h - roH) < 2) return; // sin cambio real: no recrear (evita recreate al observar/cargar)
+    roW = w; roH = h;
+    if (Date.now() - lastRoRecreate < 2000) return; // cooldown anti-tormentas de resize
+    lastRoRecreate = Date.now();
+    recreateMap();
+  }, 250);
+}).observe(mapContainer);
 
 function getRadius(z) {
   if (z < 11) return 4;
@@ -83,11 +157,11 @@ function getRadius(z) {
   return 20;
 }
 
-function buildLayers(r) {
+function buildLayers(r, suffix) {
   var layers = [];
   if (document.getElementById('toggleHeat').checked) {
     layers.push(new deck.HeatmapLayer({
-      id: 'heatmap',
+      id: 'heatmap' + (suffix ? '-' + suffix : ''),
       data: points,
       getPosition: function(d) { return [d.assigned_lon, d.assigned_lat]; },
       getWeight: function(d) { return 1; },
@@ -113,13 +187,21 @@ function buildLayers(r) {
   return layers;
 }
 
-function updateLayers() {
+function updateLayers(suffix) {
   if (overlay) {
-    overlay.setProps({ layers: buildLayers(getRadius(map.getZoom())) });
+    overlay.setProps({ layers: buildLayers(getRadius(map.getZoom()), suffix) });
   }
 }
+// El setProps con el mismo id no regenera el weightmap stale del HeatmapLayer.
+// hardRefreshDeck lo vacia primero (dispose) y lo reconstruye con id unico.
+function hardRefreshDeck() {
+  if (!overlay) { map.resize(); return; }
+  overlay.setProps({ layers: [] });
+  var tag = 'fs' + Date.now();
+  requestAnimationFrame(function() { map.resize(); updateLayers(tag); map.triggerRepaint(); });
+}
 
-map.on('load', function() {
+function initOverlay() {
   overlay = new deck.MapboxOverlay({
     layers: buildLayers(getRadius(map.getZoom())),
     interleaved: true
@@ -129,7 +211,9 @@ map.on('load', function() {
   map.on('zoom', function() {
     overlay.setProps({ layers: buildLayers(getRadius(map.getZoom())) });
   });
-});
+}
+
+map.on('load', initOverlay);
 </script>
 </div>
 </body>

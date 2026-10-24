@@ -65,6 +65,32 @@
         </div>
     </div>
 
+    <!-- Previsualización -->
+    <div class="row mb-4" id="preview">
+        <div class="col-md-12">
+            <div class="card shadow-sm border-0" style="border-radius: 15px;">
+                <div class="card-header bg-white d-flex align-items-center justify-content-between"
+                     style="border-radius: 15px 15px 0 0;">
+                    <strong><i class="fa fa-eye me-1"></i>Previsualización del correo</strong>
+                    {% if preview_subject %}
+                    <small class="text-muted">{{ preview_subject }}</small>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if preview_html %}
+                    <iframe sandbox="" srcdoc="{{ preview_html|force_escape }}"
+                            style="width: 100%; min-height: 400px; border: 1px solid #dee2e6; border-radius: 8px; background: #fff;"
+                            title="Previsualización del correo"></iframe>
+                    {% else %}
+                    <div class="alert alert-warning mb-0">
+                        Sin contenido para previsualizar (message_body vacío).
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Log entries -->
     <div class="row justify-content-center">
         <div class="col-md-12">

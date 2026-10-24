@@ -17,6 +17,7 @@ ciudadespendientes/data
 *.log
 *cpython*
 docs
+oc_files
 
 # Hugo
 /hugo_site/public

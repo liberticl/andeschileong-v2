@@ -355,10 +355,10 @@ ENV="prod"
 | `/accounts/api/regiones/` | `RegionsAPIView` | accounts | API JSON regiones por país |
 | `/accounts/api/comunas/` | `ComunasByRegionAPIView` | accounts | API JSON comunas por región |
 | `/accounts/api/organizaciones/` | `OrganizationsAPIView` | accounts | API JSON organizaciones activas |
-| `/intranet/correos/` | `email_logs` | emails | Historial de envíos (staff) |
+| `/intranet/correos/` | `email_logs` | emails | Historial de envíos (staff, una fila por batch_id: agrupa solo por batch_id con Min(batch_label/sent_by/created_at)) |
 | `/intranet/correos/nuevo/` | `compose_email` | emails | Formulario de envío de correos (staff) |
 | `/intranet/correos/cuentas/` | `sender_accounts` | emails | Cuentas remitentes configuradas (staff) |
-| `/intranet/correos/<batch_id>/` | `email_log_detail` | emails | Detalle de un lote de envío (staff) |
+| `/intranet/correos/<batch_id>/` | `email_log_detail` | emails | Detalle de un lote de envío (staff, con previsualización iframe sandbox srcdoc del HTML final renderizado con `first_log.template_name or 'email/generic.html'` → `preview_html`; fallback a message_body si el template falta) |
 | `/intranet/correos/<batch_id>/reintentar/` | `email_retry_failed` | emails | Reintentar envíos fallidos (staff) |
 | `/intranet/solicitudes/` | `RegistrationRequestListView` | hugo_edit | Listado solicitudes (staff) |
 | `/intranet/solicitudes/<pk>/` | `RegistrationRequestDetailView` | hugo_edit | Detalle solicitud (staff) |
@@ -548,6 +548,8 @@ El botón estándar del sitio se define en `ciudadespendientes/static/ciudadespe
 | Hover - texto | `white` |
 
 **No usar** `ac-btn-primary` (fondo azul sólido). Usar siempre `class="btn"` para botones principales.
+
+**Excepción intranet/correos:** `log_list.html` usa `btn-primary` (Nuevo envío) y `btn-outline-primary` (eye). El hover blanco se fuerza en `main.css` (bloque "Intranet button hover"): `.btn-primary:hover` y `.btn-outline-primary:hover` (+ hijos `.fa` y variantes `a.btn-...`) con `color:#fff !important` y `background/border-color:#2241a8 !important` para outline-primary. No tocar el estilo de Volver (`btn-outline-secondary`, ya bien).
 
 ---
 

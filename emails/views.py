@@ -1,13 +1,18 @@
+import logging
 import uuid
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib import messages
-from django.db.models import Count, Q
+from django.db.models import Count, Min, Q
+from django.template.loader import render_to_string
 from django.utils import timezone
 
 from .models import EmailLog, SenderAccount
 from .forms import ComposeEmailForm
 from .tasks import send_batch_task, retry_failed_batch
+
+
+logger = logging.getLogger(__name__)
 
 
 def staff_required(u):
@@ -60,14 +65,17 @@ def compose_email(request):
 def email_logs(request):
     batches = (
         EmailLog.objects
-        .values('batch_id', 'batch_label', 'sent_by__email', 'created_at')
+        .values('batch_id')
         .annotate(
+            batch_label=Min('batch_label'),
+            sent_by_email=Min('sent_by__email'),
+            fecha=Min('created_at'),
             total=Count('id'),
             sent=Count('id', filter=Q(status='sent')),
             failed=Count('id', filter=Q(status='failed')),
             pending=Count('id', filter=Q(status='pending')),
         )
-        .order_by('-created_at')
+        .order_by('-fecha')
     )
 
     return render(request, 'emails/log_list.html', {'batches': batches})
@@ -85,12 +93,36 @@ def email_log_detail(request, batch_id):
     )
 
     batch_label = logs.first().batch_label if logs.exists() else ''
+    first_log = logs.first()
+    preview_subject = first_log.subject if first_log else ''
+    preview_body = first_log.message_body if first_log else ''
+    if first_log:
+        try:
+            # str(): render_to_string devuelve SafeString y el filtro
+            # |escape lo dejaría sin escapar, rompiendo el srcdoc.
+            preview_html = str(render_to_string(
+                first_log.template_name or 'email/generic.html',
+                {'subject': first_log.subject,
+                 'message': first_log.message_body},
+            ))
+        except Exception:
+            logger.exception(
+                "Preview email falló para batch %s (template=%r); "
+                "usando message_body como fallback",
+                batch_id, first_log.template_name,
+            )
+            preview_html = first_log.message_body or ''
+    else:
+        preview_html = ''
 
     return render(request, 'emails/log_detail.html', {
         'logs': logs,
         'stats': stats,
         'batch_id': batch_id,
         'batch_label': batch_label,
+        'preview_html': preview_html,
+        'preview_body': preview_body,
+        'preview_subject': preview_subject,
     })
 
 

@@ -64,8 +64,8 @@
                                     <span class="badge bg-light text-dark">0</span>
                                     {% endif %}
                                 </td>
-                                <td><small>{{ batch.sent_by__email }}</small></td>
-                                <td><small>{{ batch.created_at|date:"d/m/Y H:i" }}</small></td>
+                                <td><small>{{ batch.sent_by_email|default:"-" }}</small></td>
+                                <td><small>{{ batch.fecha|date:"d/m/Y H:i" }}</small></td>
                                 <td>
                                     <a href="{% url 'email_log_detail' batch.batch_id %}"
                                        class="btn btn-outline-primary btn-sm">

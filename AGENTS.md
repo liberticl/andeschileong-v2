@@ -394,7 +394,7 @@ ENV="prod"
 | `/api/trafico/device/` | `DeviceNameUpdateView` | mediciones | Renombrar dispositivo (JWT auth) |
 | `/recursos/licitaciones/` | `dashboard` | licitaciones | Dashboard licitaciones ciclistas |
 | `/recursos/licitaciones/lista/` | `licitaciones_list` | licitaciones | Listado de licitaciones |
-| `/recursos/licitaciones/<codigo>/` | `licitacion_detalle` | licitaciones | Detalle + adjudicación (monto/proveedor/acta/diferencia vs estimado) + timeline horizontal ciclo de vida con fechas dd/mm/yyyy + badge cierre |
+| `/recursos/licitaciones/<codigo>/` | `licitacion_detalle` | licitaciones | Detalle + adjudicación (monto/proveedor/acta/diferencia abreviada) + timeline horizontal 5 hitos dd/mm/yyyy, azul=solo fechas pasadas + badge cierre; botón MP responsive |
 | `/recursos/licitaciones/api/stats/` | `api_stats` | licitaciones | API JSON para charts |
 
 ---

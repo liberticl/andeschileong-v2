@@ -65,7 +65,7 @@
                         </td>
                         <td>{{ lic.nombre|truncatewords:12 }}</td>
                         <td>{{ lic.organismo|truncatewords:5 }}</td>
-                        <td>{{ lic.get_monto_display }}</td>
+                        <td>{{ lic.get_monto_principal_display }}</td>
                         <td>
                             <span class="badge-estado badge-{{ lic.estado }}">
                                 {{ lic.get_estado_display }}

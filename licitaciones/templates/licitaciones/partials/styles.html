@@ -439,4 +439,52 @@
         opacity: 0.6;
         cursor: not-allowed;
     }
+
+    .beta-badge {
+        display: inline-block;
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+        padding: 0.15rem 0.5rem;
+        border-radius: 1rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        margin-left: 0.4rem;
+        vertical-align: middle;
+    }
+
+    .timeline-h {
+        list-style: none; margin: 1.75rem 0 0.25rem; padding: 0;
+        display: flex; overflow-x: auto; gap: 0;
+    }
+    .timeline-h li {
+        position: relative; flex: 1 0 140px; min-width: 140px;
+        text-align: center; padding: 1.3rem 0.4rem 0;
+    }
+    .timeline-h li::before {
+        content: ''; position: absolute; top: 0.45rem; left: 0; right: 0;
+        height: 2px; background: #2241a8;
+    }
+    .timeline-h li:first-child::before { left: 50%; }
+    .timeline-h li:last-child::before { right: 50%; }
+    .timeline-h .tl-dot {
+        position: absolute; top: 0; left: 50%;
+        transform: translateX(-50%);
+        width: 1rem; height: 1rem; border-radius: 50%;
+        background: #2241a8; border: 2px solid #fff;
+        box-shadow: 0 0 0 2px #2241a8;
+    }
+    .timeline-h li.tl-empty::before { background: #ddd; }
+    .timeline-h li.tl-empty .tl-dot {
+        background: #ccc; box-shadow: 0 0 0 2px #ccc;
+    }
+    .timeline-h .tl-name { font-size: 0.9rem; font-weight: 600; color: #333; }
+    .timeline-h li.tl-empty .tl-name { color: #aaa; font-weight: 400; }
+    .timeline-h .tl-date { font-size: 0.9rem; color: #6c757d; }
+    .timeline-progress {
+        height: 6px; background: #eee; border-radius: 3px; overflow: hidden;
+    }
+    .timeline-progress-bar {
+        height: 100%; background: #2241a8; border-radius: 3px;
+    }
 </style>

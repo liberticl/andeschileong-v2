@@ -394,7 +394,7 @@ ENV="prod"
 | `/api/trafico/device/` | `DeviceNameUpdateView` | mediciones | Renombrar dispositivo (JWT auth) |
 | `/recursos/licitaciones/` | `dashboard` | licitaciones | Dashboard licitaciones ciclistas |
 | `/recursos/licitaciones/lista/` | `licitaciones_list` | licitaciones | Listado de licitaciones |
-| `/recursos/licitaciones/<codigo>/` | `licitacion_detalle` | licitaciones | Detalle de licitación |
+| `/recursos/licitaciones/<codigo>/` | `licitacion_detalle` | licitaciones | Detalle + adjudicación (monto/proveedor/acta/diferencia vs estimado) + timeline horizontal ciclo de vida con fechas dd/mm/yyyy + badge cierre |
 | `/recursos/licitaciones/api/stats/` | `api_stats` | licitaciones | API JSON para charts |
 
 ---
@@ -443,6 +443,12 @@ python manage.py sync_hugo
 # Sincronizar licitaciones de Mercado Público
 python manage.py sync_licitaciones --dias 7
 python manage.py sync_licitaciones --dias 30 --ticket TU_TICKET
+
+# Backfill adjudicación desde raw_data (sin API): monto_adjudicado,
+# proveedor, oferentes, acta, reclamos BETA
+python manage.py rellenar_adjudicacion
+python manage.py rellenar_adjudicacion --dry-run
+python manage.py rellenar_adjudicacion --codigo 2483-189-LP26
 
 # Descargar límites geográficos de Chile (comunas)
 # Solo necesario en primera instalación o para actualizar datos geográficos
@@ -511,12 +517,14 @@ docker-compose exec web bash -c "<comando>"  # Ejecutar bash en el contenedor
 | `hugo_edit/templatetags/split_tags.py` | Filtro personalizado `{% split "," %}` para separar tags en badges |
 | `hugo_edit/management/commands/sync_hugo.py` | Comando sync DB → Hugo (actividades, noticias, estudios) |
 | `hugo_edit/admin.py` | Admin custom con SimpleMDE |
-| `licitaciones/models.py` | Licitacion, SyncLog |
-| `licitaciones/views.py` | Dashboard, listado, detalle, api_stats |
+| `licitaciones/models.py` | Licitacion (monto_estimado + monto_adjudicado/proveedor_adjudicado/n_oferentes/url_acta/n_reclamos BETA; get_monto_principal = adjudicado si adjudicada), SyncLog |
+| `licitaciones/views.py` | Dashboard (KPIs año efectivo: total/publicadas/adjudicadas/monto adjudicado + sub estimado), listado, detalle (timeline horizontal 5 hitos dd/mm/yyyy, azul=solo fechas pasadas, + badge cierre + diferencia abreviada), api_stats |
 | `licitaciones/urls.py` | URLs de licitaciones |
 | `licitaciones/admin.py` | Admin con filtros y acciones |
 | `licitaciones/forms.py` | Formulario de filtros (FiltroLicitacionesForm con comuna, región, año, estado) |
 | `licitaciones/management/commands/sync_licitaciones.py` | Sync con API Mercado Público |
+| `licitaciones/management/commands/rellenar_adjudicacion.py` | Backfill adjudicación desde raw_data (offline) |
+| `licitaciones/migrations/0002_adjudicacion.py` | Campos adjudicación + reclamos BETA |
 | `licitaciones/templates/licitaciones/` | Templates del dashboard |
 | `hugo_site/config.toml` | Configuración de Hugo |
 | `hugo_site/layouts/` | Layouts y partials customizados |

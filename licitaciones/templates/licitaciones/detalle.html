@@ -11,15 +11,44 @@
         </a>
 
         <div class="infra-header" style="text-align: left;">
-            <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem;">
-                {{ licitacion.nombre }}
-            </h2>
-            <p>
-                Código: <strong>{{ licitacion.codigo }}</strong> &nbsp;&middot;&nbsp;
-                <span class="badge-estado badge-{{ licitacion.estado }}">
-                    {{ licitacion.get_estado_display }}
-                </span>
-            </p>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:1rem;">
+                <div>
+                    <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem;">
+                        {{ licitacion.nombre }}
+                    </h2>
+                    <p>
+                        Código: <strong>{{ licitacion.codigo }}</strong> &nbsp;&middot;&nbsp;
+                        <span class="badge-estado badge-{{ licitacion.estado }}">
+                            {{ licitacion.get_estado_display }}
+                        </span>
+                        {% if cierre_info %}
+                        &nbsp;&middot;&nbsp;<span style="font-size:0.85rem; color:#856404;">{{ cierre_info }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                {% if licitacion.raw_data.CodigoExterno %}
+                <a href="https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion={{ licitacion.raw_data.CodigoExterno }}"
+                   target="_blank" class="btn-mercado" style="margin-top:0; white-space:nowrap;">
+                    <i class="fa fa-external-link"></i> Ver en Mercado Público
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="detalle-section" style="margin-bottom: 1.5rem;">
+            <h4>Ciclo de vida ({{ hitos_completados }}/{{ hitos_total }})</h4>
+            <div class="timeline-progress">
+                <div class="timeline-progress-bar" style="width: {% widthratio hitos_completados hitos_total 100 %}%;"></div>
+            </div>
+            <ul class="timeline-h">
+                {% for h in hitos %}
+                <li class="{% if not h.pasado %}tl-empty{% endif %}">
+                    <div class="tl-dot"></div>
+                    <div class="tl-name">{{ h.label }}</div>
+                    <div class="tl-date">{{ h.fecha_str }}</div>
+                </li>
+                {% endfor %}
+            </ul>
         </div>
 
         <div class="detalle-grid">
@@ -41,6 +70,28 @@
                         {{ licitacion.region|default:"Sin región" }}
                     </span>
                 </div>
+                {% if licitacion.estado == 'adjudicada' %}
+                <div class="detalle-row">
+                    <span class="detalle-label">Proveedor</span>
+                    <span class="detalle-value">
+                        {{ licitacion.proveedor_adjudicado|default:"-" }}
+                    </span>
+                </div>
+                <div class="detalle-row">
+                    <span class="detalle-label">Oferentes</span>
+                    <span class="detalle-value">
+                        {{ licitacion.n_oferentes|default:"-" }}
+                    </span>
+                </div>
+                {% if licitacion.url_acta %}
+                <div class="detalle-row">
+                    <span class="detalle-label">Acta</span>
+                    <span class="detalle-value">
+                        <a href="{{ licitacion.url_acta }}" target="_blank">Ver acta</a>
+                    </span>
+                </div>
+                {% endif %}
+                {% endif %}
             </div>
 
             <div class="detalle-section">
@@ -51,6 +102,30 @@
                         {{ licitacion.get_monto_display }}
                     </span>
                 </div>
+                {% if licitacion.estado == 'adjudicada' %}
+                <div class="detalle-row">
+                    <span class="detalle-label">Monto Adjudicado</span>
+                    <span class="detalle-value" style="color:#1a7f37;">
+                        {{ licitacion.get_monto_adjudicado_display }}
+                    </span>
+                </div>
+                {% if diff_display is not None %}
+                <div class="detalle-row">
+                    <span class="detalle-label">Diferencia vs estimado</span>
+                    <span class="detalle-value" style="color:{% if diff_monto >= 0 %}#1a7f37{% else %}#c0392b{% endif %};">
+                        {{ diff_display }}
+                    </span>
+                </div>
+                {% endif %}
+                {% endif %}
+                {% if licitacion.n_reclamos is not None %}
+                <div class="detalle-row">
+                    <span class="detalle-label">Reclamos <span class="beta-badge">BETA</span></span>
+                    <span class="detalle-value">
+                        {{ licitacion.n_reclamos }}
+                    </span>
+                </div>
+                {% endif %}
                 <div class="detalle-row">
                     <span class="detalle-label">Tipo</span>
                     <span class="detalle-value">
@@ -81,13 +156,6 @@
                 {% endfor %}
             </div>
         </div>
-        {% endif %}
-
-        {% if licitacion.raw_data.CodigoExterno %}
-        <a href="https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion={{ licitacion.raw_data.CodigoExterno }}"
-           target="_blank" class="btn-mercado">
-            <i class="fa fa-external-link"></i> Ver en Mercado Público
-        </a>
         {% endif %}
     </div>
 </div>

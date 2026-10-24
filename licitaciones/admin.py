@@ -6,9 +6,10 @@ from .models import Licitacion, SyncLog
 class LicitacionAdmin(admin.ModelAdmin):
     list_display = (
         'codigo', 'nombre_corto', 'organismo', 'estado',
-        'monto_display', 'region', 'fecha_publicacion')
+        'monto_display', 'monto_adjudicado_display', 'region',
+        'fecha_publicacion')
     list_filter = ('estado', 'region', 'tipo_licitacion')
-    search_fields = ('codigo', 'nombre', 'organismo')
+    search_fields = ('codigo', 'nombre', 'organismo', 'proveedor_adjudicado')
     readonly_fields = ('raw_data', 'fecha_sync', 'palabras_clave')
     list_per_page = 25
 
@@ -18,7 +19,9 @@ class LicitacionAdmin(admin.ModelAdmin):
         ('Organismo', {
             'fields': ('organismo', 'codigo_organismo')}),
         ('Montos y Fechas', {
-            'fields': ('monto_estimado', 'moneda',
+            'fields': ('monto_estimado', 'monto_adjudicado',
+                       'proveedor_adjudicado', 'n_oferentes', 'url_acta',
+                       'n_reclamos', 'moneda',
                        'fecha_publicacion', 'fecha_cierre')}),
         ('Ubicación', {
             'fields': ('comuna', 'region')}),
@@ -34,7 +37,11 @@ class LicitacionAdmin(admin.ModelAdmin):
 
     def monto_display(self, obj):
         return obj.get_monto_display()
-    monto_display.short_description = 'Monto'
+    monto_display.short_description = 'Monto est.'
+
+    def monto_adjudicado_display(self, obj):
+        return obj.get_monto_adjudicado_display()
+    monto_adjudicado_display.short_description = 'Monto adj.'
 
     @admin.action(description='Activar seleccionadas')
     def activar(self, request, queryset):

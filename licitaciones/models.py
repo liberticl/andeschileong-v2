@@ -36,6 +36,18 @@ class Licitacion(models.Model):
     codigo_organismo = models.IntegerField("Código organismo", null=True)
     monto_estimado = models.DecimalField(
         "Monto estimado", max_digits=15, decimal_places=2, null=True)
+    monto_adjudicado = models.DecimalField(
+        "Monto adjudicado", max_digits=15, decimal_places=2,
+        null=True, blank=True)
+    proveedor_adjudicado = models.CharField(
+        "Proveedor adjudicado", max_length=300, blank=True, default='')
+    n_oferentes = models.IntegerField(
+        "N° oferentes", null=True, blank=True)
+    url_acta = models.URLField(
+        "URL acta adjudicación", max_length=500, blank=True, default='')
+    n_reclamos = models.IntegerField(
+        "N° reclamos (BETA)", null=True, blank=True,
+        help_text="Campo BETA: clasificación en revisión")
     moneda = models.CharField("Moneda", max_length=5, default='CLP')
     estado = models.CharField("Estado", max_length=20, choices=ESTADOS)
     fecha_cierre = models.DateTimeField("Fecha cierre", null=True, blank=True)
@@ -63,6 +75,28 @@ class Licitacion(models.Model):
         if self.monto_estimado >= 1_000_000:
             return f"${self.monto_estimado / 1_000_000:.0f}M {self.moneda}"
         return f"${self.monto_estimado:,.0f} {self.moneda}"
+
+    @staticmethod
+    def _fmt_monto(valor, moneda='CLP'):
+        if valor is None:
+            return '-'
+        if valor >= 1_000_000_000:
+            return f"${valor / 1_000_000_000:.1f}B {moneda}"
+        if valor >= 1_000_000:
+            return f"${valor / 1_000_000:.0f}M {moneda}"
+        return f"${valor:,.0f} {moneda}"
+
+    def get_monto_adjudicado_display(self):
+        return self._fmt_monto(self.monto_adjudicado, self.moneda)
+
+    def get_monto_principal(self):
+        """Adjudicado si está adjudicada y hay monto, sino estimado."""
+        if self.estado == 'adjudicada' and self.monto_adjudicado is not None:
+            return self.monto_adjudicado
+        return self.monto_estimado
+
+    def get_monto_principal_display(self):
+        return self._fmt_monto(self.get_monto_principal(), self.moneda)
 
     def get_tipo_display(self):
         return self.TIPOS.get(self.tipo_licitacion, self.tipo_licitacion)

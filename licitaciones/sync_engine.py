@@ -112,6 +112,66 @@ def _fetch_detalle(codigo, ticket, max_retries=3):
                 return None
 
 
+def _calc_adjudicacion(detail):
+    """Calcula total adjudicado desde Items (Cantidad*MontoUnitario).
+
+    Retorna dict con monto_adjudicado, proveedor_adjudicado,
+    n_oferentes, url_acta, n_reclamos. Todo None/'' si no hay datos.
+    """
+    out = {
+        'monto_adjudicado': None,
+        'proveedor_adjudicado': '',
+        'n_oferentes': None,
+        'url_acta': '',
+        'n_reclamos': None,
+    }
+    if not isinstance(detail, dict):
+        return out
+    try:
+        out['n_reclamos'] = int(detail.get('CantidadReclamos', 0) or 0)
+    except (ValueError, TypeError):
+        pass
+    adj = detail.get('Adjudicacion')
+    if isinstance(adj, dict):
+        try:
+            n = adj.get('NumeroOferentes')
+            out['n_oferentes'] = int(n) if n is not None else None
+        except (ValueError, TypeError):
+            pass
+        out['url_acta'] = adj.get('UrlActa', '') or ''
+    items = (detail.get('Items') or {}).get('Listado', []) or []
+    total = 0.0
+    found = False
+    best_prov = ''
+    best_monto = 0.0
+    for it in items:
+        if not isinstance(it, dict):
+            continue
+        a = it.get('Adjudicacion') or {}
+        try:
+            cant = float(it.get('Cantidad', 1) or 1)
+        except (ValueError, TypeError):
+            cant = 1.0
+        try:
+            mu = a.get('MontoUnitario')
+            mu = float(mu) if mu is not None else None
+        except (ValueError, TypeError):
+            mu = None
+        if mu is None:
+            continue
+        found = True
+        linea = cant * mu
+        total += linea
+        prov = (a.get('NombreProveedor', '') or '').strip()
+        if linea >= best_monto and prov:
+            best_monto = linea
+            best_prov = prov
+    if found:
+        out['monto_adjudicado'] = round(total, 2)
+        out['proveedor_adjudicado'] = best_prov
+    return out
+
+
 def _apply_detail(lic, detail):
     comprador = detail.get('Comprador', {})
     if comprador and isinstance(comprador, dict):
@@ -139,6 +199,13 @@ def _apply_detail(lic, detail):
         lic.fecha_cierre = _parse_datetime(fechas['FechaCierre'])
 
     lic.raw_data = detail
+
+    adj = _calc_adjudicacion(detail)
+    lic.monto_adjudicado = adj['monto_adjudicado']
+    lic.proveedor_adjudicado = adj['proveedor_adjudicado']
+    lic.n_oferentes = adj['n_oferentes']
+    lic.url_acta = adj['url_acta']
+    lic.n_reclamos = adj['n_reclamos']
 
 
 def _detectar_tipo(codigo):
@@ -194,11 +261,18 @@ def _map_licitacion(lic):
     fecha_pub = fechas.get('FechaPublicacion') or lic.get('FechaPublicacion')
     fecha_cierre = fechas.get('FechaCierre') or lic.get('FechaCierre')
 
+    adj = _calc_adjudicacion(lic)
+
     return {
         'nombre': lic.get('Nombre', ''),
         'organismo': organismo,
         'codigo_organismo': codigo_organismo,
         'monto_estimado': monto,
+        'monto_adjudicado': adj['monto_adjudicado'],
+        'proveedor_adjudicado': adj['proveedor_adjudicado'],
+        'n_oferentes': adj['n_oferentes'],
+        'url_acta': adj['url_acta'],
+        'n_reclamos': adj['n_reclamos'],
         'moneda': lic.get('Moneda', 'CLP'),
         'estado': estado,
         'fecha_cierre': _parse_datetime(fecha_cierre),

@@ -63,35 +63,28 @@
         <div class="kpi-row">
             <div class="kpi-card">
                 <div class="kpi-icon"><i class="fa fa-file-text-o"></i></div>
-                <div class="kpi-value" id="kpi-total">{{ total_licitaciones }}</div>
-                <div class="kpi-label">Total Licitaciones</div>
+                <div class="kpi-value" id="kpi-total">{{ kpi_total }}</div>
+                <div class="kpi-label">
+                    Total Licitaciones {{ kpi_year }}
+                </div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-icon"><i class="fa fa-money"></i></div>
-                <div class="kpi-value" id="kpi-monto"></div>
+                <div class="kpi-value" id="kpi-monto-adj"></div>
+                <div class="kpi-sub" id="kpi-monto-est"></div>
                 <div class="kpi-label">
-                    Monto Total (CLP)
-                    <i class="fa fa-info-circle" style="font-size: 0.7rem; color: #999; cursor: help;"
-                       title="Suma de montos estimados de las licitaciones filtradas. Puede no incluir todas las licitaciones si el monto no fue proporcionado por Mercado Público."></i>
+                    Monto Adjudicado {{ kpi_year }}
                 </div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-icon"><i class="fa fa-check-circle-o"></i></div>
-                <div class="kpi-value" id="kpi-publicadas">
-                    {% for e in por_estado %}
-                    {% if e.estado == 'publicada' %}{{ e.cantidad }}{% endif %}
-                    {% endfor %}
-                </div>
-                <div class="kpi-label">Publicadas</div>
+                <div class="kpi-value" id="kpi-publicadas">{{ kpi_publicadas }}</div>
+                <div class="kpi-label">Publicadas {{ kpi_year }}</div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-icon"><i class="fa fa-trophy"></i></div>
-                <div class="kpi-value" id="kpi-adjudicadas">
-                    {% for e in por_estado %}
-                    {% if e.estado == 'adjudicada' %}{{ e.cantidad }}{% endif %}
-                    {% endfor %}
-                </div>
-                <div class="kpi-label">Adjudicadas</div>
+                <div class="kpi-value" id="kpi-adjudicadas">{{ kpi_adjudicadas }}</div>
+                <div class="kpi-label">Adjudicadas {{ kpi_year }}</div>
             </div>
         </div>
 
@@ -137,7 +130,7 @@
                             </td>
                             <td>{{ lic.nombre|truncatewords:10 }}</td>
                             <td>{{ lic.organismo|truncatewords:5 }}</td>
-                            <td>{{ lic.get_monto_display }}</td>
+                            <td>{{ lic.get_monto_principal_display }}</td>
                             <td>
                                 <span class="badge-estado badge-{{ lic.estado }}">
                                     {{ lic.get_estado_display }}
@@ -185,15 +178,32 @@
     const porRegion = {{ por_region_js|safe }};
     const porTipo = {{ por_tipo_js|safe }};
     const montoTotal = {{ monto_total_js|safe }};
+    const montoAdjudicado = {{ monto_adjudicado_js|safe }};
+    const kpiMontoAdj = {{ kpi_monto_adj_js|safe }};
+    const kpiMontoEst = {{ kpi_monto_est_js|safe }};
 
     function formatMontoKPI(val) {
         const el = document.getElementById('kpi-monto');
+        if (!el) return;
         if (!val) { el.textContent = '$0'; return; }
         if (val >= 1e9) el.textContent = '$' + (val / 1e9).toFixed(1) + 'B CLP';
         else if (val >= 1e6) el.textContent = '$' + (val / 1e6).toFixed(0) + 'M CLP';
         else el.textContent = '$' + val.toLocaleString('es-CL') + ' CLP';
     }
     formatMontoKPI(montoTotal);
+    (function () {
+        const el = document.getElementById('kpi-monto-adj');
+        if (!el) return;
+        if (!kpiMontoAdj) { el.textContent = '$0'; return; }
+        if (kpiMontoAdj >= 1e9) el.textContent = '$' + (kpiMontoAdj / 1e9).toFixed(1) + 'B CLP';
+        else if (kpiMontoAdj >= 1e6) el.textContent = '$' + (kpiMontoAdj / 1e6).toFixed(0) + 'M CLP';
+        else el.textContent = '$' + kpiMontoAdj.toLocaleString('es-CL') + 'CLP';
+    })();
+    (function () {
+        const el = document.getElementById('kpi-monto-est');
+        if (!el) return;
+        el.textContent = 'Est: ' + formatMonto(kpiMontoEst) + ' CLP';
+    })();
 
     const COLORS = ['#2241a8', '#2294a8', '#2b22a8', '#f39c12', '#6c757d', '#c32c1b'];
 

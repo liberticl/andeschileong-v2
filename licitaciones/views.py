@@ -38,6 +38,24 @@ def trigger_sync(request):
     return JsonResponse({'status': 'started', 'message': 'Sincronización en background'})
 
 
+def _fmt_diff(estimado, adjudicado, moneda='CLP'):
+    """Diferencia abreviada estilo get_monto_display: $-130M (-81,5%)."""
+    if estimado is None or adjudicado is None:
+        return None
+    diff = estimado - adjudicado
+    signo = '-' if diff < 0 else ''
+    v = abs(diff)
+    if v >= 1_000_000_000:
+        num = f'{(v / 1_000_000_000):.1f}B'.replace('.', ',')
+    elif v >= 1_000_000:
+        num = f'{(v / 1_000_000):.0f}M'
+    else:
+        num = f'{v:,.0f}'.replace(',', '.')
+    pct = round(diff * 100 / estimado, 1) if estimado else 0
+    pct_s = str(pct).replace('.', ',')
+    return f'${signo}{num} ({pct_s}%)'
+
+
 def _apply_filters(queryset, params):
     """Aplica filtros GET a un queryset de licitaciones."""
     estado = params.get('estado')
@@ -88,6 +106,28 @@ def dashboard(request):
 
     monto_total = filtered_qs.aggregate(
         total=Sum('monto_estimado'))['total'] or 0
+    monto_adjudicado_total = filtered_qs.filter(
+        estado='adjudicada').aggregate(
+        total=Sum('monto_adjudicado'))['total'] or 0
+
+    # KPI cards: año efectivo (filtro o actual) + resto de filtros
+    from django.utils import timezone as _tz
+    _now_year = _tz.now().year
+    try:
+        _eff_year = int(request.GET.get('year') or _now_year)
+    except (ValueError, TypeError):
+        _eff_year = _now_year
+    _kpi_params = {k: v for k, v in request.GET.items() if k != 'year'}
+    _kpi_params['year'] = str(_eff_year)
+    kpi_qs = _apply_filters(base_qs, _kpi_params)
+    kpi_total = kpi_qs.count()
+    kpi_publicadas = kpi_qs.filter(estado='publicada').count()
+    kpi_adjudicadas = kpi_qs.filter(estado='adjudicada').count()
+    kpi_monto_adj = kpi_qs.filter(
+        estado='adjudicada').aggregate(
+        total=Sum('monto_adjudicado'))['total'] or 0
+    kpi_monto_est = kpi_qs.aggregate(
+        total=Sum('monto_estimado'))['total'] or 0
 
     stats = {
         'total_licitaciones': filtered_qs.count(),
@@ -106,6 +146,15 @@ def dashboard(request):
             .order_by('-cantidad')),
         'monto_total': float(monto_total),
         'monto_total_js': json.dumps(float(monto_total), cls=DecimalEncoder),
+        'monto_adjudicado_total': float(monto_adjudicado_total),
+        'monto_adjudicado_js': json.dumps(
+            float(monto_adjudicado_total), cls=DecimalEncoder),
+        'kpi_year': _eff_year,
+        'kpi_total': kpi_total,
+        'kpi_publicadas': kpi_publicadas,
+        'kpi_adjudicadas': kpi_adjudicadas,
+        'kpi_monto_adj_js': json.dumps(float(kpi_monto_adj), cls=DecimalEncoder),
+        'kpi_monto_est_js': json.dumps(float(kpi_monto_est), cls=DecimalEncoder),
         'por_estado_js': json.dumps(
             list(
                 filtered_qs.values('estado')
@@ -193,8 +242,76 @@ def licitacion_detalle(request, codigo):
     """Detalle de una licitación."""
     licitacion = get_object_or_404(
         Licitacion, codigo=codigo, activo=True)
+    # Timeline ciclo de vida desde raw_data.Fechas (orden cronológico sugerido)
+    hitos = []
+    try:
+        fechas = (licitacion.raw_data or {}).get('Fechas', {}) or {}
+    except AttributeError:
+        fechas = {}
+    orden = [
+        ('FechaPublicacion', 'Publicación'),
+        ('FechaPubRespuestas', 'Publicación respuestas'),
+        ('FechaCierre', 'Cierre'),
+        ('FechaActoAperturaEconomica', 'Apertura'),
+        ('FechaAdjudicacion', 'Adjudicación'),
+    ]
+    from datetime import datetime as _dt
+    from django.utils import timezone as _tz3
+    _today = _tz3.now().date()
+    for key, label in orden:
+        raw = fechas.get(key)
+        # Apertura: fallback a la técnica si la económica falta
+        if key == 'FechaActoAperturaEconomica' and not raw:
+            raw = fechas.get('FechaActoAperturaTecnica')
+        disp = '—'
+        pasado = False
+        if raw:
+            try:
+                _d = _dt.fromisoformat(str(raw))
+                if _d.tzinfo is None:
+                    _d = _d.date()
+                else:
+                    _d = _d.date()
+                disp = _d.strftime('%d/%m/%Y')
+                pasado = _d <= _today
+            except (ValueError, TypeError):
+                disp = str(raw)[:10]
+        hitos.append({
+            'key': key, 'label': label, 'fecha': raw, 'fecha_str': disp,
+            'pasado': pasado,
+        })
+    completados = sum(1 for h in hitos if h['pasado'])
+    # Badge de urgencia sobre fecha_cierre
+    cierre_info = ''
+    try:
+        fc = licitacion.fecha_cierre
+        if fc:
+            from django.utils import timezone as _tz2
+            delta = (fc.date() - _tz2.now().date()).days
+            if licitacion.estado == 'publicada':
+                cierre_info = (
+                    f'Cierra en {delta} días' if delta > 0
+                    else ('Cierra hoy' if delta == 0
+                          else f'Cerró hace {-delta} días'))
+    except Exception:
+        pass
     return render(
-        request, 'licitaciones/detalle.html', {'licitacion': licitacion})
+        request, 'licitaciones/detalle.html',
+        {'licitacion': licitacion, 'hitos': hitos,
+         'hitos_completados': completados, 'hitos_total': len(hitos),
+         'cierre_info': cierre_info,
+         'diff_monto': (
+             licitacion.monto_estimado - licitacion.monto_adjudicado
+             if licitacion.monto_estimado is not None
+             and licitacion.monto_adjudicado is not None else None),
+         'diff_display': _fmt_diff(
+             licitacion.monto_estimado, licitacion.monto_adjudicado,
+             licitacion.moneda),
+         'pct_ahorro': (
+             round((licitacion.monto_estimado - licitacion.monto_adjudicado)
+                   * 100 / licitacion.monto_estimado, 1)
+             if licitacion.monto_estimado
+             and licitacion.monto_adjudicado is not None else None)})
 
 
 def api_stats(request):

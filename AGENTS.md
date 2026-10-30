@@ -389,6 +389,7 @@ ENV="prod"
 | `/admin/` | Django admin | - | Admin general |
 | `/recursos/mediciones/contador/` | `contador` | mediciones | Contador de tránsito (ONNX + YOLO26n) |
 | `/recursos/mediciones/contador/model/` | `contador_model` | mediciones | Modelo ONNX (320/640px según RAM) |
+| `/recursos/mediciones/contador-externo/` | `contador_externo` | mediciones | Contador fuente externa (tabs URL/archivo local, MP4/WEBM + HLS .m3u8 via hls.js + MJPEG, no acepta watch?v= YouTube directo: extraer .m3u8 con `yt-dlp -g`) |
 | `/api/trafico/` | `TrafficCountAPIView` | mediciones | API IoT (JWT auth) |
 | `/api/trafico/register/` | `DeviceRegisterView` | mediciones | Auto-registro de dispositivos (sin auth) |
 | `/api/trafico/device/` | `DeviceNameUpdateView` | mediciones | Renombrar dispositivo (JWT auth) |
@@ -512,6 +513,7 @@ docker-compose exec web bash -c "<comando>"  # Ejecutar bash en el contenedor
 | `recursos/mediciones/models.py` | Device, TrafficCount |
 | `recursos/mediciones/views.py` | API IoT TrafficCountAPIView, DeviceRegisterView, DeviceNameUpdateView |
 | `recursos/mediciones/templates/mediciones/contador.html` | Aplicación de detección YOLO26n + ONNX (fingerprint, reverse geocoding, sync) |
+| `apps/mediciones/templates/mediciones/contador_externo.html` | Contador externo: tabs URL/archivo local (archivo local via `URL.createObjectURL`, HLS `.m3u8` con hls.js CDN + fallback nativo Safari y `destroy()` en `stopCurrentSource()`, `<video crossorigin="anonymous">` + logs CORS, hint MP4/WEBM/HLS/MJPEG sin `watch?v=` — usar `yt-dlp -g`) |
 | `hugo_edit/models.py` | Activity, Noticia, Estudio (genera .md y trigger rebuild Hugo via Celery) |
 | `hugo_edit/tasks.py` | Tarea Celery `rebuild_hugo()` — ejecuta `hugo --minify` asincrónicamente |
 | `hugo_edit/templatetags/split_tags.py` | Filtro personalizado `{% split "," %}` para separar tags en badges |

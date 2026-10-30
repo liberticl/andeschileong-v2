@@ -4,6 +4,7 @@
     <title>konta2r - Fuente Externa</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/ort.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL@20..48,100..700,0..1" rel="stylesheet">
     <style>
@@ -551,7 +552,7 @@
                 <div class="source-field">
                     <label for="videoUrl">URL del video o camara</label>
                     <input type="url" id="videoUrl" placeholder="https://ejemplo.com/stream.mjpeg">
-                    <div class="source-hint">Funciona con: videos MP4/WEBM, streams MJPEG, URLs de camaras IP con CORS habilitado</div>
+                    <div class="source-hint">Funciona con: videos MP4/WEBM directos, streams HLS (.m3u8), MJPEG / camaras IP con CORS habilitado. No acepta watch?v= de YouTube directo: extrae el .m3u8 con yt-dlp -g "URL".</div>
                 </div>
             </div>
 
@@ -636,7 +637,7 @@
     </div>
 
     <div class="container" id="detectionContainer" style="display:none">
-        <video id="video" autoplay playsinline loop muted></video>
+        <video id="video" autoplay playsinline loop muted crossorigin="anonymous"></video>
         <img id="mjpegImg" alt="MJPEG stream">
         <canvas id="canvas"></canvas>
     </div>
@@ -829,6 +830,9 @@
         let isTerminalVisible = false;
         let sourceType = 'url';
         let isMjpeg = false;
+        let isHls = false;
+        let hlsInstance = null;
+        let localObjectUrl = null;
         let mjpegAnimFrame = null;
 
         let lineMode = false;
@@ -898,6 +902,17 @@
             return lower.endsWith('.mjpg') || lower.endsWith('.mjpeg') ||
                    lower.includes('mjpg') || lower.includes('mjpeg') ||
                    lower.includes('snapshot') || lower.includes('cgi-bin');
+        }
+
+        function detectHls(url) {
+            const lower = url.toLowerCase().split('?')[0];
+            return lower.endsWith('.m3u8') || url.toLowerCase().includes('.m3u8');
+        }
+
+        function logVideoError(prefix) {
+            const err = video.error;
+            const code = err ? ` (codigo ${err.code})` : '';
+            addLog(`${prefix}${code}. Posible CORS: la URL debe permitir Access-Control-Allow-Origin.`);
         }
 
         startBtn.addEventListener('click', async () => {
@@ -1261,8 +1276,23 @@
         }
 
         async function startVideo() {
-            const url = videoUrlInput.value.trim();
-            isMjpeg = detectMjpeg(url);
+            let url = videoUrlInput.value.trim();
+            let isLocalFile = false;
+
+            // Tab "Archivo local": usar object URL del archivo seleccionado
+            if (sourceType === 'file') {
+                if (!fileInput.files.length) {
+                    addLog('Error: no hay archivo seleccionado');
+                    return;
+                }
+                if (localObjectUrl) { try { URL.revokeObjectURL(localObjectUrl); } catch (e) {} localObjectUrl = null; }
+                localObjectUrl = URL.createObjectURL(fileInput.files[0]);
+                url = localObjectUrl;
+                isLocalFile = true;
+            }
+
+            isMjpeg = !isLocalFile && detectMjpeg(url);
+            isHls = !isLocalFile && !isMjpeg && detectHls(url);
             resetTrackState();
 
             if (isMjpeg) {
@@ -1273,17 +1303,64 @@
                 await new Promise((resolve) => {
                     if (mjpegImg.complete && mjpegImg.naturalWidth > 0) { resolve(); return; }
                     mjpegImg.onload = resolve;
-                    mjpegImg.onerror = () => { addLog('Error cargando MJPEG stream'); resolve(); };
+                    mjpegImg.onerror = () => { addLog('Error cargando MJPEG stream. Posible CORS: la URL debe permitir Access-Control-Allow-Origin.'); resolve(); };
                 });
                 resizeRenderSurfaces();
                 startPredictionLoop();
                 startMjpegLoop();
+            } else if (isHls) {
+                mjpegImg.style.display = 'none';
+                video.style.display = 'block';
+                if (hlsInstance) { try { hlsInstance.destroy(); } catch (e) {} hlsInstance = null; }
+                addLog(`Stream HLS: ${url}`);
+                if (window.Hls && Hls.isSupported()) {
+                    hlsInstance = new Hls();
+                    hlsInstance.on(Hls.Events.ERROR, (event, data) => {
+                        if (data && data.fatal) {
+                            addLog(`Error HLS fatal (${data.type}/${data.details}). Posible CORS o URL expirada (yt-dlp -g genera URLs temporales).`);
+                        } else if (data) {
+                            addLog(`Aviso HLS: ${data.details || data.type}`);
+                        }
+                    });
+                    hlsInstance.loadSource(url);
+                    hlsInstance.attachMedia(video);
+                    await new Promise((resolve) => {
+                        hlsInstance.on(Hls.Events.MANIFEST_PARSED, async () => {
+                            try { await video.play(); } catch (e) { addLog(`Error reproduciendo HLS: ${e.message}`); }
+                            resolve();
+                        });
+                        hlsInstance.on(Hls.Events.ERROR, (event, data) => {
+                            if (data && data.fatal) resolve();
+                        });
+                        video.addEventListener('error', () => { logVideoError('Error cargando video HLS'); resolve(); }, { once: true });
+                        setTimeout(resolve, 15000);
+                    });
+                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                    // Safari nativo
+                    video.src = url;
+                    video.load();
+                    addLog(`Fuente de video HLS nativa (Safari): ${url}`);
+                    await new Promise((resolve) => {
+                        const onReady = async () => {
+                            try { await video.play(); resolve(); }
+                            catch (e) { addLog(`Error reproduciendo: ${e.message}`); resolve(); }
+                        };
+                        if (video.readyState >= 2) { onReady(); return; }
+                        video.addEventListener('loadeddata', onReady, { once: true });
+                        video.addEventListener('error', () => { logVideoError('Error cargando video HLS nativo'); resolve(); }, { once: true });
+                    });
+                } else {
+                    addLog('Error: HLS no soportado en este navegador (hls.js no cargo)');
+                    return;
+                }
+                resizeRenderSurfaces();
+                startPredictionLoop();
             } else {
                 mjpegImg.style.display = 'none';
                 video.style.display = 'block';
                 video.src = url;
                 video.load();
-                addLog(`Fuente de video: ${url}`);
+                addLog(isLocalFile ? `Archivo local: ${fileInput.files[0].name}` : `Fuente de video: ${url}`);
                 await new Promise((resolve) => {
                     const onReady = async () => {
                         try { await video.play(); resolve(); }
@@ -1291,7 +1368,7 @@
                     };
                     if (video.readyState >= 2) { onReady(); return; }
                     video.addEventListener('loadeddata', onReady, { once: true });
-                    video.addEventListener('error', () => { addLog('Error cargando video'); resolve(); }, { once: true });
+                    video.addEventListener('error', () => { logVideoError(isLocalFile ? 'Error cargando archivo local' : 'Error cargando video'); resolve(); }, { once: true });
                 });
                 resizeRenderSurfaces();
                 startPredictionLoop();
@@ -1313,6 +1390,8 @@
         function stopCurrentSource() {
             stopPredictionLoop();
             stopMjpegLoop();
+            if (hlsInstance) { try { hlsInstance.destroy(); } catch (e) { console.error(e); } hlsInstance = null; isHls = false; }
+            if (localObjectUrl) { try { URL.revokeObjectURL(localObjectUrl); } catch (e) {} localObjectUrl = null; }
             if (video.src) { video.removeAttribute('src'); video.load(); }
             if (mjpegImg.src) { mjpegImg.src = ''; }
         }

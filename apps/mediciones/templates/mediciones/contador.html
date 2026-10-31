@@ -1000,7 +1000,8 @@
 
         function getLineNormPayload() {
             if (lineStartNorm && lineEndNorm) {
-                return { x1: lineStartNorm.x, y1: lineStartNorm.y, x2: lineEndNorm.x, y2: lineEndNorm.y };
+                const line = { x1: lineStartNorm.x, y1: lineStartNorm.y, x2: lineEndNorm.x, y2: lineEndNorm.y };
+                if (Object.values(line).every((v) => Number.isFinite(v) && v >= 0 && v <= 1)) return line;
             }
             return null;
         }
@@ -2035,7 +2036,25 @@
                     dirToSend[direction][k] = (dirToSend[direction][k] || 0) + countsDir[direction][k];
                 });
             }
-            const directionPayload = lineNorm ? buildDirectionPayload(dirToSend) : null;
+            // El servidor exige total == A->B + B->A por categoría: solo se envía
+            // el desglose de categorías consistentes. Si el total incluye eventos
+            // ajenos a la línea actual (línea redibujada o pendientes de una
+            // versión anterior sin dirección), el desglose se omite y se envían
+            // los totales para no provocar un 400 en bucle.
+            let droppedDir = false;
+            const dirConsistent = { a_to_b: {}, b_to_a: {} };
+            Object.keys(counts).forEach(k => {
+                const d = (dirToSend.a_to_b[k] || 0) + (dirToSend.b_to_a[k] || 0);
+                const t = toSend[k] || 0;
+                if (d > 0 && d === t) {
+                    dirConsistent.a_to_b[k] = dirToSend.a_to_b[k] || 0;
+                    dirConsistent.b_to_a[k] = dirToSend.b_to_a[k] || 0;
+                } else if (d > 0) {
+                    droppedDir = true;
+                }
+            });
+            if (droppedDir) addLog('Desglose direccional parcial omitido (línea redibujada o pendientes previos): se envían totales.');
+            const directionPayload = lineNorm ? buildDirectionPayload(dirConsistent) : null;
 
             const total = Object.values(toSend).reduce((a, b) => a + b, 0);
             if (total === 0) { isSyncing = false; return; }
@@ -2077,12 +2096,14 @@
                     await registerDevice();
                 } else {
                     savePendingCounts(toSend);
-                    savePendingDir({ ...dirToSend, line: lineNorm });
-                    addLog(`Sync error (${response.status}): datos pendientes guardados`);
+                    savePendingDir({ ...dirConsistent, line: lineNorm });
+                    let detail = '';
+                    try { detail = await response.text(); } catch (e) {}
+                    addLog(`Sync error (${response.status}): ${detail || 'datos pendientes guardados'}`);
                 }
             } catch (error) {
                 savePendingCounts(toSend);
-                savePendingDir({ ...dirToSend, line: lineNorm });
+                savePendingDir({ ...dirConsistent, line: lineNorm });
                 addLog(`Sync fallo: ${error.message}. Datos pendientes.`);
             }
 

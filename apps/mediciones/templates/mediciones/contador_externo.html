@@ -824,7 +824,8 @@
 
         function getLineNormPayload() {
             if (lineStartNorm && lineEndNorm) {
-                return { x1:lineStartNorm.x, y1:lineStartNorm.y, x2:lineEndNorm.x, y2:lineEndNorm.y };
+                const line = { x1:lineStartNorm.x, y1:lineStartNorm.y, x2:lineEndNorm.x, y2:lineEndNorm.y };
+                if (Object.values(line).every((v) => Number.isFinite(v) && v >= 0 && v <= 1)) return line;
             }
             return null;
         }
@@ -1711,7 +1712,19 @@
             for (const direction of ['a_to_b','b_to_a']) {
                 Object.keys(countsDir[direction]).forEach(k => { dirToSend[direction][k]=(dirToSend[direction][k]||0)+countsDir[direction][k]; });
             }
-            const directionPayload = lineNorm ? buildDirectionPayload(dirToSend) : null;
+            // El servidor exige total == A->B + B->A por categoría: solo se envía
+            // el desglose de categorías consistentes (línea redibujada o pendientes
+            // previos sin dirección => se omiten y van solo totales, sin 400 en bucle).
+            let droppedDir = false;
+            const dirConsistent = { a_to_b:{}, b_to_a:{} };
+            Object.keys(counts).forEach(k => {
+                const d = (dirToSend.a_to_b[k]||0)+(dirToSend.b_to_a[k]||0);
+                const t = toSend[k]||0;
+                if (d > 0 && d === t) { dirConsistent.a_to_b[k] = dirToSend.a_to_b[k]||0; dirConsistent.b_to_a[k] = dirToSend.b_to_a[k]||0; }
+                else if (d > 0) { droppedDir = true; }
+            });
+            if (droppedDir) addLog('Desglose parcial omitido (línea redibujada o pendientes previos): van totales.');
+            const directionPayload = lineNorm ? buildDirectionPayload(dirConsistent) : null;
             const total = Object.values(toSend).reduce((a,b)=>a+b,0);
             if (total===0) { isSyncing=false; return; }
             try {
@@ -1732,8 +1745,8 @@
                 } else if (r.status===401||r.status===403) {
                     addLog(`Token invalido, re-registrando...`); localStorage.removeItem(DEVICE_STORAGE_KEY);
                     deviceConfig=null; await registerDevice();
-                } else { savePendingCounts(toSend); savePendingDir({...dirToSend, line:lineNorm}); addLog(`Sync error (${r.status})`); }
-            } catch (error) { savePendingCounts(toSend); savePendingDir({...dirToSend, line:lineNorm}); addLog(`Sync fallo: ${error.message}`); }
+                } else { savePendingCounts(toSend); savePendingDir({...dirConsistent, line:lineNorm}); let detail=''; try { detail = await r.text(); } catch(e) {} addLog(`Sync error (${r.status}): ${detail||'pendientes guardados'}`); }
+            } catch (error) { savePendingCounts(toSend); savePendingDir({...dirConsistent, line:lineNorm}); addLog(`Sync fallo: ${error.message}`); }
             isSyncing = false; updateSyncBadge();
         }
 

@@ -213,7 +213,7 @@ La línea tiene dos extremos normalizados **0-1** que se persisten con cada env�
 - **A = start** = primer clic (`{x1, y1}`)
 - **B = end** = segundo clic (`{x2, y2}`)
 
-En el overlay se dibuja una etiqueta **`A`** sobre el start y **`B`** sobre el end (círculo negro con letra blanca), visible tanto en el video en vivo como en la grabación compuesta. La misma convención la usa el futuro cliente desktop Python (cámara local).
+En el overlay se dibujan dos etiquetas de **lado** (círculo negro con letra blanca): **`A`** en la mitad del lado −1 y **`B`** en la mitad del lado +1, a ~46 px del punto medio de la línea. Indican los lados, no los vértices (los extremos start/end solo llevan puntos rojos). Así se ve directamente qué significa cruzar `A→B` o `B→A`. Visible tanto en el video en vivo como en la grabación compuesta. La misma convención la usa el futuro cliente desktop Python (cámara local).
 
 El lado de cada objeto se calcula con el **footPoint** (centro-inferior del bbox) y el producto cruzado 2D:
 

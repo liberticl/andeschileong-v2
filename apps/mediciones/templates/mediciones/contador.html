@@ -1354,18 +1354,35 @@
                 targetContext.lineTo(activeLine.end.x, activeLine.end.y);
                 targetContext.stroke();
                 targetContext.setLineDash([]);
-                // Etiquetas A (start) y B (end): convención A->B / B->A.
-                targetContext.font = 'bold 20px Arial';
-                targetContext.textAlign = 'center';
-                for (const [pt, label] of [[activeLine.start, 'A'], [activeLine.end, 'B']]) {
-                    targetContext.fillStyle = 'rgba(0, 0, 0, 0.65)';
+                // Etiquetas de LADO (no de vértices): indican qué mitad es A (-1) y cuál B (+1).
+                // A->B = cruzar desde el lado A hacia el lado B. Vértices = puntos rojos.
+                for (const pt of [activeLine.start, activeLine.end]) {
+                    targetContext.fillStyle = '#ff0000';
                     targetContext.beginPath();
-                    targetContext.arc(pt.x, pt.y, 15, 0, Math.PI * 2);
+                    targetContext.arc(pt.x, pt.y, 5, 0, Math.PI * 2);
                     targetContext.fill();
-                    targetContext.fillStyle = '#ffffff';
-                    targetContext.fillText(label, pt.x, pt.y + 7);
                 }
-                targetContext.textAlign = 'left';
+                const lineLen = Math.hypot(activeLine.end.x - activeLine.start.x, activeLine.end.y - activeLine.start.y);
+                if (lineLen >= 1) {
+                    const mx = (activeLine.start.x + activeLine.end.x) / 2;
+                    const my = (activeLine.start.y + activeLine.end.y) / 2;
+                    // Normal hacia el lado B (+1): gradiente de signedDistance = (-dy, dx).
+                    const nx = -(activeLine.end.y - activeLine.start.y) / lineLen;
+                    const ny = (activeLine.end.x - activeLine.start.x) / lineLen;
+                    const OFF = 46;
+                    targetContext.font = 'bold 22px Arial';
+                    targetContext.textAlign = 'center';
+                    for (const [s, label] of [[-1, 'A'], [1, 'B']]) {
+                        const px = mx + nx * OFF * s, py = my + ny * OFF * s;
+                        targetContext.fillStyle = 'rgba(0, 0, 0, 0.65)';
+                        targetContext.beginPath();
+                        targetContext.arc(px, py, 16, 0, Math.PI * 2);
+                        targetContext.fill();
+                        targetContext.fillStyle = '#ffffff';
+                        targetContext.fillText(label, px, py + 8);
+                    }
+                    targetContext.textAlign = 'left';
+                }
             }
 
             if (lineMode) {

@@ -183,7 +183,7 @@ POST /api/trafico/
 - Si se envía `direction_counts` con datos, `line` es obligatoria (los cruces solo son interpretables contra su línea).
 - `line: null` (o ausente) = conteo por aparición: cuenta objetos nuevos sin distinguir dirección (requiere 3 cuadros estables, sin línea dibujada).
 
-**Convención A/B:** ver `docs/guia-dispositivos.md` §7. Resumen: `signedDistance = (end−start) × (point−start)` sobre el footPoint; `< −12px` = lado A (−1), `> +12px` = lado B (+1). `A→B` = cruce −1 → +1, `B→A` = +1 → −1. En el overlay se dibuja `A` en start y `B` en end.
+**Convención A/B:** ver `docs/guia-dispositivos.md` §7. Resumen: `signedDistance = (end−start) × (point−start)` sobre el footPoint; `< −12px` = lado A (−1), `> +12px` = lado B (+1). `A→B` = cruce −1 → +1, `B→A` = +1 → −1. En el overlay se etiquetan los **lados** (`A` en la mitad del lado −1, `B` en la del lado +1); los vértices start/end solo llevan puntos rojos.
 
 ### Respuesta 201 Created
 

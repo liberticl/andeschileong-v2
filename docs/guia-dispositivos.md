@@ -238,6 +238,14 @@ B → A: lado +1 → lado −1  (etiqueta "B->A")
 
 El desglose se envía como `direction_counts: {a_to_b: {...}, b_to_a: {...}}` y el servidor valida que `total == a_to_b + b_to_a` por categoría (o deriva el total si se omite). Ver `docs/api.md` §3.
 
+### Nombres de referencia de cada lado
+
+En ⚙️ (configuración) hay dos campos: **Nombre lado A** y **Nombre lado B** (máx 100 caracteres, ej: `Norte`/`Sur` o `Entrada`/`Salida`). Se guardan en el navegador y rigen para cada captura:
+
+- El overlay muestra el nombre bajo su insignia (`A·Norte`, `B·Sur`).
+- Quedan registrados por evento (columnas `lado_a`/`lado_b` del CSV), por sesión de captura y en cada `POST /api/trafico/` como `side_names: {a, b}` (o planos `side_a_name`/`side_b_name`).
+- Cambiar los nombres no altera los conteos; solo etiqueta los lados para interpretar los datos después.
+
 ### Deadzone (zona muerta)
 
 La línea tiene una zona de 12 píxeles de tolerancia. Si un objeto está dentro de esa zona, se considera "sobre la línea" y no se cuenta como cruce hasta que salga completamente de ella.

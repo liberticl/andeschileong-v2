@@ -104,6 +104,14 @@ class TrafficCount(models.Model):
         "Línea B.y (0-1)", null=True, blank=True,
         help_text="Extremo B (end) de la línea, coordenada y normalizada 0-1.")
 
+    # Nombres de referencia de cada lado (editables en el front, por captura).
+    side_a_name = models.CharField(
+        "Nombre lado A", max_length=100, blank=True, default='',
+        help_text="Referencia del lado A (-1), ej: 'Norte'.")
+    side_b_name = models.CharField(
+        "Nombre lado B", max_length=100, blank=True, default='',
+        help_text="Referencia del lado B (+1), ej: 'Sur'.")
+
     # Desglose direccional opcional (0 = sin dato). total == a_to_b + b_to_a.
     car_a_to_b = models.PositiveIntegerField("Autos A→B", default=0)
     car_b_to_a = models.PositiveIntegerField("Autos B→A", default=0)

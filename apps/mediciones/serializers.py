@@ -28,14 +28,17 @@ class TrafficCountSerializer(serializers.ModelSerializer):
     - totales planos: ``car_count`` ... ``pet_count`` (backward-compatible),
     - línea anidada: ``line: {x1,y1,x2,y2} | null`` o plana
       ``line_x1..line_y2`` (coords normalizadas 0-1, A=start, B=end),
+    - nombres de referencia: ``side_names: {a, b}`` o planos
+      ``side_a_name`` / ``side_b_name`` (máx 100, opcionales),
     - direccionales anidados: ``direction_counts: {a_to_b: {...}, b_to_a: {...}}``
       (claves ``*_count`` o cortas ``car/bicycle/...``) o planos
       ``car_a_to_b`` ... ``pet_b_to_a``.
-    Responde siempre con totales + ``line`` + ``direction_counts`` anidados.
+    Responde siempre con totales + ``line`` + ``direction_counts`` + ``side_names``.
     """
     line = serializers.DictField(
         child=serializers.FloatField(), required=False, allow_null=True)
     direction_counts = serializers.DictField(required=False)
+    side_names = serializers.DictField(required=False)
 
     class Meta:
         model = TrafficCount
@@ -45,6 +48,7 @@ class TrafficCountSerializer(serializers.ModelSerializer):
             'motorcycle_count', 'truck_count', 'bus_count',
             'skater_count', 'pet_count',
             'line_x1', 'line_y1', 'line_x2', 'line_y2',
+            'side_a_name', 'side_b_name',
             'car_a_to_b', 'car_b_to_a',
             'person_a_to_b', 'person_b_to_a',
             'bicycle_a_to_b', 'bicycle_b_to_a',
@@ -53,7 +57,7 @@ class TrafficCountSerializer(serializers.ModelSerializer):
             'bus_a_to_b', 'bus_b_to_a',
             'skater_a_to_b', 'skater_b_to_a',
             'pet_a_to_b', 'pet_b_to_a',
-            'line', 'direction_counts',
+            'line', 'direction_counts', 'side_names',
         )
         extra_kwargs = {
             'line_x1': {'required': False, 'allow_null': True},
@@ -64,9 +68,10 @@ class TrafficCountSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        # Contrato anidado: totales + line + direction_counts.
+        # Contrato anidado: totales + line + direction_counts + side_names.
         data['line'] = instance.get_line_dict()
         data['direction_counts'] = instance.get_direction_counts_dict()
+        data['side_names'] = {'a': instance.side_a_name or '', 'b': instance.side_b_name or ''}
         return data
 
     def validate(self, data):
@@ -112,6 +117,26 @@ class TrafficCountSerializer(serializers.ModelSerializer):
         if any(v is not None for v in line_vals) and not all(v is not None for v in line_vals):
             raise serializers.ValidationError(
                 {"line": "Línea incompleta: se requieren x1,y1,x2,y2 o null."})
+
+        # --- Nombres de lados: forma anidada -> campos planos ---
+        side_names = data.pop('side_names', serializers.empty)
+        if side_names is not serializers.empty:
+            if side_names is None:
+                side_names = {}
+            if not isinstance(side_names, dict):
+                raise serializers.ValidationError(
+                    {"side_names": "Debe ser {a, b} con textos de máx 100."})
+            for key, field in (('a', 'side_a_name'), ('b', 'side_b_name')):
+                if key in side_names and side_names[key] is not None:
+                    data[field] = side_names[key]
+        for field in ('side_a_name', 'side_b_name'):
+            if field not in data or data[field] is None:
+                data[field] = ''
+            else:
+                data[field] = str(data[field]).strip()
+                if len(data[field]) > 100:
+                    raise serializers.ValidationError(
+                        {field: "Máximo 100 caracteres."})
 
         # --- Direccionales: forma anidada -> campos planos ---
         nested = data.pop('direction_counts', serializers.empty)
@@ -197,6 +222,7 @@ class TrafficCountSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop('line', None)
         validated_data.pop('direction_counts', None)
+        validated_data.pop('side_names', None)
         device = self.context['request'].user
         return TrafficCount.objects.create(
             device=device,

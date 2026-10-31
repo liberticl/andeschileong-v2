@@ -175,6 +175,9 @@ POST /api/trafico/
 | `pet_count` | int | No | Cantidad de mascotas (default: 0) |
 | `line` | object \| null | No | Línea de conteo normalizada 0-1: `{x1,y1,x2,y2}`. `A` = start `(x1,y1)`, `B` = end `(x2,y2)`. `null`/ausente = conteo por aparición (sin dirección) |
 | `direction_counts` | object | No | Desglose direccional: `{a_to_b: {...}, b_to_a: {...}}` con claves `*_count` (o cortas `car/person/bicycle/...`) |
+| `side_a_name` | string | No | Nombre de referencia del lado A, máx 100 (ej: `"Norte"`). Se edita en ⚙️ del contador, sale en overlay/CSV |
+| `side_b_name` | string | No | Nombre de referencia del lado B, máx 100 (ej: `"Sur"`) |
+| `side_names` | object | No | Alternativa anidada: `{a, b}` (equivale a `side_a_name`/`side_b_name`) |
 
 **Validación:**
 - Al menos un campo de conteo debe ser mayor a 0 (entre totales y direccionales).
@@ -289,6 +292,7 @@ curl -X POST https://andeschileong.cl/api/trafico/ \
     "datetime": "2026-10-31T12:00:00-04:00",
     "bicycle_count": 4,
     "line": {"x1": 0.2, "y1": 0.6, "x2": 0.8, "y2": 0.6},
+    "side_names": {"a": "Norte", "b": "Sur"},
     "direction_counts": {
       "a_to_b": {"bicycle_count": 3},
       "b_to_a": {"bicycle_count": 1}
@@ -305,6 +309,7 @@ Respuesta 201 (extracto):
         "datetime": "2026-10-31T12:00:00-04:00",
         "bicycle_count": 4,
         "line": {"x1": 0.2, "y1": 0.6, "x2": 0.8, "y2": 0.6},
+        "side_names": {"a": "Norte", "b": "Sur"},
         "direction_counts": {
             "a_to_b": {"bicycle_count": 3, "car_count": 0, "...": 0},
             "b_to_a": {"bicycle_count": 1, "car_count": 0, "...": 0}

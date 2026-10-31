@@ -238,7 +238,7 @@ Los listados incluyen:
 | `RegistrationRequest` | accounts | Solicitudes de registro (status, sección, org, zona, revisión) |
 | `AccountActivationToken` | accounts | Tokens UUID para activar cuenta (24h, uso único) |
 | `Device` | mediciones | Dispositivos IoT: fingerprint (SHA-256), nombre legible, token JWT, coordenadas (5 dec), user_agent, last_seen |
-| `TrafficCount` | mediciones | Registros de conteo vehicular: car, person, bicycle, motorcycle, truck, bus, skater, pet_count (totales) + línea A/B normalizada 0-1 (`line_x1..line_y2`, null = sin línea) + desglose direccional `*_a_to_b` / `*_b_to_a` (total == A→B + B→A; convención A/B en `docs/api.md` §3 y `docs/guia-dispositivos.md` §7) |
+| `TrafficCount` | mediciones | Registros de conteo vehicular: car, person, bicycle, motorcycle, truck, bus, skater, pet_count (totales) + línea A/B normalizada 0-1 (`line_x1..line_y2`, null = sin línea) + nombres de referencia (`side_a_name`/`side_b_name`) + desglose direccional `*_a_to_b` / `*_b_to_a` (total == A→B + B→A; convención A/B en `docs/api.md` §3 y `docs/guia-dispositivos.md` §7) |
 | `Activity` | hugo_edit | Actividades del sitio Hugo (is_published, is_deleted) |
 | `Noticia` | hugo_edit | Noticias del sitio Hugo (is_published, is_deleted) |
 | `Estudio` | hugo_edit | Estudios del sitio Hugo (is_published, is_deleted) |
@@ -513,10 +513,11 @@ docker-compose exec web bash -c "<comando>"  # Ejecutar bash en el contenedor
 | `recursos/mediciones/models.py` | Device, TrafficCount |
 | `recursos/mediciones/views.py` | API IoT TrafficCountAPIView, DeviceRegisterView, DeviceNameUpdateView |
 | `apps/mediciones/models.py` | Device, TrafficCount (totales + `line_x1..line_y2` nullables 0-1 + `*_a_to_b`/`*_b_to_a`; `has_line`, `has_direction_data`, `get_line_dict()`, `get_direction_counts_dict()`) |
-| `apps/mediciones/serializers.py` | TrafficCountSerializer (acepta totales planos + `line`/`direction_counts` anidados o planos; valida total == A→B+B→A o deriva; responde totales + `line` + `direction_counts`) |
+| `apps/mediciones/serializers.py` | TrafficCountSerializer (acepta totales planos + `line`/`direction_counts`/`side_names` anidados o planos; valida total == A→B+B→A o deriva; responde totales + `line` + `direction_counts` + `side_names`) |
 | `apps/mediciones/admin.py` | Admin Device + TrafficCount (listado con `direction_summary`/`line_summary`, fieldsets Totales/Línea A→B/Dirección A→B/B→A) |
 | `apps/mediciones/migrations/0007_trafficcount_bicycle_a_to_b_and_more.py` | Línea + 16 campos direccionales |
-| `recursos/mediciones/templates/mediciones/contador.html` | Aplicación de detección YOLO26n + ONNX (fingerprint, reverse geocoding, sync). Línea A/B: `signedDistance` footPoint ±12px, `A->B` −1→+1; overlay con etiquetas de lado A/B (`A` = lado −1, `B` = lado +1; vértices con puntos rojos); sync envía `line` + `direction_counts` (pending dir en `traffic_pending_dir`, se descarta si la línea cambió) |
+| `apps/mediciones/migrations/0008_trafficcount_side_a_name_trafficcount_side_b_name.py` | Nombres de referencia `side_a_name`/`side_b_name` |
+| `recursos/mediciones/templates/mediciones/contador.html` | Aplicación de detección YOLO26n + ONNX (fingerprint, reverse geocoding, sync). Línea A/B: `signedDistance` footPoint ±12px, `A->B` −1→+1; overlay con etiquetas de lado A/B + nombres de referencia configurables (⚙️, van en eventos/CSV/`side_names`); sync envía `line` + `direction_counts` + `side_names` (pending dir en `traffic_pending_dir`, se descarta si la línea cambió) |
 | `apps/mediciones/templates/mediciones/contador_externo.html` | Contador externo: tabs URL/archivo local (archivo local via `URL.createObjectURL`, HLS `.m3u8` con hls.js CDN + fallback nativo Safari y `destroy()` en `stopCurrentSource()`, `<video crossorigin="anonymous">` + logs CORS, hint MP4/WEBM/HLS/MJPEG sin `watch?v=` — usar `yt-dlp -g`). Misma lógica A/B + etiquetas de lado + sync direccional que `contador.html` |
 | `hugo_edit/models.py` | Activity, Noticia, Estudio (genera .md y trigger rebuild Hugo via Celery) |
 | `hugo_edit/tasks.py` | Tarea Celery `rebuild_hugo()` — ejecuta `hugo --minify` asincrónicamente |

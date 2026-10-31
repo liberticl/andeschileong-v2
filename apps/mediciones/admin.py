@@ -41,9 +41,10 @@ class TrafficCountAdmin(admin.ModelAdmin):
                 'car_count', 'person_count', 'bicycle_count',
                 'motorcycle_count', 'truck_count', 'bus_count',
                 'skater_count', 'pet_count',)}),
-        ('Línea A→B (normalizada 0-1; null = sin línea)', {
+        ('Línea y lados (referencia: A=start, B=end)', {
             'fields': (
-                'line_x1', 'line_y1', 'line_x2', 'line_y2',)}),
+                'line_x1', 'line_y1', 'line_x2', 'line_y2',
+                'side_a_name', 'side_b_name',)}),
         ('Dirección A→B', {
             'fields': (
                 'car_a_to_b', 'person_a_to_b', 'bicycle_a_to_b',
@@ -71,7 +72,10 @@ class TrafficCountAdmin(admin.ModelAdmin):
 
     def line_summary(self, obj):
         line = obj.get_line_dict()
+        a = (obj.side_a_name or '').strip()
+        b = (obj.side_b_name or '').strip()
+        tag = f'A({a})→B({b})' if (a or b) else 'A→B'
         if not line:
-            return 'sin línea'
-        return f"A({line['x1']:.2f},{line['y1']:.2f})→B({line['x2']:.2f},{line['y2']:.2f})"
+            return f'{tag} sin línea'
+        return f"{tag} ({line['x1']:.2f},{line['y1']:.2f})→({line['x2']:.2f},{line['y2']:.2f})"
     line_summary.short_description = 'Línea'

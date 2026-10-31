@@ -809,6 +809,14 @@
             <input type="number" id="configInterval" min="1" max="1440" value="5">
         </div>
         <div class="config-field">
+            <label for="configSideA">Nombre lado A (referencia)</label>
+            <input type="text" id="configSideA" placeholder="Ej: Norte / Entrada" maxlength="100">
+        </div>
+        <div class="config-field">
+            <label for="configSideB">Nombre lado B (referencia)</label>
+            <input type="text" id="configSideB" placeholder="Ej: Sur / Salida" maxlength="100">
+        </div>
+        <div class="config-field">
             <label>ID del dispositivo (fingerprint)</label>
             <div class="config-fingerprint" id="configFingerprint">Generando...</div>
         </div>
@@ -1063,7 +1071,9 @@
             longitude: '',
             accuracy: '',
             capturedAt: '',
-            locationStatus: 'pendiente'
+            locationStatus: 'pendiente',
+            sideA: '',
+            sideB: ''
         };
 
         function addLog(message) {
@@ -1238,6 +1248,7 @@
             updateSyncBadge();
 
             const timestamp = new Date();
+            const eventSides = getSideNames();
             const eventRecord = {
                 sessionId: sessionContext.id || '',
                 timestampIso: timestamp.toISOString(),
@@ -1247,6 +1258,8 @@
                 detectedKey: track.counterKey,
                 modelClass: track.modelClass,
                 direction: direction || '',
+                sideA: eventSides.a,
+                sideB: eventSides.b,
                 latitude: sessionContext.latitude,
                 longitude: sessionContext.longitude,
                 accuracy: sessionContext.accuracy,
@@ -1373,6 +1386,7 @@
                     const OFF = 46;
                     targetContext.font = 'bold 22px Arial';
                     targetContext.textAlign = 'center';
+                    const sideNames = getSideNames();
                     for (const [s, label] of [[-1, 'A'], [1, 'B']]) {
                         const px = mx + nx * OFF * s, py = my + ny * OFF * s;
                         targetContext.fillStyle = 'rgba(0, 0, 0, 0.65)';
@@ -1381,6 +1395,16 @@
                         targetContext.fill();
                         targetContext.fillStyle = '#ffffff';
                         targetContext.fillText(label, px, py + 8);
+                        const sideName = ((s < 0 ? sideNames.a : sideNames.b) || '').slice(0, 20);
+                        if (sideName) {
+                            targetContext.font = '15px Arial';
+                            targetContext.lineWidth = 3;
+                            targetContext.strokeStyle = 'rgba(0, 0, 0, 0.8)';
+                            targetContext.strokeText(sideName, px, py + 38);
+                            targetContext.fillStyle = '#ffffff';
+                            targetContext.fillText(sideName, px, py + 38);
+                            targetContext.font = 'bold 22px Arial';
+                        }
                     }
                     targetContext.textAlign = 'left';
                 }
@@ -1613,7 +1637,8 @@
             sessionContext.id = `sesion_${new Date().toISOString().replace(/[:.]/g, '-')}_${Math.random().toString(36).slice(2, 8)}`;
             sessionContext.startedAt = new Date().toISOString();
             const location = await getCurrentPosition();
-            sessionContext = { ...sessionContext, ...location };
+            const captureSides = getSideNames();
+            sessionContext = { ...sessionContext, ...location, sideA: captureSides.a, sideB: captureSides.b };
             if (sessionContext.latitude !== '') {
                 addLog(`Sesion iniciada con coordenadas ${sessionContext.latitude}, ${sessionContext.longitude}`);
             } else {
@@ -1704,8 +1729,8 @@
             try {
                 const data = await readAllDetections();
                 const rows = [
-                    ['ID sesion', 'fecha', 'hora', 'deteccion', 'clase modelo', 'direccion', 'latitud', 'longitud', 'precision_m', 'timestamp_iso'],
-                    ...data.map((d) => [d.sessionId, d.date, d.time, d.detected, d.modelClass, d.direction, d.latitude, d.longitude, d.accuracy, d.timestampIso])
+                    ['ID sesion', 'fecha', 'hora', 'deteccion', 'clase modelo', 'direccion', 'lado_a', 'lado_b', 'latitud', 'longitud', 'precision_m', 'timestamp_iso'],
+                    ...data.map((d) => [d.sessionId, d.date, d.time, d.detected, d.modelClass, d.direction, d.sideA || '', d.sideB || '', d.latitude, d.longitude, d.accuracy, d.timestampIso])
                 ];
                 const csvContent = rows.map((row) => row.map(csvEscape).join(',')).join('\n');
                 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -1952,6 +1977,19 @@
             localStorage.removeItem(PENDING_DIR_KEY);
         }
 
+        const SIDES_STORAGE_KEY = 'traffic_side_names';
+
+        function getSideNames() {
+            try {
+                const s = JSON.parse(localStorage.getItem(SIDES_STORAGE_KEY)) || {};
+                return { a: s.a || '', b: s.b || '' };
+            } catch (e) { return { a: '', b: '' }; }
+        }
+
+        function saveSideNames(a, b) {
+            localStorage.setItem(SIDES_STORAGE_KEY, JSON.stringify({ a: a || '', b: b || '' }));
+        }
+
         async function registerDevice() {
             deviceConfig = getDeviceConfig();
             if (deviceConfig && deviceConfig.token) {
@@ -2073,6 +2111,8 @@
                     line: lineNorm
                 };
                 if (directionPayload) payload.direction_counts = directionPayload;
+                const syncSides = getSideNames();
+                if (syncSides.a || syncSides.b) payload.side_names = { a: syncSides.a, b: syncSides.b };
                 const response = await fetch('/api/trafico/', {
                     method: 'POST',
                     headers: {
@@ -2144,6 +2184,9 @@
             const cfg = getSyncConfig();
             document.getElementById('configInterval').value = cfg;
             document.getElementById('configDeviceName').value = getDeviceName();
+            const sideNamesCfg = getSideNames();
+            document.getElementById('configSideA').value = sideNamesCfg.a;
+            document.getElementById('configSideB').value = sideNamesCfg.b;
             if (deviceConfig && deviceConfig.fingerprint) {
                 document.getElementById('configFingerprint').textContent = deviceConfig.fingerprint;
             } else if (deviceConfig && deviceConfig.deviceName) {
@@ -2228,6 +2271,10 @@
             saveSyncConfig(interval);
             startSyncTimer();
             addLog(`Intervalo de sync actualizado: ${interval} min`);
+            saveSideNames(
+                document.getElementById('configSideA').value.trim().slice(0, 100),
+                document.getElementById('configSideB').value.trim().slice(0, 100)
+            );
 
             const newName = document.getElementById('configDeviceName').value.trim();
             if (newName && deviceConfig && deviceConfig.token) {

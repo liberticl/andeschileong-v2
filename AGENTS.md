@@ -238,7 +238,7 @@ Los listados incluyen:
 | `RegistrationRequest` | accounts | Solicitudes de registro (status, sección, org, zona, revisión) |
 | `AccountActivationToken` | accounts | Tokens UUID para activar cuenta (24h, uso único) |
 | `Device` | mediciones | Dispositivos IoT: fingerprint (SHA-256), nombre legible, token JWT, coordenadas (5 dec), user_agent, last_seen |
-| `TrafficCount` | mediciones | Registros de conteo vehicular: car, person, bicycle, motorcycle, truck, bus, skater, pet_count |
+| `TrafficCount` | mediciones | Registros de conteo vehicular: car, person, bicycle, motorcycle, truck, bus, skater, pet_count (totales) + línea A/B normalizada 0-1 (`line_x1..line_y2`, null = sin línea) + desglose direccional `*_a_to_b` / `*_b_to_a` (total == A→B + B→A; convención A/B en `docs/api.md` §3 y `docs/guia-dispositivos.md` §7) |
 | `Activity` | hugo_edit | Actividades del sitio Hugo (is_published, is_deleted) |
 | `Noticia` | hugo_edit | Noticias del sitio Hugo (is_published, is_deleted) |
 | `Estudio` | hugo_edit | Estudios del sitio Hugo (is_published, is_deleted) |
@@ -390,7 +390,7 @@ ENV="prod"
 | `/recursos/mediciones/contador/` | `contador` | mediciones | Contador de tránsito (ONNX + YOLO26n) |
 | `/recursos/mediciones/contador/model/` | `contador_model` | mediciones | Modelo ONNX (320/640px según RAM) |
 | `/recursos/mediciones/contador-externo/` | `contador_externo` | mediciones | Contador fuente externa (tabs URL/archivo local, MP4/WEBM + HLS .m3u8 via hls.js + MJPEG, no acepta watch?v= YouTube directo: extraer .m3u8 con `yt-dlp -g`) |
-| `/api/trafico/` | `TrafficCountAPIView` | mediciones | API IoT (JWT auth) |
+| `/api/trafico/` | `TrafficCountAPIView` | mediciones | API IoT (JWT auth). POST totales (backward-compatible) + opcional `line: {x1,y1,x2,y2} \| null` y `direction_counts: {a_to_b, b_to_a}` (valida total == A→B + B→A o lo deriva; `line` requerida con dirección; `line: null` = aparición). Ver `docs/api.md` §3 |
 | `/api/trafico/register/` | `DeviceRegisterView` | mediciones | Auto-registro de dispositivos (sin auth) |
 | `/api/trafico/device/` | `DeviceNameUpdateView` | mediciones | Renombrar dispositivo (JWT auth) |
 | `/recursos/licitaciones/` | `dashboard` | licitaciones | Dashboard licitaciones ciclistas |
@@ -512,8 +512,12 @@ docker-compose exec web bash -c "<comando>"  # Ejecutar bash en el contenedor
 | `templates/accounts/password_reset_complete.html` | Confirmación de reset completado |
 | `recursos/mediciones/models.py` | Device, TrafficCount |
 | `recursos/mediciones/views.py` | API IoT TrafficCountAPIView, DeviceRegisterView, DeviceNameUpdateView |
-| `recursos/mediciones/templates/mediciones/contador.html` | Aplicación de detección YOLO26n + ONNX (fingerprint, reverse geocoding, sync) |
-| `apps/mediciones/templates/mediciones/contador_externo.html` | Contador externo: tabs URL/archivo local (archivo local via `URL.createObjectURL`, HLS `.m3u8` con hls.js CDN + fallback nativo Safari y `destroy()` en `stopCurrentSource()`, `<video crossorigin="anonymous">` + logs CORS, hint MP4/WEBM/HLS/MJPEG sin `watch?v=` — usar `yt-dlp -g`) |
+| `apps/mediciones/models.py` | Device, TrafficCount (totales + `line_x1..line_y2` nullables 0-1 + `*_a_to_b`/`*_b_to_a`; `has_line`, `has_direction_data`, `get_line_dict()`, `get_direction_counts_dict()`) |
+| `apps/mediciones/serializers.py` | TrafficCountSerializer (acepta totales planos + `line`/`direction_counts` anidados o planos; valida total == A→B+B→A o deriva; responde totales + `line` + `direction_counts`) |
+| `apps/mediciones/admin.py` | Admin Device + TrafficCount (listado con `direction_summary`/`line_summary`, fieldsets Totales/Línea A→B/Dirección A→B/B→A) |
+| `apps/mediciones/migrations/0007_trafficcount_bicycle_a_to_b_and_more.py` | Línea + 16 campos direccionales |
+| `recursos/mediciones/templates/mediciones/contador.html` | Aplicación de detección YOLO26n + ONNX (fingerprint, reverse geocoding, sync). Línea A/B: `signedDistance` footPoint ±12px, `A->B` −1→+1; overlay con etiquetas A/B; sync envía `line` + `direction_counts` (pending dir en `traffic_pending_dir`, se descarta si la línea cambió) |
+| `apps/mediciones/templates/mediciones/contador_externo.html` | Contador externo: tabs URL/archivo local (archivo local via `URL.createObjectURL`, HLS `.m3u8` con hls.js CDN + fallback nativo Safari y `destroy()` en `stopCurrentSource()`, `<video crossorigin="anonymous">` + logs CORS, hint MP4/WEBM/HLS/MJPEG sin `watch?v=` — usar `yt-dlp -g`). Misma lógica A/B + etiquetas + sync direccional que `contador.html` |
 | `hugo_edit/models.py` | Activity, Noticia, Estudio (genera .md y trigger rebuild Hugo via Celery) |
 | `hugo_edit/tasks.py` | Tarea Celery `rebuild_hugo()` — ejecuta `hugo --minify` asincrónicamente |
 | `hugo_edit/templatetags/split_tags.py` | Filtro personalizado `{% split "," %}` para separar tags en badges |
@@ -538,8 +542,8 @@ docker-compose exec web bash -c "<comando>"  # Ejecutar bash en el contenedor
 | `docker-compose.yml` | Orquestación Docker |
 | `requirements.txt` | Dependencias Python |
 | `.env` | Variables de entorno |
-| `docs/api.md` | Documentación de API para endpoints de tránsito |
-| `docs/guia-dispositivos.md` | Guía completa para dispositivos de conteo (no-técnica + técnica) |
+| `docs/api.md` | Documentación de API para endpoints de tránsito (§3: totales + `line`/`direction_counts` A→B/B→A, curl con/sin dirección) |
+| `docs/guia-dispositivos.md` | Guía completa para dispositivos de conteo (§7: convención A/B, signedDistance ±12px, etiquetas overlay, `line: null` = aparición) |
 
 ---
 

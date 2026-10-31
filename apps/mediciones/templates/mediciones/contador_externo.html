@@ -809,11 +809,44 @@
 
         const counts = { bicycle:0, person:0, skater:0, car:0, motorcycle:0, bus:0, truck:0, pet:0 };
 
+        // Desglose direccional por cruce de línea (claves cortas = counts).
+        // A = start_norm, B = end_norm; A->B = lado -1 → +1, B->A = +1 → -1.
+        const countsDir = {
+            a_to_b: { bicycle:0, person:0, skater:0, car:0, motorcycle:0, bus:0, truck:0, pet:0 },
+            b_to_a: { bicycle:0, person:0, skater:0, car:0, motorcycle:0, bus:0, truck:0, pet:0 }
+        };
+
+        const SHORT_TO_API_COUNT = {
+            bicycle:'bicycle_count', person:'person_count', skater:'skater_count',
+            car:'car_count', motorcycle:'motorcycle_count', bus:'bus_count',
+            truck:'truck_count', pet:'pet_count'
+        };
+
+        function getLineNormPayload() {
+            if (lineStartNorm && lineEndNorm) {
+                return { x1:lineStartNorm.x, y1:lineStartNorm.y, x2:lineEndNorm.x, y2:lineEndNorm.y };
+            }
+            return null;
+        }
+
+        function buildDirectionPayload(dirObj) {
+            const out = { a_to_b:{}, b_to_a:{} };
+            let any = false;
+            for (const direction of ['a_to_b','b_to_a']) {
+                for (const [shortKey, apiKey] of Object.entries(SHORT_TO_API_COUNT)) {
+                    const v = (dirObj[direction] && dirObj[direction][shortKey]) || 0;
+                    if (v > 0) { out[direction][apiKey] = v; any = true; }
+                }
+            }
+            return any ? out : null;
+        }
+
         const DB_NAME = 'TrafficDetectionDB';
         const DB_VERSION = 2;
         const STORE_NAME = 'detections';
         const DEVICE_STORAGE_KEY = 'traffic_device_config';
         const PENDING_STORAGE_KEY = 'traffic_pending_counts';
+        const PENDING_DIR_KEY = 'traffic_pending_dir';
         const CONFIG_STORAGE_KEY = 'traffic_sync_config';
 
         const TRACK_MAX_AGE = 1500;
@@ -1068,6 +1101,8 @@
 
         async function registerDetectionEvent(track, direction) {
             counts[track.counterKey] += 1;
+            if (direction==='A->B') countsDir.a_to_b[track.counterKey] += 1;
+            else if (direction==='B->A') countsDir.b_to_a[track.counterKey] += 1;
             updateCounters();
             updateSyncBadge();
             const timestamp = new Date();
@@ -1140,6 +1175,17 @@
                 targetContext.moveTo(activeLine.start.x, activeLine.start.y);
                 targetContext.lineTo(activeLine.end.x, activeLine.end.y);
                 targetContext.stroke(); targetContext.setLineDash([]);
+                // Etiquetas A (start) y B (end): convención A->B / B->A.
+                targetContext.font = 'bold 20px Arial'; targetContext.textAlign = 'center';
+                for (const [pt, label] of [[activeLine.start,'A'],[activeLine.end,'B']]) {
+                    targetContext.fillStyle = 'rgba(0, 0, 0, 0.65)';
+                    targetContext.beginPath();
+                    targetContext.arc(pt.x, pt.y, 15, 0, Math.PI*2);
+                    targetContext.fill();
+                    targetContext.fillStyle = '#ffffff';
+                    targetContext.fillText(label, pt.x, pt.y+7);
+                }
+                targetContext.textAlign = 'left';
             }
             if (lineMode) {
                 targetContext.fillStyle = 'rgba(255, 0, 0, 0.18)';
@@ -1603,6 +1649,9 @@
         function getPendingCounts() { try { return JSON.parse(localStorage.getItem(PENDING_STORAGE_KEY))||{}; } catch(e) { return {}; } }
         function savePendingCounts(p) { localStorage.setItem(PENDING_STORAGE_KEY, JSON.stringify(p)); }
         function clearPendingCounts() { localStorage.removeItem(PENDING_STORAGE_KEY); }
+        function getPendingDir() { try { return JSON.parse(localStorage.getItem(PENDING_DIR_KEY))||{a_to_b:{},b_to_a:{},line:null}; } catch(e) { return {a_to_b:{},b_to_a:{},line:null}; } }
+        function savePendingDir(p) { localStorage.setItem(PENDING_DIR_KEY, JSON.stringify(p)); }
+        function clearPendingDir() { localStorage.removeItem(PENDING_DIR_KEY); }
 
         async function registerDevice() {
             deviceConfig = getDeviceConfig();
@@ -1639,24 +1688,37 @@
             const pending = getPendingCounts();
             const toSend = { ...pending };
             Object.keys(counts).forEach(k => { toSend[k]=(toSend[k]||0)+counts[k]; });
+            const pendingDir = getPendingDir();
+            const lineNorm = getLineNormPayload() || null;
+            const sameLine = JSON.stringify((pendingDir&&pendingDir.line)||null)===JSON.stringify(lineNorm);
+            const dirBase = sameLine ? pendingDir : {a_to_b:{},b_to_a:{}};
+            const dirToSend = { a_to_b:{...(dirBase.a_to_b||{})}, b_to_a:{...(dirBase.b_to_a||{})} };
+            for (const direction of ['a_to_b','b_to_a']) {
+                Object.keys(countsDir[direction]).forEach(k => { dirToSend[direction][k]=(dirToSend[direction][k]||0)+countsDir[direction][k]; });
+            }
+            const directionPayload = lineNorm ? buildDirectionPayload(dirToSend) : null;
             const total = Object.values(toSend).reduce((a,b)=>a+b,0);
             if (total===0) { isSyncing=false; return; }
             try {
+                const payload = { datetime:new Date().toISOString(), car_count:toSend.car||0, person_count:toSend.person||0,
+                        bicycle_count:toSend.bicycle||0, motorcycle_count:toSend.motorcycle||0, truck_count:toSend.truck||0,
+                        bus_count:toSend.bus||0, skater_count:toSend.skater||0, pet_count:toSend.pet||0, line:lineNorm };
+                if (directionPayload) payload.direction_counts = directionPayload;
                 const r = await fetch('/api/trafico/', {
                     method:'POST',
                     headers:{'Content-Type':'application/json','Authorization':`Bearer ${deviceConfig.token}`},
-                    body: JSON.stringify({ datetime:new Date().toISOString(), car_count:toSend.car||0, person_count:toSend.person||0,
-                        bicycle_count:toSend.bicycle||0, motorcycle_count:toSend.motorcycle||0, truck_count:toSend.truck||0,
-                        bus_count:toSend.bus||0, skater_count:toSend.skater||0, pet_count:toSend.pet||0 })
+                    body: JSON.stringify(payload)
                 });
                 if (r.ok) {
-                    Object.keys(counts).forEach(k=>{counts[k]=0;}); updateCounters(); clearPendingCounts();
+                    Object.keys(counts).forEach(k=>{counts[k]=0;});
+                    Object.keys(countsDir.a_to_b).forEach(k=>{countsDir.a_to_b[k]=0;countsDir.b_to_a[k]=0;});
+                    updateCounters(); clearPendingCounts(); clearPendingDir();
                     addLog(`Sync OK: ${total} eventos`);
                 } else if (r.status===401||r.status===403) {
                     addLog(`Token invalido, re-registrando...`); localStorage.removeItem(DEVICE_STORAGE_KEY);
                     deviceConfig=null; await registerDevice();
-                } else { savePendingCounts(toSend); addLog(`Sync error (${r.status})`); }
-            } catch (error) { savePendingCounts(toSend); addLog(`Sync fallo: ${error.message}`); }
+                } else { savePendingCounts(toSend); savePendingDir({...dirToSend, line:lineNorm}); addLog(`Sync error (${r.status})`); }
+            } catch (error) { savePendingCounts(toSend); savePendingDir({...dirToSend, line:lineNorm}); addLog(`Sync fallo: ${error.message}`); }
             isSyncing = false; updateSyncBadge();
         }
 

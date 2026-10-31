@@ -165,7 +165,7 @@ POST /api/trafico/
 | Campo | Tipo | Requerido | Descripción |
 |---|---|---|---|
 | `datetime` | string (ISO 8601) | Sí | Fecha/hora de la medición (ej: `"2026-06-14T15:30:00-04:00"`) |
-| `car_count` | int | No | Cantidad de autos (default: 0) |
+| `car_count` | int | No | Cantidad de autos (default: 0). Siempre el **total** |
 | `person_count` | int | No | Cantidad de peatones (default: 0) |
 | `bicycle_count` | int | No | Cantidad de bicicletas (default: 0) |
 | `motorcycle_count` | int | No | Cantidad de motos (default: 0) |
@@ -173,8 +173,17 @@ POST /api/trafico/
 | `bus_count` | int | No | Cantidad de buses (default: 0) |
 | `skater_count` | int | No | Cantidad de patinetas (default: 0) |
 | `pet_count` | int | No | Cantidad de mascotas (default: 0) |
+| `line` | object \| null | No | Línea de conteo normalizada 0-1: `{x1,y1,x2,y2}`. `A` = start `(x1,y1)`, `B` = end `(x2,y2)`. `null`/ausente = conteo por aparición (sin dirección) |
+| `direction_counts` | object | No | Desglose direccional: `{a_to_b: {...}, b_to_a: {...}}` con claves `*_count` (o cortas `car/person/bicycle/...`) |
 
-**Validación:** Al menos un campo de conteo debe ser mayor a 0.
+**Validación:**
+- Al menos un campo de conteo debe ser mayor a 0 (entre totales y direccionales).
+- 100% backward-compatible: un body solo con totales funciona igual que antes.
+- Si se envía `direction_counts` con suma > 0 para una categoría, el total debe ser igual a `a_to_b + b_to_a` (o puede omitirse el total: el servidor lo deriva).
+- Si se envía `direction_counts` con datos, `line` es obligatoria (los cruces solo son interpretables contra su línea).
+- `line: null` (o ausente) = conteo por aparición: cuenta objetos nuevos sin distinguir dirección (requiere 3 cuadros estables, sin línea dibujada).
+
+**Convención A/B:** ver `docs/guia-dispositivos.md` §7. Resumen: `signedDistance = (end−start) × (point−start)` sobre el footPoint; `< −12px` = lado A (−1), `> +12px` = lado B (+1). `A→B` = cruce −1 → +1, `B→A` = +1 → −1. En el overlay se dibuja `A` en start y `B` en end.
 
 ### Respuesta 201 Created
 
@@ -190,7 +199,20 @@ POST /api/trafico/
         "truck_count": 0,
         "bus_count": 2,
         "skater_count": 0,
-        "pet_count": 1
+        "pet_count": 1,
+        "line": null,
+        "direction_counts": {
+            "a_to_b": {
+                "car_count": 0, "person_count": 0, "bicycle_count": 0,
+                "motorcycle_count": 0, "truck_count": 0, "bus_count": 0,
+                "skater_count": 0, "pet_count": 0
+            },
+            "b_to_a": {
+                "car_count": 0, "person_count": 0, "bicycle_count": 0,
+                "motorcycle_count": 0, "truck_count": 0, "bus_count": 0,
+                "skater_count": 0, "pet_count": 0
+            }
+        }
     }
 }
 ```
@@ -206,6 +228,14 @@ POST /api/trafico/
         "fields": ["car_count", "person_count", "bicycle_count", "motorcycle_count", "truck_count", "bus_count", "skater_count", "pet_count"]
     }
 }
+```
+
+Otros 400 posibles:
+
+```json
+{ "status": false, "errors": { "bicycle_count": ["Total (5) ≠ A→B (3) + B→A (1)."] } }
+{ "status": false, "errors": { "line": ["La línea (x1,y1,x2,y2) es requerida cuando se envía direction_counts."] } }
+{ "status": false, "errors": { "line": ["Línea incompleta: se requieren x1,y1,x2,y2 o null."] } }
 ```
 
 ### Respuesta 403 Forbidden
@@ -232,7 +262,7 @@ POST /api/trafico/
 - El `last_seen` del dispositivo se actualiza automáticamente en cada POST exitoso.
 - El `created_datetime` se genera automáticamente en el servidor.
 
-### Ejemplo curl
+### Ejemplo curl (sin dirección, backward-compatible)
 
 ```bash
 curl -X POST https://andeschileong.cl/api/trafico/ \
@@ -248,6 +278,42 @@ curl -X POST https://andeschileong.cl/api/trafico/ \
     "pet_count": 1
   }'
 ```
+
+### Ejemplo curl (con dirección: bicycle 3 A→B + 1 B→A)
+
+```bash
+curl -X POST https://andeschileong.cl/api/trafico/ \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIs..." \
+  -d '{
+    "datetime": "2026-10-31T12:00:00-04:00",
+    "bicycle_count": 4,
+    "line": {"x1": 0.2, "y1": 0.6, "x2": 0.8, "y2": 0.6},
+    "direction_counts": {
+      "a_to_b": {"bicycle_count": 3},
+      "b_to_a": {"bicycle_count": 1}
+    }
+  }'
+```
+
+Respuesta 201 (extracto):
+
+```json
+{
+    "status": true,
+    "data": {
+        "datetime": "2026-10-31T12:00:00-04:00",
+        "bicycle_count": 4,
+        "line": {"x1": 0.2, "y1": 0.6, "x2": 0.8, "y2": 0.6},
+        "direction_counts": {
+            "a_to_b": {"bicycle_count": 3, "car_count": 0, "...": 0},
+            "b_to_a": {"bicycle_count": 1, "car_count": 0, "...": 0}
+        }
+    }
+}
+```
+
+Forma alternativa (campos planos, equivalente): `line_x1,line_y1,line_x2,line_y2` + `bicycle_a_to_b: 3, bicycle_b_to_a: 1`. Si se omite `bicycle_count`, el servidor lo deriva (`3 + 1 = 4`).
 
 ---
 

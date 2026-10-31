@@ -209,16 +209,34 @@ Esto ayuda en condiciones de luz baja o imagen lavada.
 
 ### Dirección de conteo
 
-La línea tiene dos lados: **A** y **B**. El sistema cuenta en ambas direcciones:
+La línea tiene dos extremos normalizados **0-1** que se persisten con cada envío (`POST /api/trafico/`, campo `line`):
+- **A = start** = primer clic (`{x1, y1}`)
+- **B = end** = segundo clic (`{x2, y2}`)
+
+En el overlay se dibuja una etiqueta **`A`** sobre el start y **`B`** sobre el end (círculo negro con letra blanca), visible tanto en el video en vivo como en la grabación compuesta. La misma convención la usa el futuro cliente desktop Python (cámara local).
+
+El lado de cada objeto se calcula con el **footPoint** (centro-inferior del bbox) y el producto cruzado 2D:
 
 ```
-    Lado A (abajo)
-    ─────────────────  ← Línea de conteo
-    Lado B (arriba)
+signedDistance = (end − start) × (point − start)
+               = (end.x − start.x) × (point.y − start.y)
+               − (end.y − start.y) × (point.x − start.x)
+lado A (−1): signedDistance < −12px
+lado B (+1): signedDistance > +12px
+deadzone:    |signedDistance| ≤ 12px → lado 0 ("sobre la línea")
+```
+
+Dirección del cruce:
+
+```
+A → B: lado −1 → lado +1  (etiqueta "A->B")
+B → A: lado +1 → lado −1  (etiqueta "B->A")
 ```
 
 - **A → B:** Cuenta como "subiendo" (por ejemplo: entrando a una ciclovia)
 - **B → A:** Cuenta como "bajando" (por ejemplo: saliendo de una ciclovia)
+
+El desglose se envía como `direction_counts: {a_to_b: {...}, b_to_a: {...}}` y el servidor valida que `total == a_to_b + b_to_a` por categoría (o deriva el total si se omite). Ver `docs/api.md` §3.
 
 ### Deadzone (zona muerta)
 
@@ -239,6 +257,7 @@ Si no dibujas línea, el sistema usa un modo alternativo:
 - Cuenta cada objeto nuevo que aparece en el frame
 - Solo cuenta una vez por objeto (requiere 3 cuadros estables)
 - No distingue dirección
+- Se envía como `line: null` sin `direction_counts` (totales con desglose en cero)
 - Útil para conteo total en interiores o puntos sin flujo bidireccional
 
 ---

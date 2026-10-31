@@ -39,11 +39,12 @@ class TrafficCountSerializer(serializers.ModelSerializer):
         child=serializers.FloatField(), required=False, allow_null=True)
     direction_counts = serializers.DictField(required=False)
     side_names = serializers.DictField(required=False)
+    created_datetime = serializers.DateTimeField(read_only=True)
 
     class Meta:
         model = TrafficCount
         fields = (
-            'datetime',
+            'datetime', 'created_datetime',
             'car_count', 'person_count', 'bicycle_count',
             'motorcycle_count', 'truck_count', 'bus_count',
             'skater_count', 'pet_count',

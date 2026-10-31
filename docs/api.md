@@ -195,6 +195,7 @@ POST /api/trafico/
     "status": true,
     "data": {
         "datetime": "2026-06-14T15:30:00-04:00",
+        "created_datetime": "2026-06-14T15:32:10.123456-04:00",
         "car_count": 5,
         "person_count": 12,
         "bicycle_count": 3,
@@ -263,7 +264,7 @@ Otros 400 posibles:
 ### Notas
 
 - El `last_seen` del dispositivo se actualiza automáticamente en cada POST exitoso.
-- El `created_datetime` se genera automáticamente en el servidor.
+- El `created_datetime` se genera automáticamente en el servidor al recibir el dato (hora de recepción, no editable por el cliente; se devuelve en la respuesta 201).
 
 ### Ejemplo curl (sin dirección, backward-compatible)
 
@@ -307,6 +308,7 @@ Respuesta 201 (extracto):
     "status": true,
     "data": {
         "datetime": "2026-10-31T12:00:00-04:00",
+        "created_datetime": "2026-10-31T12:02:10.123456-04:00",
         "bicycle_count": 4,
         "line": {"x1": 0.2, "y1": 0.6, "x2": 0.8, "y2": 0.6},
         "side_names": {"a": "Norte", "b": "Sur"},

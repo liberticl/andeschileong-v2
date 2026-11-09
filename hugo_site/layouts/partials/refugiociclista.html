@@ -1,78 +1,240 @@
-<a href="https://forms.gle/SfAFnYJfF6GRkXRb8" target="_blank" class="button btn"><strong>INSCRIPCIÓN PREVIA AL
-        REFUGIO
-        CICLISTA 2026</strong></a>
+<style>
+  .refugio-overlay {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    background-color: rgba(0, 0, 0, 0.55);
+    padding: 24px 16px;
+    box-sizing: border-box;
+  }
 
-<button id="openModal" style="display:none"><b></b></button>
+  .refugio-overlay.is-open {
+    display: block;
+  }
 
-<div id="modal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <div class="container" style="font-size:medium">
-            <h3><strong>¡Tenemos Refugio Ciclista 2026!</strong></h3>
-            <h4><strong>Dirección: <a href="https://maps.app.goo.gl/KJzHqVoCv2TMQaZP7" target="_blank">Avenida Argentina
-                        747,
-                        Valparaíso<br></a></strong></h4>
-            <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3344.243570885249!2d-71.60474062307095!3d-33.05005377712132!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9689e0c3da17c643%3A0x403d27ba72bed813!2sInstituto%20Superior%20de%20Comercio%20Francisco%20Araya%20Bennett!5e0!3m2!1ses-419!2scl!4v1764534748054!5m2!1ses-419!2scl"
-                width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"
-                referrerpolicy="no-referrer-when-downgrade"></iframe>
-            <br>
-            <div class="contenedor-columnas">
+  .refugio-content {
+    background-color: #fff;
+    margin: 4vh auto;
+    padding: 28px 28px 32px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 860px;
+    position: relative;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+    box-sizing: border-box;
+  }
 
-                <div class="columna">
-                    <h5><strong>Servicios disponibles</strong></h5>
-                    <ul>
-                        <li>Registro de ingreso por seguridad.</li>
-                        <li>Guardería de bicicletas.</li>
-                        <li>Baños y zona de descanso.</li>
-                        <li>Zona de carga para dispositivos electrónicos.</li>
-                        <li>Venta de alimentos (a cargo de terceros).</li>
-                        <li>Duchas (desde las 8 AM).</li>
-                    </ul>
-                </div>
+  .refugio-close {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    color: #888;
+    font-size: 32px;
+    font-weight: bold;
+    line-height: 1;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+  }
 
-                <div class="columna">
-                    <h5><strong>Reglamento</strong></h5>
-                    <ol>
-                        <li>Mantener un ambiente de respeto.</li>
-                        <li>Se prohíbe la ingesta de drogas y alcohol.</li>
-                        <li>Usar espacios solo para su fin designado.</li>
-                        <li>No merodear en la zona de guardería.</li>
-                        <li>Cuida tu entorno.</li>
-                    </ol>
-                </div>
+  .refugio-close:hover,
+  .refugio-close:focus {
+    color: #111;
+  }
 
-            </div>
-            <a href="https://forms.gle/SfAFnYJfF6GRkXRb8" target="_blank" class="button btn"><strong>COMPLETA LA
-                    INSCRIPCIÓN
-                    PREVIA</strong></a>
-            <button id="openModal" style="display:none"><b></b></button>
+  .refugio-body {
+    font-size: 1rem;
+    text-align: center;
+  }
 
+  .refugio-body h3 {
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
+
+  .refugio-direccion {
+    margin-bottom: 16px;
+  }
+
+  .refugio-mapa {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    min-height: 240px;
+    max-height: 420px;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+  }
+
+  .refugio-mapa iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .refugio-columnas {
+    display: flex;
+    gap: 20px;
+    margin: 20px 0 24px;
+    text-align: left;
+  }
+
+  .refugio-columna {
+    flex: 1 1 0;
+    background: #f7f8fc;
+    border: 1px solid #e5e8f2;
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+
+  .refugio-columna h5 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #2241a8;
+  }
+
+  .refugio-columna ul,
+  .refugio-columna ol {
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  .refugio-columna li {
+    margin-bottom: 6px;
+  }
+
+  .refugio-cta {
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  .refugio-top-cta {
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  /* El botón del sitio: fondo blanco / texto negro, hover fondo azul / texto blanco.
+     Estas reglas llevan mayor especificidad que `.container a` y
+     `.container a:hover` de main.css para que el hover quede en blanco. */
+  .refugio-top-cta a.btn,
+  .refugio-content a.btn {
+    color: #000;
+  }
+
+  .refugio-top-cta a.btn:hover,
+  .refugio-content a.btn:hover,
+  .refugio-top-cta a.btn:focus,
+  .refugio-content a.btn:focus {
+    color: #fff;
+    background-color: #2241a8;
+  }
+
+  @media (max-width: 640px) {
+    .refugio-content {
+      margin: 2vh auto;
+      padding: 20px 16px 24px;
+    }
+
+    .refugio-columnas {
+      flex-direction: column;
+    }
+
+    .refugio-mapa {
+      aspect-ratio: 4 / 3;
+      min-height: 220px;
+    }
+  }
+</style>
+
+<div class="refugio-top-cta">
+  <a href="https://forms.gle/SfAFnYJfF6GRkXRb8" target="_blank" rel="noopener" class="button btn"><strong>INSCRIPCIÓN PREVIA AL REFUGIO CICLISTA 2026</strong></a>
+</div>
+
+<div id="refugio-modal" class="refugio-overlay" role="dialog" aria-modal="true" aria-labelledby="refugio-titulo">
+  <div class="refugio-content">
+    <button type="button" class="refugio-close" aria-label="Cerrar">&times;</button>
+    <div class="container refugio-body">
+      <h3 id="refugio-titulo"><strong>¡Tenemos Refugio Ciclista 2026!</strong></h3>
+      <h4 class="refugio-direccion"><strong>Dirección: <a href="https://maps.app.goo.gl/KJzHqVoCv2TMQaZP7" target="_blank" rel="noopener">Avenida Argentina 747, Valparaíso</a></strong></h4>
+      <div class="refugio-mapa">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3344.243570885249!2d-71.60474062307095!3d-33.05005377712132!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9689e0c3da17c643%3A0x403d27ba72bed813!2sInstituto%20Superior%20de%20Comercio%20Francisco%20Araya%20Bennett!5e0!3m2!1ses-419!2scl!4v1764534748054!5m2!1ses-419!2scl"
+          allowfullscreen="" loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade" title="Mapa del Refugio Ciclista 2026"></iframe>
+      </div>
+      <div class="refugio-columnas">
+        <div class="refugio-columna">
+          <h5><strong>Servicios disponibles</strong></h5>
+          <ul>
+            <li>Registro de ingreso por seguridad.</li>
+            <li>Guardería de bicicletas.</li>
+            <li>Baños y zona de descanso.</li>
+            <li>Zona de carga para dispositivos electrónicos.</li>
+            <li>Venta de alimentos (a cargo de terceros).</li>
+            <li>Duchas (desde las 8 AM).</li>
+          </ul>
         </div>
+        <div class="refugio-columna">
+          <h5><strong>Reglamento</strong></h5>
+          <ol>
+            <li>Mantener un ambiente de respeto.</li>
+            <li>Se prohíbe la ingesta de drogas y alcohol.</li>
+            <li>Usar espacios solo para su fin designado.</li>
+            <li>No merodear en la zona de guardería.</li>
+            <li>Cuida tu entorno.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="refugio-cta">
+        <a href="https://forms.gle/SfAFnYJfF6GRkXRb8" target="_blank" rel="noopener" class="button btn"><strong>COMPLETA LA INSCRIPCIÓN PREVIA</strong></a>
+      </div>
     </div>
+  </div>
 </div>
 
 <script>
-    var modal = document.getElementById('modal');
-    var btnOpenModal = document.getElementById('openModal');
-    var btnCloseModal = document.getElementsByClassName('close')[0];
+  (function () {
+    var modal = document.getElementById('refugio-modal');
+    if (!modal) return;
+    var btnClose = modal.querySelector('.refugio-close');
 
-    btnOpenModal.onclick = function () {
-        modal.style.display = 'block';
-    };
+    function openModal() {
+      modal.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+    }
 
-    btnCloseModal.onclick = function () {
-        modal.style.display = 'none';
-    };
+    function closeModal() {
+      modal.classList.remove('is-open');
+      document.body.style.overflow = '';
+    }
 
-    window.onclick = function (event) {
-        if (event.target == modal) {
-            modal.style.display = 'none';
-        }
-    };
+    if (btnClose) {
+      btnClose.addEventListener('click', closeModal);
+    }
 
-    window.onload = function () {
-        modal.style.display = 'block';
-    };
+    modal.addEventListener('click', function (event) {
+      if (event.target === modal) {
+        closeModal();
+      }
+    });
 
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+        closeModal();
+      }
+    });
+
+    window.addEventListener('load', openModal);
+  })();
 </script>

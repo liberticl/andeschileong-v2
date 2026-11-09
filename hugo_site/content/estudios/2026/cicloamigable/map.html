@@ -32,10 +32,27 @@
   position: absolute;
   z-index: 100;
 }
+.map-tools { position: absolute; bottom: 25px; right: 10px; background: white;
+  padding: 8px; border-radius: 1rem; background-color: rgba(255,255,255,0.85); z-index: 1000;
+  display: flex; flex-direction: row; gap: 4px; }
+.map-tools button { width: 36px; height: 36px; font-size: 16px; border: 2px solid #2241a8;
+  border-radius: 8px; background: #fff; cursor: pointer; line-height: 1; padding: 0; }
+.map-tools button:hover { background: #2241a8; color: #fff; }
+.map-tools button.on { background: #2241a8; color: #fff; }
     </style>
   </head>
   <body>
     <div id="deck-container">
+    </div>
+    <div class="map-tools">
+      <button id="mz-in" title="Acercar">+</button>
+      <button id="mz-out" title="Alejar">&minus;</button>
+      <button id="mrot-l" title="Rotar a la izquierda">&#8635;</button>
+      <button id="mrot-r" title="Rotar a la derecha">&#8634;</button>
+      <button id="mpitch" title="Cambiar &aacute;ngulo 2D/3D">⛰</button>
+      <button id="mnorth" title="Orientar al norte">&#129517;</button>
+      <button id="mfull" title="Pantalla completa">⛶</button>
+      <button id="mshot" title="Capturar mapa (PNG)">&#128247;</button>
     </div>
   </body>
   <script>
@@ -56325,4 +56342,84 @@
           });
 
   </script>
+<script>
+(function(){
+  var VS = {latitude: -33.042, longitude: -71.615, zoom: 13, pitch: 0, bearing: 0};
+  try { deckInstance.setProps({onViewStateChange: function (o) { VS = Object.assign({}, o.viewState); }}); } catch (e) {}
+  function applyVS() {
+    try { deckInstance.setProps({initialViewState: Object.assign({}, VS)}); } catch (e) {}
+  }
+  function liveVS() {
+    return VS;
+  }
+  document.getElementById('mz-in').addEventListener('click', function () { VS.zoom = Math.min(19, VS.zoom + 1); applyVS(); });
+  document.getElementById('mz-out').addEventListener('click', function () { VS.zoom = Math.max(1, VS.zoom - 1); applyVS(); });
+  document.getElementById('mrot-l').addEventListener('click', function () { VS.bearing = (VS.bearing || 0) - 15; applyVS(); });
+  document.getElementById('mrot-r').addEventListener('click', function () { VS.bearing = (VS.bearing || 0) + 15; applyVS(); });
+  document.getElementById('mpitch').addEventListener('click', function () {
+    VS.pitch = (VS.pitch || 0) > 20 ? 0 : 45; applyVS();
+    this.classList.toggle('on', VS.pitch > 20);
+  });
+  document.getElementById('mnorth').addEventListener('click', function () { VS.bearing = 0; applyVS(); });
+  document.getElementById('mfull').addEventListener('click', function () {
+    try {
+      if (!document.fullscreenElement) {
+        var el = document.getElementById('deck-container');
+        if (el.requestFullscreen) el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      } else { document.exitFullscreen(); }
+    } catch (e) {}
+  });
+  document.getElementById('mshot').addEventListener('click', function () {
+    var btn = this, orig = btn.innerHTML;
+    btn.innerHTML = '\u2026'; btn.disabled = true;
+    var box = document.getElementById('deck-container');
+    var W = box.clientWidth || 800, H = box.clientHeight || 600;
+    var holder = document.createElement('div');
+    holder.style.cssText = 'position:fixed;left:-10000px;top:0;width:' + W + 'px;height:' + H + 'px;';
+    document.body.appendChild(holder);
+    var finished = false, best = null, n = 0, deck2 = null;
+    function composite() {
+      var url = null;
+      try {
+        var t = document.createElement('canvas'); t.width = W; t.height = H;
+        var ctx = t.getContext('2d');
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
+        function safeDraw(cv) { try { if (cv) ctx.drawImage(cv, 0, 0, W, H); } catch (e) {} }
+        var cs = holder.querySelectorAll('canvas');
+        cs.forEach(function (cv) { safeDraw(cv); });
+        var dcs = document.querySelectorAll('#deck-container canvas');
+        safeDraw(dcs[dcs.length - 1]);
+        url = t.toDataURL('image/png');
+      } catch (e) {}
+      return url;
+    }
+    function finish() {
+      if (finished) return; finished = true;
+      try { if (deck2 && deck2.finalize) deck2.finalize(); } catch (e) {}
+      holder.remove();
+      btn.disabled = false; btn.innerHTML = orig;
+      if (!best) { alert('No se pudo capturar el mapa en este navegador.'); return; }
+      var a = document.createElement('a'); a.href = best;
+      a.download = 'mapa-infraestructura.png';
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+    function sample() {
+      if (finished) return;
+      var u = composite();
+      if (u && (!best || u.length > best.length)) best = u;
+      if (++n < 10) { setTimeout(sample, 500); }
+      else { finish(); }
+    }
+    try {
+      var v0 = liveVS();
+      var ji = JSON.parse(JSON.stringify(jsonInput));
+      ji.initialViewState = {latitude: v0.latitude, longitude: v0.longitude, zoom: v0.zoom, pitch: v0.pitch || 0, bearing: v0.bearing || 0};
+      deck2 = createDeck({container: holder, jsonInput: ji, tooltip: tooltip, customLibraries: null, configuration: null});
+    } catch (e) {}
+    setTimeout(sample, 800);
+    setTimeout(function () { finish(); }, 12000);
+  });
+})();
+</script>
 </html>

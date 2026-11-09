@@ -13,8 +13,9 @@ cleanup() {
 # Trap SIGTERM and SIGINT to run cleanup
 trap cleanup SIGTERM SIGINT
 
-# If the command is celery, skip nginx/gunicorn and run celery directly
-if [ "$1" = "celery" ]; then
+# If a command was provided (dev compose), run it instead of the prod default.
+# This is what makes `hugo --watch` + `gunicorn --reload` work in development.
+if [ "$#" -gt 0 ]; then
     exec "$@"
 fi
 

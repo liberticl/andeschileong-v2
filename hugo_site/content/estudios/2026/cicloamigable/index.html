@@ -125,8 +125,57 @@ layout: "cicloamigable"
     Licitación <a href="https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=2427-191-LE24" target="_blank">2427-191-LE24</a> · 13 puntos de infraestructura · Datos Strava 2019–2025</p>
   </div>
 
+  
+
+  <div class="cards-grid">
+    <div class="stat-card"><div class="card-value">387.850 <span class="info-icon" tabindex="0">i<span class="info-tip">Total de viajes únicos durante 2025, contabilizados en los 13 nodos intervenidos.</span></span></div><div class="card-label">Viajes 2025</div></div>
+    <div class="stat-card green"><div class="card-value">+147,4%</div><div class="card-label">Crecimiento vs 2019</div></div>
+    <div class="stat-card orange"><div class="card-value">+36,2%</div><div class="card-label">Crecimiento vs 2024</div></div>
+    <div class="stat-card"><div class="card-value">13</div><div class="card-label">Nodos analizados</div></div>
+  </div>
+
+  <!-- INTRODUCCIÓN + HIPÓTESIS -->
+  <div class="content-section">
+    <h2 class="section-title">Introducción — ¿Valparaíso Cicloamigable funcionó?</h2>
+    <p>A principios de 2025 el Municipio de Valparaíso, basado en el proyecto de Andes Chile ONG, habilitó <strong>13 lugares con infraestructura amigable para la bicicleta</strong>: 4 estacionamientos, 6 ciclocalles (calzada con velocidad de 30 km/h compartida con ciclos) y 3 zonas donde peatones y ciclistas comparten el espacio. Queremos saber si esos lugares <strong>se usan más en bicicleta después de la intervención</strong>.</p>
+    <div class="highlight-box">
+      <strong>Lo que ponemos a prueba:</strong><br>
+      <ul>
+        <li>¿En 2025 hay más viajes en bicicleta alrededor de esos 13 lugares que antes?</li>
+        <li>¿Se puede evidenciar que hay más personas pedaleando por los cerros?</li>
+        <li>¿Cuál es la percepción sobre el uso de la bicicleta?</li>
+      </ul>
+      </div>
+    <h3>¿De dónde salen los números?</h3>
+    <ul>
+      <li><strong>Recorridos reales:</strong> Strava registra millones de viajes en bici y los agrupa por calle. Usamos los años 2019 a 2025.</li>
+      <li><strong>Los 13 lugares:</strong> plazas, ciclocalles y zonas 30 definidos por el proyecto Valparaíso Cicloamigable (desde Bismarck y Portales hasta Av. Alemania).</li>
+    </ul>
+    <h3>¿Cómo se mide?</h3>
+    <p>Dibujamos un círculo de <strong>300 metros a la redonda</strong> alrededor de cada punto intervenido por el proyecto (13 en total). Contamos cuántos viajes pasaron por calles cuyo centro está dentro de cada círculo. Para evitar inflar el número, si una misma calle (segmento OsmId) cae dentro de varios círculos, la contamos <strong>una sola vez</strong> — el resultado son <strong>viajes no duplicados</strong>. Contamos todos los viajes, incluso los de calles con pocos registros.</p>
+  </div>
+
+  <div class="content-section">
+    <h2 class="section-title">Cómo se obtuvo el resultado</h2>
+    <p>Usamos la misma base que alimenta los mapas de Ciudades Pendientes, pero de forma transparente:</p>
+    <div class="pipeline-step"><div class="step-number">1</div><div class="step-content"><h4>Qué contamos</h4><p>Solo viajes en bicicleta, año por año entre 2019 y 2025.</p></div></div>
+    <div class="pipeline-step"><div class="step-number">2</div><div class="step-content"><h4>Dónde</h4><p>Solo lo que ocurrió a menos de 300 m de cada uno de los 13 puntos.</p></div></div>
+    <div class="pipeline-step"><div class="step-number">3</div><div class="step-content"><h4>Cómo se resume</h4><p>Unimos los 13 nodos, eliminamos segmentos repetidos y sumamos los viajes.</p></div></div>
+    <div class="pipeline-step"><div class="step-number">4</div><div class="step-content"><h4>Transparencia</h4><p>La información proviene de nuestra base de datos de Ciudades Pendientes y es accesible.</p></div></div>
+    <div class="highlight-box">
+      <strong>En números simples:</strong> En 2025 se contabilizan 387.850 viajes no duplicados, mientras que en 2019 los viajes son 156.765 y en  2024 la cifra llega a 284.765<br>
+      <strong>Crecimiento:</strong> El 2025 presenta un aument en 147,4% al compararse con 2019 y de 36,2% si se compara con 2024.<br>
+    </div>
+    <p><strong>Nota sobre 2020:</strong> fue el año de la pandemia. El flujo detectado bajó a 109.960 (-30% vs 2019), lo que confirma que el método capta cambios reales.</p>
+  </div>
+
+  <div class="map-section">
+    <h2>Área de influencia</h2>
+    <p class="map-desc">Los 13 nodos de estudio se presentan como círculos centrados en el punto en que se realizó intervención mediante señalización de ciclocalle, zona compartida entre ciclos y peatones o estacionamientos para bicicletas, encontrándose cada uno representado por un color según el tipo de infraestructura y el detalle de tramos con viajes en bicicletea contabilizados dentro del radio mencionado, según la información de Strava.</p>
+  </div>
+
   <div class="map-wrapper">
-    <iframe src="map.html"></iframe>
+    <iframe src="map.html" allowfullscreen></iframe>
   </div>
 
   <div class="legend">
@@ -141,62 +190,18 @@ layout: "cicloamigable"
     <div class="legend-item"><span class="legend-dot" style="background:#ef4444; width:10px; height:10px; border-radius:2px;"></span> Zona Compartida</div>
   </div>
 
-  <div class="cards-grid">
-    <div class="stat-card"><div class="card-value">387.850 <span class="info-icon" tabindex="0">i<span class="info-tip">Total de viajes en 2025 en los 13 círculos de 300 m, contando cada segmento (osmId) una sola vez aunque esté presente en varios círculos (no duplicados). Un mismo viaje que use varios segmentos puede seguir contándose varias veces.</span></span></div><div class="card-label">Viajes no duplicados 2025</div></div>
-    <div class="stat-card green"><div class="card-value">+147,4%</div><div class="card-label">Crecimiento vs 2019</div></div>
-    <div class="stat-card orange"><div class="card-value">+36,2%</div><div class="card-label">Crecimiento vs 2024</div></div>
-    <div class="stat-card"><div class="card-value">13</div><div class="card-label">Circunferencias analizadas</div></div>
-  </div>
-
-  <!-- INTRODUCCIÓN + HIPÓTESIS -->
-  <div class="content-section">
-    <h2 class="section-title">Introducción — ¿Valparaíso Cicloamigable funcionó?</h2>
-    <p>En 2024 y 2025 el Municipio de Valparaíso y Andes Chile ONG habilitaron <strong>13 lugares con infraestructura amigable para la bicicleta</strong>: 4 estacionamientos, 6 ciclocalles y 3 zonas donde autos, peatones y bicis comparten la calzada a 30 km/h (licitación <a href="https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=2427-191-LE24" target="_blank">2427-191-LE24</a>). Queremos saber si esos lugares <strong>se usan más en bici después de la intervención</strong>.</p>
-    <div class="highlight-box">
-      <strong>Lo que ponemos a prueba:</strong> ¿En 2025 hay más viajes en bici alrededor de esos 13 lugares que antes (2019 y 2024)?<br>
-      Si no hubiera efecto, los números se mantendrían parecidos.
-    </div>
-    <h3>¿De dónde salen los números?</h3>
-    <ul>
-      <li><strong>Recorridos reales:</strong> Strava registra millones de viajes en bici y los agrupa por calle. Usamos los años 2019 a 2025.</li>
-      <li><strong>Los 13 lugares:</strong> plazas, ciclocalles y zonas 30 definidos por el municipio (desde Bismarck y Portales hasta Av. Alemania).</li>
-      <li><strong>Año 2020:</strong> lo incluimos para mostrar la caída por la pandemia, que nos sirve como referencia.</li>
-    </ul>
-    <h3>¿Cómo se mide?</h3>
-    <p>Dibujamos un círculo de <strong>300 metros a la redonda</strong> alrededor de cada lugar (13 círculos en total). Contamos cuántos viajes pasaron por calles cuyo centro está dentro de cada círculo. Para evitar inflar el número, si una misma calle (segmento OsmId) cae dentro de varios círculos, la contamos <strong>una sola vez</strong> — el resultado son <strong>viajes no duplicados</strong>. Contamos todos los viajes, incluso los de calles con pocos registros.</p>
-  </div>
-
-  <div class="content-section">
-    <h2 class="section-title">Cómo se obtuvo el resultado</h2>
-    <p>Usamos la misma base que alimenta los mapas de Ciudades Pendientes, pero de forma transparente:</p>
-    <div class="pipeline-step"><div class="step-number">1</div><div class="step-content"><h4>Qué contamos</h4><p>Solo viajes en bicicleta, año por año entre 2019 y 2025.</p></div></div>
-    <div class="pipeline-step"><div class="step-number">2</div><div class="step-content"><h4>Dónde</h4><p>Solo lo que ocurrió a menos de 300 m de cada uno de los 13 puntos.</p></div></div>
-    <div class="pipeline-step"><div class="step-number">3</div><div class="step-content"><h4>Cómo se resume</h4><p>Unimos los 13 círculos, eliminamos segmentos repetidos (cada calle contada una sola vez) y sumamos los viajes — así obtenemos <strong>viajes no duplicados</strong>.</p></div></div>
-    <div class="pipeline-step"><div class="step-number">4</div><div class="step-content"><h4>Transparencia</h4><p>La tabla y el gráfico de barras muestran cada lugar por separado; las tarjetas y la curva de evolución muestran el total no duplicado de los 13.</p></div></div>
-    <div class="pipeline-step"><div class="step-number">5</div><div class="step-content"><h4>Se puede replicar</h4><p>Los 13 puntos y los 7 años están guardados y el conteo se puede repetir en cualquier momento.</p></div></div>
-    <div class="highlight-box">
-      <strong>En números simples:</strong> 2025 = 387.850 viajes no duplicados · 2019 = 156.765 · 2024 = 284.765<br>
-      Crecimiento: <strong>+147,4% vs 2019</strong> y <strong>+36,2% vs 2024</strong>.<br>
-    </div>
-    <p><strong>Nota sobre 2020:</strong> fue el año de la pandemia. Bajó a 109.960 (-30% vs 2019), lo que confirma que el método capta cambios reales y no ruido.</p>
-  </div>
-
-  <div class="map-section">
-    <h2>Mapa — Área de influencia 300 m</h2>
-    <p class="map-desc">Las 13 circunferencias de estudio. Los segmentos coloreados son trazas Strava cuyo punto medio cae dentro del radio. La capa permite verificar que la medida es local (no ciudad completa).</p>
-  </div>
-
   <div class="table-section">
     <h2 class="section-title">Detalle por punto de infraestructura</h2>
     <table class="ac-table">
       <thead>
         <tr>
-          <th>Punto</th><th>Referencia</th>
-          <th style="text-align:right">Viajes 2019</th>
-          <th style="text-align:right">Viajes 2024</th>
-          <th style="text-align:right">Viajes 2025</th>
-          <th style="text-align:right">vs 2019</th>
-          <th style="text-align:right">vs 2024</th>
+          <th style="text-align:center">Punto</th>
+          <th  style="text-align:center">Referencia</th>
+          <th  style="text-align:center">Viajes 2019</th>
+          <th  style="text-align:center">Viajes 2024</th>
+          <th  style="text-align:center">Viajes 2025</th>
+          <th  style="text-align:center">vs 2019</th>
+          <th  style="text-align:center">vs 2024</th>
         </tr>
       </thead>
       <tbody id="ac-table-body"></tbody>
@@ -206,46 +211,90 @@ layout: "cicloamigable"
   <div class="chart-section">
     <h2 class="section-title">Top 5 puntos — Viajes por año</h2>
     <canvas id="chart-top5"></canvas>
-  </div>
-
-  <div class="content-section">
-    <h2 class="section-title">Lectura del Top 5</h2>
-    <p>Los cinco lugares con más viajes en 2025 concentran la mayor parte del volumen registrado en las 13 circunferencias. Son casi siempre los mismos desde 2019, lo que muestra que hay corredores muy usados:</p>
+    <br> 
+    <p>En general, se puede notar que los lugares con mayor cantidad de viajes en bicicleta registrados presentan un incremento similar entre 2019 y 2024, versus lo que se puede ver entre 2024 y 2025. Siendo la única excepción el caso del estacionamiento de bicicletas en el paradero de la Estación Portales. Esto demuestra un crecimiento importante en el uso de bicicleta dentro del último año.</p>
     <ul>
-      <li><strong>Zona Compartida 2 (Av. Brasil / Bellavista, 339,710)</strong> — la más transitada, más que se duplicó vs 2019.</li>
-      <li><strong>Zona Compartida 3 (Victoria / Freire, 249,985)</strong> — segundo mayor volumen, conecta Plan con Almendral.</li>
-      <li><strong>Caleta Portales (Av. España / Pellé, 168,785)</strong> — la única del Top 5 que baja vs 2024 (-11%). Tuvo su peak en 2024 y ahora parte del flujo parece irse a las nuevas ciclocalles de los cerros.</li>
-      <li><strong>Zona Compartida 1 (Condell / Edwards, 136,250)</strong> — entrada al Plan, confirma que la Zona 30 del centro funciona.</li>
-      <li><strong>Plaza Victoria (Pedro Montt / Independencia, 69,955)</strong> — el estacionamiento más usado, con el mayor salto vs 2024 (+46%).</li>
+      <li><strong>Zona Compartida 2 (Estación Barón)</strong> — el sector más transitado, responde a ser parte del trazado Valparaíso - Viña del Mar de uso común, correspondiendo al sector de ingreso/salida del Paseo Wheelwright con fines de transporte o recreativo.</li>
+      <li><strong>Zona Compartida 3 (Nodo Barón)</strong> — segundo sector con mayor volumen de flujo ciclista, utilizado principalmente como segmento de conexión entre Valparaíso y el Paseo Wheelwright que da acceso a Portales, Recreo y Viña del Mar.</li>
+      <li><strong>Estacionamiento Paradero Portales</strong> — la única del Top 5 que en 2025 presenta menor uso que en 2024 (-11%). Se requiere un estudio particular para verificar las variables que influyen en la disminución de flujo en el periodo indicado.</li>
+      <li><strong>Zona Compartida 1 (Estación Bellavista)</strong> — parte del eje Errázuriz. Funciona como eje estructurante para desplazamientos hacia Barón (saliendo a Portales y Viña del Mar), mostrando un patrón similar a las otras dos zonas compartidas, pero a menor esacla dada su distancia con el eje paralelo a Avenida España.</li>
+      <li><strong>Estacionamiento Plaza Victoria</strong> — presenta el mayor salto de uso entre 2024 y 2025 (+46%). Esto indica que hay más ciclistas acercándose al sector.</li>
     </ul>
     <div class="highlight-box">
-      <strong>Lo que esconde el Top 5:</strong> si solo miramos volumen, el Plan domina. Todas las zonas compartidas son del plan y eclipsan a los cerros. El efecto en los cerros se ve mejor por <strong>crecimiento relativo</strong>.
+      <strong>Importante:</strong> mirando estos datos, se puede notar que en cantidad de viajes registrados, el plan de Valparaíso domina en cuanto a movilidad activa, sin embargo, hay que poner atención a otros detalles que se presentarán a continuación para seguir evaluando la infraestructura del proyecto y su impacto. El efecto en los cerros se ve mejor por <strong>análisis relativo</strong>.
     </div>
-    <p style="font-size:0.85rem; color:#6c757d;">Nota: los valores por punto son pasadas por círculo de 300 m (sin deduplicar entre círculos). El total del encabezado (viajes no duplicados) sí deduplica segmentos repetidos entre círculos. El orden es por 2025.</p>
   </div>
 
   <div class="chart-section">
-    <h2 class="section-title">Dónde más creció — el cerro responde</h2>
-    <p style="font-size:0.95rem; color:#666; margin-bottom:1rem; text-align:left;">Si ordenamos por <strong>porcentaje de aumento vs 2019</strong>, los cerros aparecen al frente. La infraestructura en altura, aunque mueve menos volumen absoluto, es donde más se multiplicaron los viajes.</p>
-    <canvas id="chart-growth"></canvas>
+    <h2 class="section-title">Usuarios de la infraestructura</h2>
+    <p style="font-size:1rem; color:#555; margin-bottom:1rem; text-align:left; line-height:1.7;">Hay una diferencia importante entre contar pasadas de bicicletas y contar personas que usan el espacio. Si un ciclista pasa todos los días hábiles por la misma calle, en un mes suma veinte pasadas, pero sigue siendo una única persona. Cuando contamos personas distintas pasando por los sectores intervenidos, el cerro aparece. La Ciclocalle 3 en la esquina del Camino Cintura con San Francisco es la que más crece en toda la red, con un 57% más de personas en 2025 que las cuantificadas en 2024, y tres de los cinco primeros lugares son del cerro. Esto sugiere que en el cerro hay más personas nuevas pedaleando, mientras en el plan los mismos ciclistas están pasando cada vez más seguido por los mismos sectores. Además, en el cerro se están usando más calles que antes. Este conteo no reemplaza al de viajes, lo acompaña: los viajes dicen cuánto se usa la calle, las personas dicen a cuánta gente distinta está accediendo al espacio público.</p>
+    <canvas id="chart-growth-people"></canvas>
+    <p style="font-size:0.85rem; color:#6c757d; margin-top:0.8rem;">Las personas se suman por segmento y pueden repetirse entre nodos cercanos. Este gráfico se utiliza para comparar cada nodo en un momento respecto de otros años y no para censar totales exactos.</p>
   </div>
 
   <div class="content-section">
-    <h2 class="section-title">¿Por qué el cerro no se ve en el Top 5?</h2>
-    <p>Las ciclocalles de Av. Alemania parten de volúmenes más bajos, por eso no entran al Top 5 absoluto. Pero su <strong>crecimiento relativo es el mayor</strong>:</p>
-    <ul>
-      <li><strong>Ciclocalle 2 (+168%) y 3 (+152%)</strong> — ambas en cota 100, más que triplicaron sus viajes.</li>
-      <li><strong>Ciclocalle 1 (+143%) y 5 (+146%)</strong> — también en Av. Alemania, duplican con creces.</li>
-      <li><strong>Plaza Bismarck (+104%)</strong> — el estacionamiento de cerro que más crece, a la par de las ciclocalles.</li>
-    </ul>
+    <h2 class="section-title">Cómo leer el cerro y el plan juntos</h2>
+    <p>El plan concentra el volumen: es donde más gente circula hoy y donde más crecieron las pasadas este último año. El cerro, en cambio, se ve mejor cuando miramos personas distintas. Las ciclocalles de Av. Alemania mueven menos pasadas en total, pero están sumando nuevos ciclistas y ocupando mayor volumen de calles en 2025 respecto de años anteriores. Por eso conviene mirar los dos conteos a la vez: uno muestra dónde hay más movimiento, el otro muestra dónde están llegando ciclistas que antes no pasaban por ahí.</p>
     <div class="highlight-box">
-      <strong>Propuesta para visibilizar el cerro:</strong> mirar dos rankings a la vez — <strong>volumen</strong> (muestra dónde hay más gente hoy) y <strong>crecimiento</strong> (muestra dónde cambió más). Para próximos reportes sugerimos un mapa separado solo de cerros y un indicador “viajes extra por cerro” para que el aporte de la cota 100 no quede tapado por el volumen del Plan.
+      <strong>En una frase:</strong> el plan muestra el volumen de ciclistas y el cerro muestra gente nueva recorriendo los espacios. Ambos son señal de que la red está ampliando el uso más allá del centro.
     </div>
-    <p style="font-size:0.95rem; color:#555;">En síntesis: el Plan pone el volumen, <strong>el cerro pone el mayor crecimiento proporcional</strong>. Ambos son señal de que la red cicloamigable está ampliando el uso más allá del centro.</p>
+  </div>
+
+  <div class="content-section">
+    <h2 class="section-title">Lo que dicen los vecinos de la ciclocalle</h2>
+    <p>Además de medir flujos con Strava, en octubre de 2026 salimos a conversar con vecinos y locatarios cercanos a la ciclocalle. De los 31 encuestados, la mayoría son locatarios (17) y residentes (12), con una edad mediana de 53 años. Es una muestra chica chica, sin embargo, sirve como sondeo.</p>
+    <p>El contraste con los datos llama la atención. Mientras las pasadas en bicicleta suben, la intervención todavía no se nota en la calle: 26 de los 31 no han visto la señalética de ciclocalle, 25 no perciben que los autos vayan más lento y 20 ven pasar bicicletas con frecuencia baja. Solo 5 han visto la señalética y 11 ven bicicletas con frecuencia alta.</p>
   </div>
 
   <div class="chart-section">
-    <h2 class="section-title">Evolución viajes no duplicados <span class="info-icon" tabindex="0">i<span class="info-tip">Viajes no duplicados por año en los 13 círculos de 300 m (cada segmento OsmId contado una sola vez). Valores: 2019: 156.765 · 2020: 109.960 (caída pandemia) · 2021: 288.915 · 2022: 297.500 · 2023: 295.915 · 2024: 284.765 · 2025: 387.850. Método middlePoint sin filtro trips≥5, suma forward+reverse si total_trip_count nulo.</span></span></h2>
+    <h2 class="section-title">La intervención todavía no se ve</h2>
+    <p style="font-size:0.95rem; color:#666; margin-bottom:1rem; text-align:left;">En la respuesta de las 31 personas consultadas en octubre de 2026, se puede observar que a nivel general no hay gran conexión con los cambios del entorno, por lo cual este es un indicador social que apunta a la baja difusión en la implementación del proyecto.</p>
+    <h3 style="font-size:1rem; font-weight:700; color:#333; margin:1rem 0 0.5rem;">¿Ha visto la señalética de ciclocalle?</h3>
+    <canvas id="chart-perc-sign"></canvas>
+    <h3 style="font-size:1rem; font-weight:700; color:#333; margin:1rem 0 0.5rem;">¿Percibe que los autos van más lento?</h3>
+    <canvas id="chart-perc-speed"></canvas>
+    <h3 style="font-size:1rem; font-weight:700; color:#333; margin:1rem 0 0.5rem;">¿Con qué frecuencia ve bicicletas?</h3>
+    <canvas id="chart-perc-freq"></canvas>
+  </div>
+
+  <div class="chart-section">
+    <h2 class="section-title">Los locatarios sí reciben ciclistas</h2>
+    <p style="font-size:1rem; color:#555; margin-bottom:1rem; text-align:left; line-height:1.7;">El matiz lo ponen los locatarios. De las 17 respuestas válidas, 10 dicen que sí les llegan clientes en bicicleta —la dejan en la entrada o entran con ella al local—, 4 que a veces o poco, y 3 que no. O sea: aunque en la calle se vean pocas bicicletas, una parte de esos ciclistas son clientes que paran y entran al comercio local para consumir.</p>
+    <canvas id="chart-perc-loc"></canvas>
+    <div class="highlight-box">
+      <strong>Lectura directa:</strong> el uso crece pero la obra no se nota. La señalética y la conversación con residentes y locatarios van atrás del uso. Cerrar esa brecha es el próximo paso más barato: que lo que ya está pasando en la calle se vea.
+    </div>
+    <div class="highlight-box">
+      <strong>Tres cosas que aparecen al cruzar las respuestas:</strong>
+      <ol>
+        <li>Donde se vio la señalética se ven tres veces más bicicletas.</li>
+        <li>Quienes más registran el cambio son los locatarios y las mujeres.</li>
+        <li>Los que ven más bicicletas no perciben disminución de velocidad motorizada.</li>
+      </ol>
+    </div>
+    <p style="font-size:0.85rem; color:#6c757d;">Encuesta de percepción, n=31 (17 locatarios, 12 residentes, 2 visitantes). Pregunta a locatarios con respuestas abiertas agrupadas; 2 sin clasificar se excluyen del gráfico.</p>
+  </div>
+
+  <div class="map-section">
+    <h2>Valparaíso en el mapa — 2019, 2024 y 2025</h2>
+    <p class="map-desc">El mapa de Ciudades Pendientes para la comuna, tal cual se ve en la plataforma: flujos medios (naranjo) hablan de movilidad urbana, mientras que los flujos altos (rojo) hablan de uso urbano y deportivo de las vías.</p>
+  </div>
+
+  <div class="map-wrapper">
+    <iframe src="mapa-cerros.html" allowfullscreen></iframe>
+  </div>
+
+  <div class="content-section">
+    <h2 class="section-title">Lo que se ve en el mapa</h2>
+    <p>En 2025 se puede ver un mayor uso de red en cerros, destacándose la Avenida Alemania y el Camino Cintura conectados con el plan principalmente en Baquedano, José Tomás Ramos, Subida Artillería (no apta para motorizados), Avenida El Parque y Leopoldo Carvallo y Subida Torpederas. Es posible observar también una conexión incompleta en Ecuador, siendo las calles mencionadas las rutas con menor pendiente para llegar a la cota 100. Por su lado, es posible notar que en 2024, pese a un notorio flujo ciclista en lo que estaba planificado como ciclocalle, sólo se articulan las conexiones con el plan en Baquedano y Playa Ancha. Finalmente, en 2019 es posible evidenciar que los accesos desde el plan se daban únicamente hacia Cerros Bellavista y Florida mediante Baquedano y Hector Calvo, además de Playa Ancha, sin existir conexión con utilización en la cota 100. Esto da cuenta que la visión del pedaleo a través de los cerros aún era visto como un mito y no como algo plausible, a diferencia de lo que ocurre en 2024 y con una evidencia concreta que demuestra el flujo en 2025.</p>
+    <div class="highlight-box">
+      <strong>En una frase:</strong>El tiempo concreta la desmitificación del uso de la bicicleta en cerros.
+    </div>
+    <p style="font-size:0.85rem; color:#6c757d;">Fuente: Plataforma Ciudades Pendientes de Andes Chile ONG, a través de datos de Strava Metro.</p>
+  </div>
+
+  <div class="chart-section">
+    <h2 class="section-title">Evolución viajes <span class="info-icon" tabindex="0">i<span class="info-tip">Viajes no duplicados por año en los 13 nodos analizados. Método: suma de viajes contabilizados por segmento en ambos sentidos de tránsito.</span></span></h2>
     <canvas id="chart-evolution"></canvas>
   </div>
 
@@ -253,30 +302,29 @@ layout: "cicloamigable"
   <div class="content-section">
     <h2 class="section-title">¿De verdad aumentaron los viajes?</h2>
     <div class="highlight-box">
-      <strong>Resultado principal:</strong> en 2025 hubo <strong>387.850</strong> viajes no duplicados, frente a <strong>156.765</strong> en 2019 (+147,4%) y <strong>284.765</strong> en 2024 (+36,2%). Subieron <strong>los 13 lugares</strong> vs 2019 y <strong>10 de 13</strong> vs 2024.
+      <strong>Resultado principal:</strong> En los 13 nodos aumentaron notablemente los viajes respecto de 2019 y en 10 de 13 nodos se notó un aumento respecto de 2024.
     </div>
     <h3>Tres razones que lo respaldan</h3>
-    <div class="pipeline-step"><div class="step-number">1</div><div class="step-content"><h4>No es un solo lugar</h4><p>Suben todos, no solo uno: la Zona Compartida 2 pasó de 130 mil a 339 mil, la Ciclocalle 2 creció 168% y la Plaza Bismarck más del doble. Incluso comparando con 2024 —un año ya alto— 3 de cada 4 lugares siguen subiendo.</p></div></div>
-    <div class="pipeline-step"><div class="step-number">2</div><div class="step-content"><h4>La pandemia lo confirma</h4><p>En 2020 los viajes bajaron a 109.960. En 2021 rebotaron a 288 mil y se mantuvieron entre 284 mil y 297 mil hasta 2024. En 2025 se rompe ese techo con 387 mil, justo cuando ya estaban operativas la señalización y los estacionamientos.</p></div></div>
-    <div class="pipeline-step"><div class="step-number">3</div><div class="step-content"><h4>No parece casualidad</h4><p>Que los 13 lugares suban al mismo tiempo es muy difícil por azar —sería como lanzar una moneda 13 veces y que salga cara siempre (1 en 8 mil). Incluso el 10 de 13 vs 2024 es poco probable por azar. Por eso consideramos que el aumento es real.</p></div></div>
+    <div class="pipeline-step"><div class="step-number">1</div><div class="step-content"><h4>La evolución es notoria</h4><p>En 2020 los viajes registrados bajaron a 109.960 debido a la pandemia. En 2021 rebotaron a 288 mil y se mantuvieron entre 284 mil y 297 mil hasta 2024. En 2025 se rompe ese techo con 387 mil, justo cuando ya estaban operativas la señalización y los estacionamientos.</p></div></div>
+    <div class="pipeline-step"><div class="step-number">2</div><div class="step-content"><h4>Hay un patrón espacial</h4><p>Si bien hay variaciones entre los nodos, el comportamiento generalizado indica un alza en viajes y usuarios con la nueva infraestructura.</p></div></div>
+    <div class="pipeline-step"><div class="step-number">3</div><div class="step-content"><h4>No es casualidad</h4><p>Que los 13 nodos presenten comportamiento similar es muy difícil por azar —sería como lanzar una moneda 13 veces y que salga cara siempre (1 en 8 mil). Incluso el 10 de 13 vs 2024 es poco probable por azar. Por eso se considera un efecto importante de la infraestructura en los viajes realizados.</p></div></div>
     <div class="highlight-box">
-      <strong>Cómo leerlo:</strong> Gran parte del alza desde 2019 es recuperación post-pandemia, pero el salto de <strong>2024 a 2025 (+22%)</strong> ocurre cuando la ciudad ya se había estabilizado. Ese último tramo es el que más asociamos a la nueva infraestructura.
+      <strong>Cómo leerlo:</strong> Gran parte del alza desde 2019 es recuperación post-pandemia, pero el salto de <strong>2024 a 2025</strong> ocurre cuando la ciudad ya se había estabilizado. Ese último tramo es el que más asociamos a la nueva infraestructura.
     </div>
     <h3>Qué tener en cuenta</h3>
     <ul>
-      <li>Strava lo usan sobre todo personas que entrenan, no representa a todos los ciclistas. Sirve para comparar, no para contar cuántas personas andan en bici en total.</li>
-      <li>No hay un barrio sin intervención para comparar perfectamente; usamos el año 2020 como referencia temporal.</li>
-      <li>Algunos círculos se solapan (por ejemplo Zona 2 y 3). Eso no altera la comparación porque el solape es el mismo todos los años.</li>
+      <li>Strava es utilizado principalmente con fines deportivos, sin embargo, muestra tendencias generales de la población ciclista.</li>
+      <li>La comparación se realiza de manera temporal entre 2019 (último año "normal" previo a la pandemia), 2024 (año previo a la intervención) y 2025 (año en que se realizan mediciones con la nueva infraestructura instalada).</li>
+      <li>Algunos círculos analizados como nodos se solapan. Eso no altera la comparación porque el solape es el mismo todos los años y en los conteos se realiza una deduplicación de estos casos para no inflar valores.</li>
     </ul>
   </div>
 
   <div class="content-section">
     <h2 class="section-title">Conclusiones</h2>
-    <div class="highlight-box"><strong>1. La intervención tuvo efecto local medible:</strong> +147,4% vs 2019 y +36,2% vs 2024 en viajes no duplicados, con 13/13 puntos al alza vs 2019.</div>
-    <div class="highlight-box"><strong>2. No es solo rebote post-pandemia:</strong> 2020→2021 rebote superado; 2022–2024 meseta 67–71k; 2025 quiebre a 87k coincide con señalética/estacionamientos operativos.</div>
-    <div class="highlight-box"><strong>3. Tipología que más responde:</strong> Zonas compartidas (+116–160% vs 2019) y ciclocalles de cerro (+140–168%) superan a estacionamientos aislados, sugiriendo que la red continua importa más que puntos sueltos.</div>
-    <div class="highlight-box"><strong>4. Recomendación operativa:</strong> Priorizar cerrar brechas entre las 3 zonas compartidas y ciclocalles 1–5 (corredor cota 100 + Av. Alemania) donde el flujo alto ya existe, antes de expandir a nuevos ejes.</div>
-    <div class="highlight-box"><strong>5. Próximo paso medible:</strong> Instalar conteos permanentes en 2–3 circunferencias testigo (ej. Plaza Victoria vs Mirador fuera de red) para pasar de Strava a validación poblacional y estimar ciclistas reales (bahía-blanca usa 5–10% de captación).</div>
+    <div class="highlight-box"><strong>1. La intervención tuvo efecto local medible:</strong> +147,4% comparando con 2019 y +36,2% con 2024 en cuanto a viajes realizados por ciclistas.</div>
+    <div class="highlight-box"><strong>2. Tipología que más responde:</strong> Zonas compartidas y ciclocalles de cerro superan en cantidad de viajes a estacionamientos aislados, sugiriendo que la red continua importa más que puntos sueltos.</div>
+    <div class="highlight-box"><strong>3. Recomendación operativa:</strong> Extender la red de ciclocalles hacia el resto de Avenida Alemania para seguir incrementando la red vial para ciclos en Valparaíso.</div>
+    <div class="highlight-box"><strong>4. Próximo paso medible:</strong> Instalar conteos permanentes en 2–3 circunferencias testigo (ej. Plaza Victoria vs Mirador fuera de red) para pasar de Strava a validación poblacional y estimar ciclistas reales (bahía-blanca usa 5–10% de captación).</div>
   </div>
 
   <div class="content-section">
@@ -294,19 +342,19 @@ layout: "cicloamigable"
 
 <script>
 const points = [
-  {name:"Plaza Bismarck",type:"estacionamiento",ref:"Paseo Dimalow / Templeman, Cerro Yungay",y19:13730,y24:24270,y25:28080},
-  {name:"Plaza de Los Poetas",type:"estacionamiento",ref:"Av. Alemania / Lautaro Rosas, Cerro Alegre",y19:15745,y24:22340,y25:20710},
-  {name:"Plaza Victoria",type:"estacionamiento",ref:"Pedro Montt / Independencia, Plan Centro",y19:37815,y24:47670,y25:69955},
-  {name:"Caleta Portales",type:"estacionamiento",ref:"Av. España / Pellé, Borde Costero",y19:100455,y24:190425,y25:168785},
-  {name:"Ciclocalle 1",type:"ciclocalle",ref:"Av. Alemania 4400, Ecuador / Templeman",y19:9920,y24:20015,y25:24100},
-  {name:"Ciclocalle 2",type:"ciclocalle",ref:"Av. Alemania 4650, Carlos Pezoa / Becker",y19:4570,y24:10535,y25:12250},
-  {name:"Ciclocalle 3",type:"ciclocalle",ref:"Av. Alemania 5650, Mirador Yungay",y19:4110,y24:8145,y25:10370},
-  {name:"Ciclocalle 4",type:"ciclocalle",ref:"Av. Alemania 6900, Ibsen / Camilo Henríquez, Cerro Barón",y19:11655,y24:21010,y25:23465},
-  {name:"Ciclocalle 5",type:"ciclocalle",ref:"Av. Alemania 7200, Ramaditas / Las Cañas",y19:12330,y24:26395,y25:30400},
-  {name:"Ciclocalle 6",type:"ciclocalle",ref:"Gran Bretaña / Levarte, Playa Ancha",y19:14045,y24:20740,y25:19025},
-  {name:"Zona Compartida 1",type:"zona_compartida",ref:"Condell / Edwards, Plan Centro (Zona 30)",y19:72170,y24:105770,y25:136250},
-  {name:"Zona Compartida 2",type:"zona_compartida",ref:"Av. Brasil / Bellavista, Almendral",y19:130475,y24:229535,y25:339710},
-  {name:"Zona Compartida 3",type:"zona_compartida",ref:"Victoria / Freire, Almendral",y19:115715,y24:199700,y25:249985},
+  {name:"Plaza Bismarck",type:"estacionamiento",ref:"Plaza Bismarck",y19:13730,y24:24270,y25:28080,p19:4930,p24:6585,p25:8620},
+  {name:"Plaza de Los Poetas",type:"estacionamiento",ref:"Plaza de los Poetas",y19:15745,y24:22340,y25:20710,p19:3965,p24:5105,p25:5980},
+  {name:"Plaza Victoria",type:"estacionamiento",ref:"Plaza Victoria",y19:37815,y24:47670,y25:69955,p19:13415,p24:15445,p25:23135},
+  {name:"Caleta Portales",type:"estacionamiento",ref:"Paradero Portales",y19:100455,y24:190425,y25:168785,p19:26710,p24:38525,p25:40435},
+  {name:"Ciclocalle 1",type:"ciclocalle",ref:"Camino Cintura / Guillermo Munnich",y19:9920,y24:20015,y25:24100,p19:4065,p24:5740,p25:7365},
+  {name:"Ciclocalle 2",type:"ciclocalle",ref:"Camino Cintura / Castillo",y19:4570,y24:10535,y25:12250,p19:2140,p24:3290,p25:3930},
+  {name:"Ciclocalle 3",type:"ciclocalle",ref:"Camino Cintura / San Francisco",y19:4110,y24:8145,y25:10370,p19:1780,p24:2505,p25:3945},
+  {name:"Ciclocalle 4",type:"ciclocalle",ref:"Almacén Naval",y19:11655,y24:21010,y25:23465,p19:4720,p24:6215,p25:8380},
+  {name:"Ciclocalle 5",type:"ciclocalle",ref:"Plaza Wadington",y19:12330,y24:26395,y25:30400,p19:4315,p24:5745,p25:7910},
+  {name:"Ciclocalle 6",type:"ciclocalle",ref:"Avenida Alemania / Baquedano",y19:14045,y24:20740,y25:19025,p19:3470,p24:4535,p25:5350},
+  {name:"Zona Compartida 1",type:"zona_compartida",ref:"Estación Bellavista",y19:72170,y24:105770,y25:136250,p19:24485,p24:29390,p25:37900},
+  {name:"Zona Compartida 2",type:"zona_compartida",ref:"Estación Barón",y19:130475,y24:229535,y25:339710,p19:41445,p24:58850,p25:84585},
+  {name:"Zona Compartida 3",type:"zona_compartida",ref:"Nodo Barón",y19:115715,y24:199700,y25:249985,p19:37830,p24:49215,p25:61185},
 ];
 
 points.forEach(p => {
@@ -351,15 +399,15 @@ new Chart(document.getElementById('chart-top5'), {
   }
 });
 
-// Top 5 por crecimiento relativo — visibiliza el cerro
-const topGrowth = [...points].sort((a,b)=> b.g19 - a.g19).slice(0,5);
+// Top 5 por crecimiento 2024->2025 en viajes
+const topGrowth = [...points].sort((a,b)=> b.g24 - a.g24).slice(0,5);
 new Chart(document.getElementById('chart-growth'), {
   type: 'bar',
   data: {
     labels: topGrowth.map(p => p.name),
     datasets: [{
-      label:'Crecimiento vs 2019 (%)',
-      data: topGrowth.map(p => Number(p.g19.toFixed(1))),
+      label:'Crecimiento vs 2024 (%)',
+      data: topGrowth.map(p => Number(p.g24.toFixed(1))),
       backgroundColor: topGrowth.map(p => p.name.includes('Ciclocalle')||p.name.includes('Bismarck') ? 'rgba(245,158,11,0.7)' : 'rgba(34,65,168,0.6)'),
       borderColor: topGrowth.map(p => p.name.includes('Ciclocalle')||p.name.includes('Bismarck') ? '#f59e0b' : '#2241a8'),
       borderWidth:1, borderRadius:4
@@ -368,10 +416,51 @@ new Chart(document.getElementById('chart-growth'), {
   options: {
     indexAxis:'y',
     responsive:true,
-    plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => `+${ctx.parsed.x.toFixed(1)}% vs 2019` } } },
+    plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => `+${ctx.parsed.x.toFixed(1)}% vs 2024` } } },
     scales:{ x:{ beginAtZero:true, grid:{color:'rgba(0,0,0,0.05)'}, ticks:{ callback:v=>`+${v}%` } }, y:{ grid:{display:false} } }
   }
 });
+
+// Top 5 por crecimiento 2024->2025 en personas
+points.forEach(p => { p.gp24 = p.p24>0 ? ((p.p25-p.p24)/p.p24*100) : 0; });
+const topPeople = [...points].sort((a,b)=> b.gp24 - a.gp24).slice(0,5);
+new Chart(document.getElementById('chart-growth-people'), {
+  type: 'bar',
+  data: {
+    labels: topPeople.map(p => p.name),
+    datasets: [{
+      label:'Crecimiento personas vs 2024 (%)',
+      data: topPeople.map(p => Number(p.gp24.toFixed(1))),
+      backgroundColor: topPeople.map(p => p.name.includes('Ciclocalle')||p.name.includes('Bismarck') ? 'rgba(245,158,11,0.7)' : 'rgba(34,65,168,0.6)'),
+      borderColor: topPeople.map(p => p.name.includes('Ciclocalle')||p.name.includes('Bismarck') ? '#f59e0b' : '#2241a8'),
+      borderWidth:1, borderRadius:4
+    }]
+  },
+  options: {
+    indexAxis:'y',
+    responsive:true,
+    plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => `+${ctx.parsed.x.toFixed(1)}% personas vs 2024` } } },
+    scales:{ x:{ beginAtZero:true, grid:{color:'rgba(0,0,0,0.05)'}, ticks:{ callback:v=>`+${v}%` } }, y:{ grid:{display:false} } }
+  }
+});
+
+// Percepción vecinal (n=31, 27-10-2026) — mismo estilo de barras
+function percChart(id, labels, values, n, colors, borders) {
+  new Chart(document.getElementById(id), {
+    type:'bar',
+    data:{ labels: labels, datasets:[{ data: values, backgroundColor: colors, borderColor: borders, borderWidth:1, borderRadius:4 }] },
+    options:{
+      indexAxis:'y', responsive:true,
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => `${ctx.parsed.x} de ${n} (${Math.round(ctx.parsed.x/n*100)}%)` } } },
+      scales:{ x:{ beginAtZero:true, grid:{color:'rgba(0,0,0,0.05)'}, ticks:{precision:0} }, y:{ grid:{display:false} } }
+    }
+  });
+}
+const P_BLUE='rgba(34,65,168,0.6)', P_ORANGE='rgba(245,158,11,0.7)', PB_BLUE='#2241a8', PB_ORANGE='#f59e0b';
+percChart('chart-perc-sign', ['No la ha visto','Sí la ha visto'], [26,5], 31, [P_BLUE,P_ORANGE], [PB_BLUE,PB_ORANGE]);
+percChart('chart-perc-speed', ['Nada','Poco','Bastante'], [25,4,2], 31, [P_BLUE,P_BLUE,P_ORANGE], [PB_BLUE,PB_BLUE,PB_ORANGE]);
+percChart('chart-perc-freq', ['Baja','Alta'], [20,11], 31, [P_BLUE,P_ORANGE], [PB_BLUE,PB_ORANGE]);
+percChart('chart-perc-loc', ['Sí','A veces o poco','No'], [10,4,3], 17, [P_ORANGE,P_BLUE,P_BLUE], [PB_ORANGE,PB_BLUE,PB_BLUE]);
 
 // Evolution line — promedio por circunferencia (2019-2025, 2020 muestra efecto pandemia)
 new Chart(document.getElementById('chart-evolution'), {
@@ -396,4 +485,138 @@ new Chart(document.getElementById('chart-evolution'), {
     }
   }
 });
+</script>
+<script>
+// Herramientas por gráfico: ver grande + PNG (sin fondo) / JPG (fondo blanco)
+(function(){
+  var css = '#chart-modal{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);padding:2rem;}'
+    + '#chart-modal.open{display:flex;}'
+    + '#chart-modal .box{background:#fff;border-radius:1rem;padding:1.2rem;max-width:min(1100px,94vw);max-height:92vh;overflow:auto;text-align:center;}'
+    + '#chart-modal img{width:100%;height:auto;border-radius:.5rem;display:block;background:#fff;}'
+    + '#chart-modal h3{font-size:1.05rem;color:#333;margin:0 0 .8rem;}'
+    + '#chart-modal .cm-row{display:flex;gap:.6rem;justify-content:center;margin-top:.8rem;flex-wrap:nowrap;}'
+    + '#chart-modal button{padding:.5rem 1rem;border:2px solid #2241a8;border-radius:.5rem;background:#fff;cursor:pointer;font-weight:700;}'
+    + '#chart-modal button:hover{background:#2241a8;color:#fff;}'
+    + '.chart-section{position:relative;}'
+    + '.chart-titlerow{display:flex;align-items:center;gap:.5rem;}'
+    + '.chart-titlerow h2,.chart-titlerow h3{flex:1 1 auto;min-width:0;}'
+    + '.chart-tools{display:flex;gap:.3rem;flex:none;}'
+    + '.chart-tools button{font-size:.85rem;line-height:1;padding:.3rem .55rem;border:2px solid #2241a8;border-radius:.5rem;background:#fff;color:#2241a8;cursor:pointer;}'
+    + '.chart-tools button:hover{background:#2241a8;color:#fff;}'
+    + '@media (max-width:640px){.chart-titlerow{flex-wrap:wrap;}}';
+  var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
+  var modal = document.createElement('div'); modal.id = 'chart-modal';
+  modal.innerHTML = '<div class="box"><h3 id="cm-title"></h3><img id="cm-img" alt="Gráfico ampliado">'
+    + '<div class="cm-row"><a id="cm-dl-png" download style="text-decoration:none;"><button>PNG</button></a>'
+    + '<a id="cm-dl-jpg" download style="text-decoration:none;"><button>JPG</button></a>'
+    + '<button id="cm-close">Cerrar</button></div></div>';
+  document.body.appendChild(modal);
+  var img = modal.querySelector('#cm-img'), title = modal.querySelector('#cm-title');
+  var dlPng = modal.querySelector('#cm-dl-png'), dlJpg = modal.querySelector('#cm-dl-jpg');
+  modal.querySelector('#cm-close').onclick = function(){ modal.classList.remove('open'); };
+  modal.addEventListener('click', function(e){ if (e.target === modal) modal.classList.remove('open'); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') modal.classList.remove('open'); });
+  function cleanOpts(src){
+    var o = {};
+    Object.keys(src).forEach(function(k){
+      var v = src[k];
+      if (Array.isArray(v)) { o[k] = v.slice(); }
+      else if (v && typeof v === 'object') { o[k] = cleanOpts(v); }
+      else { o[k] = v; }
+    });
+    return o;
+  }
+  function scaleVisuals(o, f){
+    if (!o || typeof o !== 'object') return;
+    if (o.font && typeof o.font.size === 'number') o.font.size = Math.round(o.font.size * f);
+    ['boxWidth', 'boxHeight', 'padding', 'borderWidth', 'borderRadius', 'pointRadius', 'pointHoverRadius', 'pointBorderWidth'].forEach(function(k){
+      if (typeof o[k] === 'number') o[k] = Math.round(o[k] * f);
+    });
+    Object.keys(o).forEach(function(k){
+      var v = o[k];
+      if (v && typeof v === 'object' && !Array.isArray(v)) scaleVisuals(v, f);
+    });
+  }
+  function hdFonts(opt, f){
+    // Las fuentes por defecto viven en Chart.defaults, no en options: se fijan explícitas
+    Object.keys(opt.scales || {}).forEach(function(id){
+      var sc = opt.scales[id] || (opt.scales[id] = {});
+      var tk = sc.ticks || (sc.ticks = {});
+      tk.font = Object.assign({}, tk.font, {size: Math.round(((tk.font && tk.font.size) || 12) * f)});
+    });
+    var L = opt.plugins && opt.plugins.legend;
+    if (L && L.labels !== false) {
+      L.labels = Object.assign({}, L.labels, {
+        font: {size: Math.round(12 * f)},
+        boxWidth: Math.round(40 * f), boxHeight: Math.round(20 * f), padding: Math.round(10 * f)
+      });
+    }
+  }
+  function hdURL(chart, fmt){
+    var cv = chart.canvas;
+    var W = Math.round(cv.clientWidth * 3);
+    var H = Math.round(W * cv.clientHeight / Math.max(1, cv.clientWidth));
+    var c2 = document.createElement('canvas');
+    c2.width = W; c2.height = H;
+    var data2;
+    try { data2 = JSON.parse(JSON.stringify(chart.data)); }
+    catch (e) { data2 = chart.data; }
+    if (data2.datasets) data2.datasets.forEach(function(ds){
+      scaleVisuals(ds, 3);
+      if (typeof ds.borderWidth !== 'number') ds.borderWidth = 3 * 3;
+    });
+    var opt2 = cleanOpts(chart.options);
+    opt2.responsive = false; opt2.animation = false;
+    scaleVisuals(opt2, 3);
+    hdFonts(opt2, 3);
+    var tmp = new Chart(c2, {type: chart.config.type, data: data2, options: opt2});
+    var url;
+    if (fmt === 'jpg') {
+      var c = document.createElement('canvas');
+      c.width = W; c.height = H;
+      var ctx = c.getContext('2d');
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
+      ctx.drawImage(c2, 0, 0);
+      url = c.toDataURL('image/jpeg', 0.92);
+    } else {
+      url = tmp.toBase64Image('image/png', 1);
+    }
+    tmp.destroy();
+    return url;
+  }
+  function dl(url, name){
+    var a = document.createElement('a'); a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+  document.querySelectorAll('.chart-section').forEach(function(sec){
+    sec.querySelectorAll('canvas').forEach(function(cv){
+      var h = cv.previousElementSibling, name = cv.id;
+      while (h && !/^H[23]$/.test(h.tagName)) h = h.previousElementSibling;
+      if (h) name = h.textContent.trim().slice(0, 60);
+      var row = document.createElement('div'); row.className = 'chart-titlerow';
+      var bar = document.createElement('div'); bar.className = 'chart-tools';
+      function mk(cls, tip, fn){
+        var b = document.createElement('button'); b.title = tip;
+        b.setAttribute('aria-label', tip);
+        b.innerHTML = '<i class="fa ' + cls + '"></i>';
+        b.onclick = function(){ var chart = Chart.getChart(cv); if (chart) fn(chart); };
+        bar.appendChild(b);
+      }
+      mk('fa-expand', 'Ver grande', function(chart){
+        var png = hdURL(chart, 'png'), jpg = hdURL(chart, 'jpg');
+        title.textContent = name;
+        dlPng.href = png; dlPng.download = cv.id + '-hd.png';
+        dlJpg.href = jpg; dlJpg.download = cv.id + '-hd.jpg';
+        img.onload = function(){ modal.classList.add('open'); };
+        img.removeAttribute('src');
+        img.src = png;
+        setTimeout(function(){ modal.classList.add('open'); }, 1200);
+      });
+      mk('fa-file-image-o', 'Descargar PNG sin fondo', function(chart){ dl(hdURL(chart, 'png'), cv.id + '-hd.png'); });
+      mk('fa-file-photo-o', 'Descargar JPG fondo blanco', function(chart){ dl(hdURL(chart, 'jpg'), cv.id + '-hd.jpg'); });
+      h.parentNode.insertBefore(row, h);
+      row.appendChild(h); row.appendChild(bar);
+    });
+  });
+})();
 </script>

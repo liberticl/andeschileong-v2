@@ -61,7 +61,7 @@ El sitio público de la ONG, generado con Hugo.
 | Inicio | `content/_index.md` | Página principal | Manual |
 | Actividades | `content/actividades/` | 55 posts (2017-2026): cicletadas, refugios, foros, talleres | **hugo_edit** (Django) |
 | Noticias | `content/noticias/` | 15 artículos de prensa y comunicados | **hugo_edit** (Django) |
-| Estudios | `content/estudios/` | 2026/bahia-blanca (index.html + 3 mapas MapLibre/deck.gl con FullscreenControl + fix resize en fullscreen; los 3 recrean el `map` de MapLibre entero al estabilizar el resize/fullscreen (`recreateMap()` + `initOverlay()` + `hardRefreshDeck()`: el weightmap del HeatmapLayer de mapa1 quedaba congelado y sobrevivía a recrear overlay/capas)) y 2026/cicloamigable (HTML manual); 2020/2023 vacíos | Manual (HTML) + **hugo_edit** (Django) |
+| Estudios | `content/estudios/` | 2026/bahia-blanca (index.html + 3 mapas MapLibre/deck.gl con FullscreenControl + fix resize en fullscreen; los 3 recrean el `map` de MapLibre entero al estabilizar el resize/fullscreen (`recreateMap()` + `initOverlay()` + `hardRefreshDeck()`: el weightmap del HeatmapLayer de mapa1 quedaba congelado y sobrevivía a recrear overlay/capas)) y 2026/cicloamigable (HTML manual + `mapa-cerros.html` embebido: réplica del mapa de Ciudades Pendientes para la comuna (polígono + regla + colores + tooltip + controles de la app, sin verdes) con años 2019/2024/2025 y botones zoom/rotar/ángulo/norte/fullscreen/captura PNG compuesta (tiles raster CARTO con CORS + flujos 2D del propio json, sin WebGL para no "tainted canvas"), generado por `oc_files/build_mapa_cp_valpo.py` dentro del contenedor; `map.html` con toolbar propia embebida en el archivo (zoom/rotar/ángulo/norte/fullscreen/captura por re-render oculto, no regenerar con `gen_map_real.py` que usa otro entorno); gráficos Chart.js con ver-grande (modal HD) + capturas PNG sin fondo / JPG fondo blanco en 3x con la proporción del sitio (render separado con datos clonados + opciones limpias sin símbolos + fuentes y anchos ×3 explícitos, `responsive:false`, canvas aparte — no tocar el gráfico vivo; ni `devicePixelRatio` ni `resize()` re-escalan en esta versión de Chart.js porque el resize se difiere si hay animación y el alto queda congelado); 2020/2023 vacíos y 2026/lo-vasquez (peregrinación ciclista Lo Vásquez 7–8 dic 2025 con Strava Metro: `index.html` narrativo + 2 mapas pydeck embebidos + `dashboard_lo_vasquez.html` con 8 gráficos canvas vanilla; iframes relativos `src="*.html"`, archivos copiados tal cual junto al index; mapas con barra `oc_files/map_toolbar.py`: zoom +/-, rotar ±15°, ángulo 0°/45°, norte, pantalla completa, captura PNG vía `deckInstance.setProps({initialViewState})` + `onAfterRender`→`toBlob` (verificado contra deck.gl 9.3); Mapa 1 del estudio en modo minimal —solo selección de capas— vía `MAPA_MINIMAL=1 MAPA_OUT=...` en `gen_mapa_pydeck_v3.py`; test headless `oc_files/test_map_toolbar.py` con playwright+Chrome: vista/zoom/captura/sin errores JS; regenerar mapas oc_files con `python3 oc_files/gen_mapa_pydeck_v3.py` y `python3 oc_files/gen_mapa_baron_reloj.py`, luego `cp` a content y public) | Manual (HTML) + **hugo_edit** (Django) |
 | Nosotros | `content/nosotros/` | Sobre la organización | Manual |
 | Registro | `content/registro/` | Registro de locales ciclamigables | Manual |
 | Cicletada | `content/cicletada/` | Redirect a tracking GPS en vivo | Manual |
@@ -408,6 +408,19 @@ ENV="prod"
 docker-compose up --build -d
 ```
 
+### Hot reload (ver cambios en el navegador sin rebuild)
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d web redis
+# sitio en http://localhost (Hugo --watch reconstruye public/ al guardar;
+# gunicorn --reload recarga Django; basta recargar el navegador)
+```
+
+El servicio `web` de `docker-compose.dev.yml` monta `.:/andeschileong/` y corre
+`hugo --watch --poll 700ms` en segundo plano (polling porque inotify no cruza el
+bind mount), por lo que editar `hugo_site/content/...` (ej. `estudios/2026/cicloamigable/index.html`) se refleja
+con solo guardar + recargar. No rebuildear ni reiniciar.
+
 ### Estructura del Dockerfile
 
 1. `python:3.11-slim` como base
@@ -539,7 +552,7 @@ docker-compose exec web bash -c "<comando>"  # Ejecutar bash en el contenedor
 | `hugo_site/assets/css/main.css` | CSS custom del sitio |
 | `templates/` | Templates Django (base con mapa Leaflet + `?key={{ CARTO_API_KEY }}`, navbar, 404, 403) |
 | `Dockerfile` | Configuración de Docker |
-| `entrypoint.sh` | Arranque: makemigrations emails + migrate en cada deploy (web y worker), luego sync_hugo → nginx → gunicorn |
+| `entrypoint.sh` | Arranque: si recibe comando (compose dev) lo ejecuta en vez del flujo prod — así corre `hugo --watch` + `gunicorn --reload`. Sin comando: sync_hugo → nginx → gunicorn |
 | `docker-compose.yml` | Orquestación Docker |
 | `requirements.txt` | Dependencias Python |
 | `.env` | Variables de entorno |

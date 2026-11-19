@@ -1,0 +1,4681 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <title>pydeck</title>
+        <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v1.13.0/mapbox-gl.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.14.0/dist/maplibre-gl.css" />
+    <script src='https://cdn.jsdelivr.net/npm/@deck.gl/jupyter-widget@~9.3.*/dist/index.js'></script>
+    <link rel="stylesheet" href=https://cdn.jsdelivr.net/npm/@deck.gl/widgets@~9.3.*/dist/stylesheet.css />
+    <style>
+    body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+#deck-container {
+  width: 100vw;
+  height: 100vh;
+}
+
+#deck-container canvas {
+  z-index: 1;
+  background: none;
+}
+
+#deck-container .error_text {
+  color: red;
+  background: none;
+  position: absolute;
+  z-index: 100;
+}
+    </style>
+  <style>
+#panel{position:fixed;top:12px;left:12px;width:260px;max-height:calc(100vh - 24px);overflow-y:auto;background:rgba(255,255,255,.97);z-index:20;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,.25);padding:14px 16px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:13px;color:#222;line-height:1.45}
+#panel h1{font-size:15px;margin:0 0 2px}#panel h2{font-size:12px;margin:12px 0 4px;color:#444}
+#panel .sub{font-size:12px;color:#555;margin:0 0 8px}
+#panel .tot{background:#f4f6f8;border-radius:6px;padding:7px 9px;font-size:12.5px;margin:8px 0}
+#panel label{display:block;font-size:12.5px;margin:2px 0}
+#panel .sw{display:inline-block;width:26px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle}
+#panel .warn{font-size:11.5px;color:#6b4e00;background:#fff8e1;border-radius:6px;padding:7px 9px;margin:8px 0}
+#panel .src{font-size:11px;color:#666}
+#panel .body.collapsed{display:none}
+#collapseBtn{float:right;border:1px solid #ccc;background:#fff;border-radius:6px;font-size:12px;cursor:pointer}
+@media (max-width:640px){#panel{width:266px}}
+</style>
+<style>
+#maptools{position:fixed;right:12px;bottom:12px;z-index:30;display:flex;flex-direction:column;gap:4px;
+background:rgba(255,255,255,.95);border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.25);padding:5px;}
+#maptools button{width:34px;height:34px;border:1px solid #ccc;background:#fff;border-radius:6px;
+font-size:16px;line-height:1;cursor:pointer;color:#333;padding:0;}
+#maptools button:hover{background:#eef5fc;border-color:#0072B2;}
+#maptools button:disabled{opacity:.45;cursor:default;}
+#maptools .tb-sep{height:1px;background:#ddd;margin:2px 3px;}
+#maptools .tb-msg{position:fixed;right:54px;bottom:12px;max-width:280px;background:#333;color:#fff;
+font:12px system-ui,sans-serif;padding:8px 12px;border-radius:6px;display:none;z-index:31;}
+</style>
+<style>
+#panel{top:auto !important;bottom:64px !important;left:12px !important;max-height:44vh;display:none;}
+#panel.open{display:block;}
+#capasBtn{position:fixed;left:12px;bottom:12px;z-index:31;background:#fff;border:1px solid #ccc;
+border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.25);padding:8px 14px;font:600 13px system-ui,sans-serif;
+color:#222;cursor:pointer;}
+#capasBtn:hover{background:#eef5fc;border-color:#0072B2;}
+</style>
+</head>
+  <body>
+    <div id="deck-container">
+    </div>
+  </body>
+  <script>
+    const container = document.getElementById('deck-container');
+    const jsonInput = {
+  "initialViewState": {
+    "bearing": 0,
+    "latitude": -33.033,
+    "longitude": -71.588,
+    "pitch": 0,
+    "zoom": 13
+  },
+  "layers": [
+    {
+      "@@type": "PathLayer",
+      "autoHighlight": true,
+      "data": [
+        {
+          "linea1": "195 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 426587749",
+          "path": [
+            [
+              -71.60609,
+              -33.04318
+            ],
+            [
+              -71.60603,
+              -33.04324
+            ],
+            [
+              -71.60598,
+              -33.0433
+            ],
+            [
+              -71.60591,
+              -33.04336
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "205 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 550280277",
+          "path": [
+            [
+              -71.57221,
+              -33.02538
+            ],
+            [
+              -71.57191,
+              -33.02532
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "230 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 602742637",
+          "path": [
+            [
+              -71.59395,
+              -33.03364
+            ],
+            [
+              -71.5934,
+              -33.03349
+            ],
+            [
+              -71.59204,
+              -33.03323
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "205 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 731772210",
+          "path": [
+            [
+              -71.58244,
+              -33.02622
+            ],
+            [
+              -71.58218,
+              -33.02631
+            ],
+            [
+              -71.58204,
+              -33.02639
+            ],
+            [
+              -71.58188,
+              -33.02648
+            ],
+            [
+              -71.58174,
+              -33.02656
+            ],
+            [
+              -71.58153,
+              -33.02671
+            ],
+            [
+              -71.58128,
+              -33.0269
+            ],
+            [
+              -71.5809,
+              -33.02713
+            ],
+            [
+              -71.58077,
+              -33.0272
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "115 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1420374769",
+          "path": [
+            [
+              -71.60476,
+              -33.04592
+            ],
+            [
+              -71.60474,
+              -33.04599
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "195 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 550280277",
+          "path": [
+            [
+              -71.57131,
+              -33.02518
+            ],
+            [
+              -71.57114,
+              -33.02511
+            ],
+            [
+              -71.57101,
+              -33.02503
+            ],
+            [
+              -71.57089,
+              -33.02497
+            ],
+            [
+              -71.57078,
+              -33.02492
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "225 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 394670261",
+          "path": [
+            [
+              -71.56964,
+              -33.0241
+            ],
+            [
+              -71.56927,
+              -33.0239
+            ],
+            [
+              -71.56908,
+              -33.02382
+            ],
+            [
+              -71.56896,
+              -33.02377
+            ],
+            [
+              -71.56883,
+              -33.02371
+            ],
+            [
+              -71.56874,
+              -33.02367
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "155 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1280173147",
+          "path": [
+            [
+              -71.5674,
+              -33.0236
+            ],
+            [
+              -71.56775,
+              -33.02359
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "155 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 485022666",
+          "path": [
+            [
+              -71.60539,
+              -33.04333
+            ],
+            [
+              -71.60539,
+              -33.0433
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "200 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 23583751",
+          "path": [
+            [
+              -71.60521,
+              -33.04323
+            ],
+            [
+              -71.60507,
+              -33.04262
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "230 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 602742637",
+          "path": [
+            [
+              -71.59512,
+              -33.03403
+            ],
+            [
+              -71.59473,
+              -33.03391
+            ],
+            [
+              -71.59395,
+              -33.03364
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "220 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 586648619",
+          "path": [
+            [
+              -71.5905,
+              -33.03289
+            ],
+            [
+              -71.59037,
+              -33.03284
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "195 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 298027241",
+          "path": [
+            [
+              -71.57591,
+              -33.02766
+            ],
+            [
+              -71.5757,
+              -33.02755
+            ],
+            [
+              -71.57558,
+              -33.02749
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "165 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 23566567",
+          "path": [
+            [
+              -71.56633,
+              -33.02116
+            ],
+            [
+              -71.56627,
+              -33.02114
+            ],
+            [
+              -71.56615,
+              -33.02108
+            ],
+            [
+              -71.56564,
+              -33.02077
+            ],
+            [
+              -71.56553,
+              -33.02067
+            ],
+            [
+              -71.56543,
+              -33.02056
+            ],
+            [
+              -71.565,
+              -33.01988
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "235 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1105666798",
+          "path": [
+            [
+              -71.59204,
+              -33.03323
+            ],
+            [
+              -71.59117,
+              -33.03307
+            ],
+            [
+              -71.59093,
+              -33.03302
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "155 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 56006086",
+          "path": [
+            [
+              -71.59031,
+              -33.0322
+            ],
+            [
+              -71.59024,
+              -33.03228
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "215 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1081960217",
+          "path": [
+            [
+              -71.57977,
+              -33.02753
+            ],
+            [
+              -71.57944,
+              -33.02759
+            ],
+            [
+              -71.57894,
+              -33.0277
+            ],
+            [
+              -71.57844,
+              -33.02783
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "110 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 394670261",
+          "path": [
+            [
+              -71.56874,
+              -33.02367
+            ],
+            [
+              -71.56863,
+              -33.0236
+            ],
+            [
+              -71.5685,
+              -33.02351
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "150 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 23616372",
+          "path": [
+            [
+              -71.56728,
+              -33.02365
+            ],
+            [
+              -71.56728,
+              -33.02361
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "145 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 586648617",
+          "path": [
+            [
+              -71.56792,
+              -33.02171
+            ],
+            [
+              -71.56787,
+              -33.02178
+            ],
+            [
+              -71.56781,
+              -33.02193
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "165 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 595243299",
+          "path": [
+            [
+              -71.56256,
+              -33.01988
+            ],
+            [
+              -71.56254,
+              -33.01989
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "115 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 317417555",
+          "path": [
+            [
+              -71.60568,
+              -33.04359
+            ],
+            [
+              -71.60566,
+              -33.04364
+            ],
+            [
+              -71.60559,
+              -33.04387
+            ],
+            [
+              -71.60557,
+              -33.04395
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "160 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1420374772",
+          "path": [
+            [
+              -71.60591,
+              -33.04336
+            ],
+            [
+              -71.60587,
+              -33.04349
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "205 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 550280264",
+          "path": [
+            [
+              -71.57347,
+              -33.02595
+            ],
+            [
+              -71.5731,
+              -33.02572
+            ],
+            [
+              -71.57292,
+              -33.02563
+            ],
+            [
+              -71.5727,
+              -33.02553
+            ],
+            [
+              -71.57259,
+              -33.02549
+            ],
+            [
+              -71.57248,
+              -33.02545
+            ],
+            [
+              -71.57234,
+              -33.02541
+            ],
+            [
+              -71.57221,
+              -33.02538
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "205 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 586747670",
+          "path": [
+            [
+              -71.56111,
+              -33.02107
+            ],
+            [
+              -71.56234,
+              -33.01998
+            ],
+            [
+              -71.56244,
+              -33.01989
+            ],
+            [
+              -71.56253,
+              -33.01984
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "225 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 550280265",
+          "path": [
+            [
+              -71.58745,
+              -33.03029
+            ],
+            [
+              -71.58734,
+              -33.03024
+            ],
+            [
+              -71.58724,
+              -33.03017
+            ],
+            [
+              -71.58715,
+              -33.0301
+            ],
+            [
+              -71.58708,
+              -33.03004
+            ],
+            [
+              -71.58701,
+              -33.02997
+            ],
+            [
+              -71.58695,
+              -33.0299
+            ],
+            [
+              -71.5869,
+              -33.02982
+            ],
+            [
+              -71.58679,
+              -33.02964
+            ],
+            [
+              -71.5867,
+              -33.0295
+            ],
+            [
+              -71.58662,
+              -33.02934
+            ],
+            [
+              -71.58652,
+              -33.02915
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "205 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 731772212",
+          "path": [
+            [
+              -71.58591,
+              -33.02789
+            ],
+            [
+              -71.58578,
+              -33.02761
+            ],
+            [
+              -71.58563,
+              -33.02731
+            ],
+            [
+              -71.58553,
+              -33.02715
+            ],
+            [
+              -71.58547,
+              -33.02706
+            ],
+            [
+              -71.58536,
+              -33.02693
+            ],
+            [
+              -71.58524,
+              -33.02682
+            ],
+            [
+              -71.58508,
+              -33.02669
+            ],
+            [
+              -71.58497,
+              -33.02659
+            ],
+            [
+              -71.58484,
+              -33.02651
+            ],
+            [
+              -71.58471,
+              -33.02643
+            ],
+            [
+              -71.58457,
+              -33.02636
+            ],
+            [
+              -71.58443,
+              -33.02629
+            ],
+            [
+              -71.58428,
+              -33.02624
+            ],
+            [
+              -71.58418,
+              -33.02621
+            ],
+            [
+              -71.58407,
+              -33.02618
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "205 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 731772211",
+          "path": [
+            [
+              -71.58263,
+              -33.02616
+            ],
+            [
+              -71.58253,
+              -33.02619
+            ],
+            [
+              -71.58244,
+              -33.02622
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "200 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 550280277",
+          "path": [
+            [
+              -71.57191,
+              -33.02532
+            ],
+            [
+              -71.57176,
+              -33.0253
+            ],
+            [
+              -71.57155,
+              -33.02526
+            ],
+            [
+              -71.57131,
+              -33.02518
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "190 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 551685632",
+          "path": [
+            [
+              -71.56645,
+              -33.02382
+            ],
+            [
+              -71.56708,
+              -33.02368
+            ],
+            [
+              -71.56728,
+              -33.02365
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "200 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 56215423",
+          "path": [
+            [
+              -71.56285,
+              -33.0256
+            ],
+            [
+              -71.56276,
+              -33.02538
+            ],
+            [
+              -71.56273,
+              -33.02523
+            ],
+            [
+              -71.56271,
+              -33.02511
+            ],
+            [
+              -71.56269,
+              -33.02505
+            ],
+            [
+              -71.56264,
+              -33.02495
+            ],
+            [
+              -71.56263,
+              -33.02493
+            ],
+            [
+              -71.5626,
+              -33.02489
+            ],
+            [
+              -71.56255,
+              -33.02485
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "160 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 298027241",
+          "path": [
+            [
+              -71.57701,
+              -33.02793
+            ],
+            [
+              -71.57685,
+              -33.02791
+            ],
+            [
+              -71.57655,
+              -33.02786
+            ],
+            [
+              -71.57632,
+              -33.0278
+            ],
+            [
+              -71.57591,
+              -33.02766
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "205 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 549753007",
+          "path": [
+            [
+              -71.56169,
+              -33.02498
+            ],
+            [
+              -71.56157,
+              -33.02499
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "175 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 549634934",
+          "path": [
+            [
+              -71.56882,
+              -33.02411
+            ],
+            [
+              -71.56862,
+              -33.02405
+            ],
+            [
+              -71.56855,
+              -33.02404
+            ],
+            [
+              -71.56848,
+              -33.02402
+            ],
+            [
+              -71.56837,
+              -33.024
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "130 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 456216001",
+          "path": [
+            [
+              -71.5677,
+              -33.02336
+            ],
+            [
+              -71.56763,
+              -33.02304
+            ],
+            [
+              -71.56762,
+              -33.023
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "165 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 456216002",
+          "path": [
+            [
+              -71.56765,
+              -33.02196
+            ],
+            [
+              -71.56773,
+              -33.02179
+            ],
+            [
+              -71.56777,
+              -33.02169
+            ],
+            [
+              -71.56779,
+              -33.02164
+            ],
+            [
+              -71.56781,
+              -33.02159
+            ],
+            [
+              -71.56782,
+              -33.02154
+            ],
+            [
+              -71.56782,
+              -33.02149
+            ],
+            [
+              -71.56782,
+              -33.02146
+            ],
+            [
+              -71.56781,
+              -33.02142
+            ],
+            [
+              -71.56777,
+              -33.02135
+            ],
+            [
+              -71.5677,
+              -33.02129
+            ],
+            [
+              -71.56764,
+              -33.02123
+            ],
+            [
+              -71.56758,
+              -33.02118
+            ],
+            [
+              -71.56749,
+              -33.02112
+            ],
+            [
+              -71.56742,
+              -33.02108
+            ],
+            [
+              -71.56736,
+              -33.02105
+            ],
+            [
+              -71.56729,
+              -33.02104
+            ],
+            [
+              -71.56722,
+              -33.02103
+            ],
+            [
+              -71.56715,
+              -33.02102
+            ],
+            [
+              -71.56709,
+              -33.02102
+            ],
+            [
+              -71.56702,
+              -33.02103
+            ],
+            [
+              -71.56695,
+              -33.02105
+            ],
+            [
+              -71.56688,
+              -33.02107
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "165 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 595243299",
+          "path": [
+            [
+              -71.56202,
+              -33.02034
+            ],
+            [
+              -71.56169,
+              -33.02065
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "235 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 23489700",
+          "path": [
+            [
+              -71.59093,
+              -33.03302
+            ],
+            [
+              -71.59088,
+              -33.033
+            ],
+            [
+              -71.59073,
+              -33.03296
+            ],
+            [
+              -71.59065,
+              -33.03294
+            ],
+            [
+              -71.5905,
+              -33.03289
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "205 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 731772211",
+          "path": [
+            [
+              -71.58407,
+              -33.02618
+            ],
+            [
+              -71.58393,
+              -33.02614
+            ],
+            [
+              -71.58378,
+              -33.02611
+            ],
+            [
+              -71.58362,
+              -33.02609
+            ],
+            [
+              -71.58347,
+              -33.02608
+            ],
+            [
+              -71.58332,
+              -33.02608
+            ],
+            [
+              -71.58316,
+              -33.02608
+            ],
+            [
+              -71.58301,
+              -33.02609
+            ],
+            [
+              -71.58288,
+              -33.02611
+            ],
+            [
+              -71.58275,
+              -33.02613
+            ],
+            [
+              -71.58263,
+              -33.02616
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "210 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 298027241",
+          "path": [
+            [
+              -71.57558,
+              -33.02749
+            ],
+            [
+              -71.57544,
+              -33.0274
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "115 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 23500111",
+          "path": [
+            [
+              -71.56837,
+              -33.02372
+            ],
+            [
+              -71.56856,
+              -33.02376
+            ],
+            [
+              -71.56885,
+              -33.02385
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "135 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1055850561",
+          "path": [
+            [
+              -71.56253,
+              -33.01984
+            ],
+            [
+              -71.56256,
+              -33.01978
+            ],
+            [
+              -71.56264,
+              -33.01965
+            ],
+            [
+              -71.56318,
+              -33.01956
+            ],
+            [
+              -71.56328,
+              -33.01961
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "130 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 317621790",
+          "path": [
+            [
+              -71.605,
+              -33.04529
+            ],
+            [
+              -71.60482,
+              -33.04577
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "125 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1420374758",
+          "path": [
+            [
+              -71.60503,
+              -33.04521
+            ],
+            [
+              -71.605,
+              -33.04529
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "140 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 56006086",
+          "path": [
+            [
+              -71.59024,
+              -33.03228
+            ],
+            [
+              -71.59022,
+              -33.03231
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "235 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1105666793",
+          "path": [
+            [
+              -71.59037,
+              -33.03284
+            ],
+            [
+              -71.5902,
+              -33.03275
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "115 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 586648617",
+          "path": [
+            [
+              -71.56809,
+              -33.02359
+            ],
+            [
+              -71.56812,
+              -33.02362
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "205 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1055850560",
+          "path": [
+            [
+              -71.56328,
+              -33.01961
+            ],
+            [
+              -71.56348,
+              -33.01955
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "140 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 24633774",
+          "path": [
+            [
+              -71.6053,
+              -33.04364
+            ],
+            [
+              -71.60536,
+              -33.04352
+            ],
+            [
+              -71.60539,
+              -33.04333
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "215 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 298027241",
+          "path": [
+            [
+              -71.57844,
+              -33.02783
+            ],
+            [
+              -71.57803,
+              -33.02794
+            ],
+            [
+              -71.57781,
+              -33.02797
+            ],
+            [
+              -71.57759,
+              -33.02798
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "200 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 381810709",
+          "path": [
+            [
+              -71.56618,
+              -33.02387
+            ],
+            [
+              -71.56645,
+              -33.02382
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "180 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 45228688",
+          "path": [
+            [
+              -71.59031,
+              -33.0322
+            ],
+            [
+              -71.5902,
+              -33.03213
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "195 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1081960216",
+          "path": [
+            [
+              -71.57078,
+              -33.02492
+            ],
+            [
+              -71.57056,
+              -33.02481
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "150 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 586648617",
+          "path": [
+            [
+              -71.56785,
+              -33.02133
+            ],
+            [
+              -71.5679,
+              -33.0214
+            ],
+            [
+              -71.56794,
+              -33.02147
+            ],
+            [
+              -71.56795,
+              -33.02156
+            ],
+            [
+              -71.56794,
+              -33.02167
+            ],
+            [
+              -71.56792,
+              -33.02171
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "175 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 586648617",
+          "path": [
+            [
+              -71.56762,
+              -33.02111
+            ],
+            [
+              -71.5677,
+              -33.02117
+            ],
+            [
+              -71.56774,
+              -33.02122
+            ],
+            [
+              -71.56781,
+              -33.02128
+            ],
+            [
+              -71.56783,
+              -33.0213
+            ],
+            [
+              -71.56785,
+              -33.02133
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "165 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 542061468",
+          "path": [
+            [
+              -71.56761,
+              -33.02288
+            ],
+            [
+              -71.56758,
+              -33.02247
+            ],
+            [
+              -71.56759,
+              -33.0222
+            ],
+            [
+              -71.5676,
+              -33.02213
+            ],
+            [
+              -71.56761,
+              -33.02206
+            ],
+            [
+              -71.56765,
+              -33.02196
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "165 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 595243299",
+          "path": [
+            [
+              -71.56254,
+              -33.01989
+            ],
+            [
+              -71.56249,
+              -33.01992
+            ],
+            [
+              -71.56243,
+              -33.01996
+            ],
+            [
+              -71.56239,
+              -33.01999
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "220 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 550280266",
+          "path": [
+            [
+              -71.58902,
+              -33.03167
+            ],
+            [
+              -71.58897,
+              -33.03161
+            ],
+            [
+              -71.58883,
+              -33.03139
+            ],
+            [
+              -71.58872,
+              -33.03123
+            ],
+            [
+              -71.58862,
+              -33.03111
+            ],
+            [
+              -71.58851,
+              -33.03099
+            ],
+            [
+              -71.5884,
+              -33.03089
+            ],
+            [
+              -71.58823,
+              -33.03075
+            ],
+            [
+              -71.58803,
+              -33.03061
+            ],
+            [
+              -71.58785,
+              -33.03052
+            ],
+            [
+              -71.58745,
+              -33.03029
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "180 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 550280263",
+          "path": [
+            [
+              -71.57056,
+              -33.02481
+            ],
+            [
+              -71.56952,
+              -33.02437
+            ],
+            [
+              -71.56908,
+              -33.0242
+            ],
+            [
+              -71.56882,
+              -33.02411
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "135 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1280173146",
+          "path": [
+            [
+              -71.56728,
+              -33.02361
+            ],
+            [
+              -71.5674,
+              -33.0236
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "210 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 586648617",
+          "path": [
+            [
+              -71.56348,
+              -33.01955
+            ],
+            [
+              -71.56425,
+              -33.01934
+            ],
+            [
+              -71.56437,
+              -33.01932
+            ],
+            [
+              -71.56448,
+              -33.01932
+            ],
+            [
+              -71.56457,
+              -33.01934
+            ],
+            [
+              -71.56463,
+              -33.01936
+            ],
+            [
+              -71.56469,
+              -33.01938
+            ],
+            [
+              -71.56475,
+              -33.01941
+            ],
+            [
+              -71.56479,
+              -33.01944
+            ],
+            [
+              -71.56485,
+              -33.01949
+            ],
+            [
+              -71.5649,
+              -33.01957
+            ],
+            [
+              -71.56542,
+              -33.02039
+            ],
+            [
+              -71.56553,
+              -33.02052
+            ],
+            [
+              -71.56566,
+              -33.02064
+            ],
+            [
+              -71.56584,
+              -33.02075
+            ],
+            [
+              -71.56606,
+              -33.02087
+            ],
+            [
+              -71.56626,
+              -33.02098
+            ],
+            [
+              -71.56636,
+              -33.02102
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "225 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 731772214",
+          "path": [
+            [
+              -71.58977,
+              -33.0325
+            ],
+            [
+              -71.58963,
+              -33.0324
+            ],
+            [
+              -71.58943,
+              -33.03222
+            ],
+            [
+              -71.58927,
+              -33.03203
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "210 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 731772209",
+          "path": [
+            [
+              -71.57544,
+              -33.0274
+            ],
+            [
+              -71.57492,
+              -33.02705
+            ],
+            [
+              -71.57442,
+              -33.02667
+            ],
+            [
+              -71.57402,
+              -33.02636
+            ],
+            [
+              -71.57347,
+              -33.02595
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "165 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1418747045",
+          "path": [
+            [
+              -71.56874,
+              -33.02367
+            ],
+            [
+              -71.56862,
+              -33.02369
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "125 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1280173145",
+          "path": [
+            [
+              -71.56728,
+              -33.02343
+            ],
+            [
+              -71.56734,
+              -33.02347
+            ],
+            [
+              -71.56738,
+              -33.02352
+            ],
+            [
+              -71.56739,
+              -33.02359
+            ],
+            [
+              -71.5674,
+              -33.0236
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "200 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 586648617",
+          "path": [
+            [
+              -71.56636,
+              -33.02102
+            ],
+            [
+              -71.56642,
+              -33.02104
+            ],
+            [
+              -71.56648,
+              -33.02105
+            ],
+            [
+              -71.56652,
+              -33.02105
+            ],
+            [
+              -71.56658,
+              -33.02106
+            ],
+            [
+              -71.56664,
+              -33.02105
+            ],
+            [
+              -71.56668,
+              -33.02105
+            ],
+            [
+              -71.56678,
+              -33.02103
+            ],
+            [
+              -71.56686,
+              -33.021
+            ],
+            [
+              -71.56694,
+              -33.02098
+            ],
+            [
+              -71.567,
+              -33.02097
+            ],
+            [
+              -71.56705,
+              -33.02096
+            ],
+            [
+              -71.56713,
+              -33.02096
+            ],
+            [
+              -71.56719,
+              -33.02096
+            ],
+            [
+              -71.56726,
+              -33.02096
+            ],
+            [
+              -71.56735,
+              -33.02098
+            ],
+            [
+              -71.56744,
+              -33.02101
+            ],
+            [
+              -71.56752,
+              -33.02105
+            ],
+            [
+              -71.56757,
+              -33.02108
+            ],
+            [
+              -71.56762,
+              -33.02111
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "145 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 381810709",
+          "path": [
+            [
+              -71.56264,
+              -33.02463
+            ],
+            [
+              -71.56274,
+              -33.02461
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "235 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 541622193",
+          "path": [
+            [
+              -71.59563,
+              -33.03414
+            ],
+            [
+              -71.59512,
+              -33.03403
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "175 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 56006085",
+          "path": [
+            [
+              -71.59013,
+              -33.03221
+            ],
+            [
+              -71.5902,
+              -33.03213
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "180 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 56006085",
+          "path": [
+            [
+              -71.59011,
+              -33.03224
+            ],
+            [
+              -71.59013,
+              -33.03221
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "160 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 23566567",
+          "path": [
+            [
+              -71.56688,
+              -33.02107
+            ],
+            [
+              -71.56678,
+              -33.0211
+            ],
+            [
+              -71.56667,
+              -33.02113
+            ],
+            [
+              -71.56654,
+              -33.02116
+            ],
+            [
+              -71.56646,
+              -33.02117
+            ],
+            [
+              -71.56633,
+              -33.02116
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "165 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 381810709",
+          "path": [
+            [
+              -71.56274,
+              -33.02461
+            ],
+            [
+              -71.56333,
+              -33.02446
+            ],
+            [
+              -71.564,
+              -33.02429
+            ],
+            [
+              -71.56431,
+              -33.02422
+            ],
+            [
+              -71.56463,
+              -33.02413
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "120 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1077151977",
+          "path": [
+            [
+              -71.56154,
+              -33.02481
+            ],
+            [
+              -71.56188,
+              -33.02476
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "165 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 23566567",
+          "path": [
+            [
+              -71.56273,
+              -33.01983
+            ],
+            [
+              -71.56264,
+              -33.01985
+            ],
+            [
+              -71.56256,
+              -33.01988
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "235 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 541622193",
+          "path": [
+            [
+              -71.59572,
+              -33.03416
+            ],
+            [
+              -71.59563,
+              -33.03414
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "225 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 731772214",
+          "path": [
+            [
+              -71.58927,
+              -33.03203
+            ],
+            [
+              -71.58915,
+              -33.03184
+            ],
+            [
+              -71.58902,
+              -33.03167
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "220 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 550280265",
+          "path": [
+            [
+              -71.58652,
+              -33.02915
+            ],
+            [
+              -71.58646,
+              -33.02903
+            ],
+            [
+              -71.58635,
+              -33.0288
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "160 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 298027241",
+          "path": [
+            [
+              -71.57759,
+              -33.02798
+            ],
+            [
+              -71.57701,
+              -33.02793
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "195 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1105230368",
+          "path": [
+            [
+              -71.56157,
+              -33.02499
+            ],
+            [
+              -71.56128,
+              -33.02504
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "230 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1105666794",
+          "path": [
+            [
+              -71.5902,
+              -33.03275
+            ],
+            [
+              -71.59012,
+              -33.03271
+            ],
+            [
+              -71.58991,
+              -33.0326
+            ],
+            [
+              -71.58977,
+              -33.0325
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "215 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 550280265",
+          "path": [
+            [
+              -71.58635,
+              -33.0288
+            ],
+            [
+              -71.58624,
+              -33.02858
+            ],
+            [
+              -71.58617,
+              -33.02844
+            ],
+            [
+              -71.58602,
+              -33.02812
+            ],
+            [
+              -71.58591,
+              -33.02789
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "125 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 456216003",
+          "path": [
+            [
+              -71.56837,
+              -33.024
+            ],
+            [
+              -71.56805,
+              -33.0239
+            ],
+            [
+              -71.56791,
+              -33.02382
+            ],
+            [
+              -71.56783,
+              -33.02373
+            ],
+            [
+              -71.56779,
+              -33.02368
+            ],
+            [
+              -71.56776,
+              -33.02363
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "145 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 586648617",
+          "path": [
+            [
+              -71.56781,
+              -33.02193
+            ],
+            [
+              -71.56777,
+              -33.02215
+            ],
+            [
+              -71.56776,
+              -33.02247
+            ],
+            [
+              -71.56778,
+              -33.02279
+            ],
+            [
+              -71.56779,
+              -33.02288
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "140 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1418747046",
+          "path": [
+            [
+              -71.5677,
+              -33.02336
+            ],
+            [
+              -71.56759,
+              -33.02336
+            ],
+            [
+              -71.56751,
+              -33.02335
+            ],
+            [
+              -71.56738,
+              -33.02334
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "140 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 550280261",
+          "path": [
+            [
+              -71.5628,
+              -33.02479
+            ],
+            [
+              -71.5627,
+              -33.02482
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "125 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1077151977",
+          "path": [
+            [
+              -71.56198,
+              -33.02475
+            ],
+            [
+              -71.56224,
+              -33.0247
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "130 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1077151977",
+          "path": [
+            [
+              -71.56188,
+              -33.02476
+            ],
+            [
+              -71.56198,
+              -33.02475
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "170 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 595243299",
+          "path": [
+            [
+              -71.56169,
+              -33.02065
+            ],
+            [
+              -71.56166,
+              -33.02068
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "120 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 317417555",
+          "path": [
+            [
+              -71.60557,
+              -33.04395
+            ],
+            [
+              -71.60554,
+              -33.04402
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "140 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 56006086",
+          "path": [
+            [
+              -71.59022,
+              -33.03231
+            ],
+            [
+              -71.5902,
+              -33.03236
+            ],
+            [
+              -71.59019,
+              -33.0324
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "225 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 549753007",
+          "path": [
+            [
+              -71.5619,
+              -33.02494
+            ],
+            [
+              -71.56173,
+              -33.02497
+            ],
+            [
+              -71.56169,
+              -33.02498
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "180 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 456216001",
+          "path": [
+            [
+              -71.56776,
+              -33.02363
+            ],
+            [
+              -71.56775,
+              -33.02359
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "130 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 317621790",
+          "path": [
+            [
+              -71.60482,
+              -33.04577
+            ],
+            [
+              -71.60478,
+              -33.04588
+            ],
+            [
+              -71.60476,
+              -33.04592
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "215 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1081960218",
+          "path": [
+            [
+              -71.58077,
+              -33.0272
+            ],
+            [
+              -71.58061,
+              -33.02728
+            ],
+            [
+              -71.58032,
+              -33.02739
+            ],
+            [
+              -71.5799,
+              -33.0275
+            ],
+            [
+              -71.57977,
+              -33.02753
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "225 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 549753007",
+          "path": [
+            [
+              -71.56255,
+              -33.02485
+            ],
+            [
+              -71.56242,
+              -33.02487
+            ],
+            [
+              -71.5619,
+              -33.02494
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "125 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 23500111",
+          "path": [
+            [
+              -71.56826,
+              -33.02369
+            ],
+            [
+              -71.56837,
+              -33.02372
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "180 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 381810709",
+          "path": [
+            [
+              -71.56463,
+              -33.02413
+            ],
+            [
+              -71.56514,
+              -33.02405
+            ],
+            [
+              -71.56589,
+              -33.02392
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "170 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 381810709",
+          "path": [
+            [
+              -71.56589,
+              -33.02392
+            ],
+            [
+              -71.56618,
+              -33.02387
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "165 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 23566567",
+          "path": [
+            [
+              -71.565,
+              -33.01988
+            ],
+            [
+              -71.56489,
+              -33.01969
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "125 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 317417555",
+          "path": [
+            [
+              -71.60554,
+              -33.04402
+            ],
+            [
+              -71.60553,
+              -33.04408
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "220 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 370314693",
+          "path": [
+            [
+              -71.60507,
+              -33.04262
+            ],
+            [
+              -71.6049,
+              -33.04207
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "155 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 56006085",
+          "path": [
+            [
+              -71.59019,
+              -33.0324
+            ],
+            [
+              -71.59013,
+              -33.03238
+            ],
+            [
+              -71.59011,
+              -33.03235
+            ],
+            [
+              -71.5901,
+              -33.03233
+            ],
+            [
+              -71.59009,
+              -33.03231
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "160 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 56006085",
+          "path": [
+            [
+              -71.59009,
+              -33.03231
+            ],
+            [
+              -71.5901,
+              -33.03229
+            ],
+            [
+              -71.59011,
+              -33.03224
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "185 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 394670257",
+          "path": [
+            [
+              -71.56842,
+              -33.02355
+            ],
+            [
+              -71.56862,
+              -33.02369
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "225 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 394670254",
+          "path": [
+            [
+              -71.56842,
+              -33.02355
+            ],
+            [
+              -71.56826,
+              -33.0236
+            ],
+            [
+              -71.56812,
+              -33.02362
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "125 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 586648617",
+          "path": [
+            [
+              -71.56779,
+              -33.02288
+            ],
+            [
+              -71.5678,
+              -33.02291
+            ],
+            [
+              -71.56787,
+              -33.02323
+            ],
+            [
+              -71.56797,
+              -33.02344
+            ],
+            [
+              -71.568,
+              -33.02349
+            ],
+            [
+              -71.56803,
+              -33.02353
+            ],
+            [
+              -71.56807,
+              -33.02358
+            ],
+            [
+              -71.56809,
+              -33.02359
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "185 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 456216001",
+          "path": [
+            [
+              -71.56762,
+              -33.023
+            ],
+            [
+              -71.56761,
+              -33.02288
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "165 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 23566567",
+          "path": [
+            [
+              -71.56489,
+              -33.01969
+            ],
+            [
+              -71.56481,
+              -33.01958
+            ],
+            [
+              -71.56472,
+              -33.01949
+            ],
+            [
+              -71.56462,
+              -33.01943
+            ],
+            [
+              -71.56454,
+              -33.0194
+            ],
+            [
+              -71.56445,
+              -33.01939
+            ],
+            [
+              -71.56431,
+              -33.01939
+            ],
+            [
+              -71.56421,
+              -33.01941
+            ],
+            [
+              -71.56409,
+              -33.01944
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "165 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 23566567",
+          "path": [
+            [
+              -71.56409,
+              -33.01944
+            ],
+            [
+              -71.56273,
+              -33.01983
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "170 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 595243299",
+          "path": [
+            [
+              -71.56166,
+              -33.02068
+            ],
+            [
+              -71.56129,
+              -33.02101
+            ]
+          ],
+          "titulo": "Flujo medio"
+        },
+        {
+          "linea1": "165 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 595243299",
+          "path": [
+            [
+              -71.56239,
+              -33.01999
+            ],
+            [
+              -71.56202,
+              -33.02034
+            ]
+          ],
+          "titulo": "Flujo medio"
+        }
+      ],
+      "getColor": [
+        255,
+        165,
+        0
+      ],
+      "getPath": "@@=path",
+      "getWidth": 26,
+      "id": "capa_orange",
+      "pickable": true,
+      "widthMinPixels": 2
+    },
+    {
+      "@@type": "PathLayer",
+      "autoHighlight": true,
+      "data": [
+        {
+          "linea1": "535 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 333210789",
+          "path": [
+            [
+              -71.60398,
+              -33.04692
+            ],
+            [
+              -71.60424,
+              -33.04629
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "525 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1420374766",
+          "path": [
+            [
+              -71.60442,
+              -33.04591
+            ],
+            [
+              -71.60444,
+              -33.04585
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "450 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 317452409",
+          "path": [
+            [
+              -71.60524,
+              -33.04382
+            ],
+            [
+              -71.60528,
+              -33.04372
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "255 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 370314693",
+          "path": [
+            [
+              -71.6049,
+              -33.04207
+            ],
+            [
+              -71.60483,
+              -33.04183
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "360 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 313296850",
+          "path": [
+            [
+              -71.60628,
+              -33.04103
+            ],
+            [
+              -71.60636,
+              -33.04114
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "285 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1057764394",
+          "path": [
+            [
+              -71.56964,
+              -33.0241
+            ],
+            [
+              -71.57056,
+              -33.02449
+            ],
+            [
+              -71.57078,
+              -33.02456
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "395 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1123661710",
+          "path": [
+            [
+              -71.60609,
+              -33.0427
+            ],
+            [
+              -71.60597,
+              -33.04253
+            ],
+            [
+              -71.60599,
+              -33.04252
+            ],
+            [
+              -71.60602,
+              -33.0425
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "250 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 456216001",
+          "path": [
+            [
+              -71.56775,
+              -33.02359
+            ],
+            [
+              -71.5677,
+              -33.02336
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "510 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 388591220",
+          "path": [
+            [
+              -71.60473,
+              -33.04511
+            ],
+            [
+              -71.6049,
+              -33.04468
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "390 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 486656911",
+          "path": [
+            [
+              -71.60604,
+              -33.04246
+            ],
+            [
+              -71.60597,
+              -33.04236
+            ],
+            [
+              -71.60594,
+              -33.04232
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "450 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 317452409",
+          "path": [
+            [
+              -71.60528,
+              -33.04372
+            ],
+            [
+              -71.6053,
+              -33.04364
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "380 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 357901511",
+          "path": [
+            [
+              -71.60609,
+              -33.0427
+            ],
+            [
+              -71.60608,
+              -33.04274
+            ],
+            [
+              -71.60601,
+              -33.04278
+            ],
+            [
+              -71.60597,
+              -33.04279
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "245 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 359414403",
+          "path": [
+            [
+              -71.60483,
+              -33.04183
+            ],
+            [
+              -71.60441,
+              -33.04063
+            ],
+            [
+              -71.6043,
+              -33.04008
+            ],
+            [
+              -71.60428,
+              -33.04002
+            ],
+            [
+              -71.60425,
+              -33.03997
+            ],
+            [
+              -71.60421,
+              -33.03991
+            ],
+            [
+              -71.60417,
+              -33.03986
+            ],
+            [
+              -71.60412,
+              -33.03981
+            ],
+            [
+              -71.60407,
+              -33.03977
+            ],
+            [
+              -71.60401,
+              -33.03973
+            ],
+            [
+              -71.60395,
+              -33.0397
+            ],
+            [
+              -71.60346,
+              -33.03945
+            ],
+            [
+              -71.60334,
+              -33.03939
+            ],
+            [
+              -71.60323,
+              -33.03933
+            ],
+            [
+              -71.60313,
+              -33.03926
+            ],
+            [
+              -71.60304,
+              -33.03919
+            ],
+            [
+              -71.60296,
+              -33.03912
+            ],
+            [
+              -71.60262,
+              -33.03871
+            ],
+            [
+              -71.60256,
+              -33.03866
+            ],
+            [
+              -71.60251,
+              -33.03862
+            ],
+            [
+              -71.60242,
+              -33.03856
+            ],
+            [
+              -71.60233,
+              -33.03851
+            ],
+            [
+              -71.6021,
+              -33.0384
+            ],
+            [
+              -71.60187,
+              -33.03829
+            ],
+            [
+              -71.60163,
+              -33.03819
+            ],
+            [
+              -71.60139,
+              -33.0381
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "285 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 317452409",
+          "path": [
+            [
+              -71.6053,
+              -33.04364
+            ],
+            [
+              -71.60529,
+              -33.04351
+            ],
+            [
+              -71.60525,
+              -33.04336
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "250 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 550280268",
+          "path": [
+            [
+              -71.59812,
+              -33.03711
+            ],
+            [
+              -71.5982,
+              -33.03696
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "290 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 540293595",
+          "path": [
+            [
+              -71.56281,
+              -33.02672
+            ],
+            [
+              -71.56276,
+              -33.02731
+            ],
+            [
+              -71.56276,
+              -33.02738
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "360 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1427819059",
+          "path": [
+            [
+              -71.60615,
+              -33.04195
+            ],
+            [
+              -71.60624,
+              -33.04181
+            ],
+            [
+              -71.60633,
+              -33.04168
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "350 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1360958350",
+          "path": [
+            [
+              -71.60634,
+              -33.04118
+            ],
+            [
+              -71.60635,
+              -33.04115
+            ],
+            [
+              -71.60636,
+              -33.04114
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "250 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 550280268",
+          "path": [
+            [
+              -71.59807,
+              -33.03741
+            ],
+            [
+              -71.59806,
+              -33.03736
+            ],
+            [
+              -71.59805,
+              -33.03732
+            ],
+            [
+              -71.59806,
+              -33.03726
+            ],
+            [
+              -71.59812,
+              -33.03711
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "320 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1033374587",
+          "path": [
+            [
+              -71.57544,
+              -33.02696
+            ],
+            [
+              -71.57566,
+              -33.02711
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "450 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 388591220",
+          "path": [
+            [
+              -71.60518,
+              -33.04396
+            ],
+            [
+              -71.60524,
+              -33.04382
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "370 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1427819058",
+          "path": [
+            [
+              -71.60602,
+              -33.04212
+            ],
+            [
+              -71.60598,
+              -33.0422
+            ],
+            [
+              -71.60596,
+              -33.04226
+            ],
+            [
+              -71.60594,
+              -33.04232
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "315 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 990508718",
+          "path": [
+            [
+              -71.58687,
+              -33.02925
+            ],
+            [
+              -71.5871,
+              -33.02956
+            ],
+            [
+              -71.58744,
+              -33.0299
+            ],
+            [
+              -71.5881,
+              -33.03038
+            ],
+            [
+              -71.58852,
+              -33.03073
+            ],
+            [
+              -71.58873,
+              -33.03093
+            ],
+            [
+              -71.58892,
+              -33.03116
+            ],
+            [
+              -71.58921,
+              -33.03158
+            ],
+            [
+              -71.58935,
+              -33.03168
+            ],
+            [
+              -71.58949,
+              -33.03182
+            ],
+            [
+              -71.58975,
+              -33.03206
+            ],
+            [
+              -71.59009,
+              -33.03231
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "525 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 234342262",
+          "path": [
+            [
+              -71.60451,
+              -33.04568
+            ],
+            [
+              -71.60462,
+              -33.0454
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "250 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 550280268",
+          "path": [
+            [
+              -71.59999,
+              -33.03814
+            ],
+            [
+              -71.59987,
+              -33.03811
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "250 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 550280268",
+          "path": [
+            [
+              -71.5982,
+              -33.03696
+            ],
+            [
+              -71.59826,
+              -33.03682
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "565 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 333210789",
+          "path": [
+            [
+              -71.60394,
+              -33.04701
+            ],
+            [
+              -71.60398,
+              -33.04692
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "525 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 550469789",
+          "path": [
+            [
+              -71.60462,
+              -33.0454
+            ],
+            [
+              -71.60469,
+              -33.04522
+            ],
+            [
+              -71.6047,
+              -33.04519
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "250 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 550280268",
+          "path": [
+            [
+              -71.60033,
+              -33.03821
+            ],
+            [
+              -71.59999,
+              -33.03814
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "540 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 333210789",
+          "path": [
+            [
+              -71.60424,
+              -33.04629
+            ],
+            [
+              -71.6043,
+              -33.04616
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "495 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 388591220",
+          "path": [
+            [
+              -71.6049,
+              -33.04468
+            ],
+            [
+              -71.60515,
+              -33.04403
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "280 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 23583751",
+          "path": [
+            [
+              -71.60525,
+              -33.04336
+            ],
+            [
+              -71.60521,
+              -33.04323
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "245 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 554296202",
+          "path": [
+            [
+              -71.59845,
+              -33.03608
+            ],
+            [
+              -71.59842,
+              -33.036
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "320 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 574636749",
+          "path": [
+            [
+              -71.5868,
+              -33.02927
+            ],
+            [
+              -71.58687,
+              -33.02925
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "355 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1360958350",
+          "path": [
+            [
+              -71.60631,
+              -33.04122
+            ],
+            [
+              -71.60634,
+              -33.04118
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "330 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 28807762",
+          "path": [
+            [
+              -71.5844,
+              -33.0259
+            ],
+            [
+              -71.58455,
+              -33.02598
+            ],
+            [
+              -71.5848,
+              -33.02617
+            ],
+            [
+              -71.58499,
+              -33.02635
+            ],
+            [
+              -71.58514,
+              -33.02649
+            ],
+            [
+              -71.58525,
+              -33.0266
+            ],
+            [
+              -71.58535,
+              -33.02678
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "315 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1033375320",
+          "path": [
+            [
+              -71.57566,
+              -33.02711
+            ],
+            [
+              -71.5762,
+              -33.02741
+            ],
+            [
+              -71.57656,
+              -33.02752
+            ],
+            [
+              -71.5769,
+              -33.02758
+            ],
+            [
+              -71.57742,
+              -33.02763
+            ],
+            [
+              -71.57788,
+              -33.02759
+            ],
+            [
+              -71.57812,
+              -33.02755
+            ],
+            [
+              -71.57854,
+              -33.02747
+            ],
+            [
+              -71.57893,
+              -33.02738
+            ],
+            [
+              -71.57956,
+              -33.02724
+            ],
+            [
+              -71.57991,
+              -33.02716
+            ],
+            [
+              -71.58016,
+              -33.02708
+            ],
+            [
+              -71.58043,
+              -33.02699
+            ],
+            [
+              -71.58077,
+              -33.02682
+            ],
+            [
+              -71.58085,
+              -33.02678
+            ],
+            [
+              -71.58113,
+              -33.0266
+            ],
+            [
+              -71.58162,
+              -33.02618
+            ],
+            [
+              -71.58177,
+              -33.02606
+            ],
+            [
+              -71.58206,
+              -33.02586
+            ],
+            [
+              -71.58227,
+              -33.02576
+            ],
+            [
+              -71.58254,
+              -33.02567
+            ],
+            [
+              -71.58287,
+              -33.02561
+            ],
+            [
+              -71.58313,
+              -33.02559
+            ],
+            [
+              -71.58339,
+              -33.02559
+            ],
+            [
+              -71.58365,
+              -33.02563
+            ],
+            [
+              -71.58393,
+              -33.0257
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "370 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1360958348",
+          "path": [
+            [
+              -71.60604,
+              -33.04246
+            ],
+            [
+              -71.60603,
+              -33.04248
+            ],
+            [
+              -71.60602,
+              -33.0425
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "240 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 550280267",
+          "path": [
+            [
+              -71.59802,
+              -33.03544
+            ],
+            [
+              -71.59761,
+              -33.0349
+            ],
+            [
+              -71.59753,
+              -33.03482
+            ],
+            [
+              -71.59745,
+              -33.03475
+            ],
+            [
+              -71.59736,
+              -33.03468
+            ],
+            [
+              -71.59725,
+              -33.0346
+            ],
+            [
+              -71.59712,
+              -33.03453
+            ],
+            [
+              -71.597,
+              -33.03446
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "240 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 541622193",
+          "path": [
+            [
+              -71.597,
+              -33.03446
+            ],
+            [
+              -71.59674,
+              -33.03436
+            ],
+            [
+              -71.5964,
+              -33.03427
+            ],
+            [
+              -71.59622,
+              -33.03423
+            ],
+            [
+              -71.59572,
+              -33.03416
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "255 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1280173147",
+          "path": [
+            [
+              -71.56775,
+              -33.02359
+            ],
+            [
+              -71.56812,
+              -33.02362
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "535 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1420374765",
+          "path": [
+            [
+              -71.60438,
+              -33.04599
+            ],
+            [
+              -71.60442,
+              -33.04591
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "500 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 388591220",
+          "path": [
+            [
+              -71.60515,
+              -33.04403
+            ],
+            [
+              -71.60517,
+              -33.044
+            ],
+            [
+              -71.60518,
+              -33.04396
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "240 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 700590079",
+          "path": [
+            [
+              -71.59842,
+              -33.036
+            ],
+            [
+              -71.59827,
+              -33.03577
+            ],
+            [
+              -71.59802,
+              -33.03544
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "360 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 45228688",
+          "path": [
+            [
+              -71.59095,
+              -33.03247
+            ],
+            [
+              -71.59088,
+              -33.03245
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "290 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 540293595",
+          "path": [
+            [
+              -71.56284,
+              -33.0265
+            ],
+            [
+              -71.56283,
+              -33.02656
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "290 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 554054816",
+          "path": [
+            [
+              -71.56288,
+              -33.02605
+            ],
+            [
+              -71.56286,
+              -33.02624
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "370 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1427819059",
+          "path": [
+            [
+              -71.60602,
+              -33.04212
+            ],
+            [
+              -71.60615,
+              -33.04195
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "385 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 313296850",
+          "path": [
+            [
+              -71.60156,
+              -33.03705
+            ],
+            [
+              -71.602,
+              -33.03733
+            ],
+            [
+              -71.60207,
+              -33.03734
+            ],
+            [
+              -71.60233,
+              -33.03723
+            ],
+            [
+              -71.60249,
+              -33.03718
+            ],
+            [
+              -71.60261,
+              -33.03717
+            ],
+            [
+              -71.60274,
+              -33.0372
+            ],
+            [
+              -71.60286,
+              -33.03724
+            ],
+            [
+              -71.60303,
+              -33.03735
+            ],
+            [
+              -71.60317,
+              -33.03754
+            ],
+            [
+              -71.60324,
+              -33.03761
+            ],
+            [
+              -71.60349,
+              -33.03778
+            ],
+            [
+              -71.60397,
+              -33.03814
+            ],
+            [
+              -71.60445,
+              -33.03851
+            ],
+            [
+              -71.60453,
+              -33.03858
+            ],
+            [
+              -71.60459,
+              -33.03865
+            ],
+            [
+              -71.60484,
+              -33.03898
+            ],
+            [
+              -71.60524,
+              -33.03953
+            ],
+            [
+              -71.60578,
+              -33.04027
+            ],
+            [
+              -71.60614,
+              -33.04083
+            ],
+            [
+              -71.60628,
+              -33.04103
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "370 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 45228688",
+          "path": [
+            [
+              -71.59088,
+              -33.03245
+            ],
+            [
+              -71.5907,
+              -33.03238
+            ],
+            [
+              -71.59051,
+              -33.03231
+            ],
+            [
+              -71.59031,
+              -33.0322
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "250 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 550280268",
+          "path": [
+            [
+              -71.60046,
+              -33.03824
+            ],
+            [
+              -71.60033,
+              -33.03821
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "525 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 234342262",
+          "path": [
+            [
+              -71.60444,
+              -33.04585
+            ],
+            [
+              -71.60451,
+              -33.04568
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "365 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1427819059",
+          "path": [
+            [
+              -71.60633,
+              -33.04168
+            ],
+            [
+              -71.6064,
+              -33.04157
+            ],
+            [
+              -71.60644,
+              -33.04146
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "385 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 313296850",
+          "path": [
+            [
+              -71.59233,
+              -33.03284
+            ],
+            [
+              -71.59239,
+              -33.03288
+            ],
+            [
+              -71.59316,
+              -33.0331
+            ],
+            [
+              -71.59321,
+              -33.03308
+            ],
+            [
+              -71.59407,
+              -33.03333
+            ],
+            [
+              -71.59493,
+              -33.03358
+            ],
+            [
+              -71.59566,
+              -33.03378
+            ],
+            [
+              -71.59637,
+              -33.03399
+            ],
+            [
+              -71.59684,
+              -33.03413
+            ],
+            [
+              -71.59699,
+              -33.0342
+            ],
+            [
+              -71.59733,
+              -33.03437
+            ],
+            [
+              -71.59777,
+              -33.03465
+            ],
+            [
+              -71.59793,
+              -33.03475
+            ],
+            [
+              -71.598,
+              -33.0348
+            ],
+            [
+              -71.59824,
+              -33.03494
+            ],
+            [
+              -71.59856,
+              -33.03518
+            ],
+            [
+              -71.59884,
+              -33.03536
+            ],
+            [
+              -71.59911,
+              -33.03553
+            ],
+            [
+              -71.59947,
+              -33.03574
+            ],
+            [
+              -71.59997,
+              -33.03605
+            ],
+            [
+              -71.60069,
+              -33.0365
+            ],
+            [
+              -71.60113,
+              -33.03678
+            ],
+            [
+              -71.60156,
+              -33.03705
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "320 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 28807762",
+          "path": [
+            [
+              -71.58393,
+              -33.0257
+            ],
+            [
+              -71.58406,
+              -33.02574
+            ],
+            [
+              -71.5844,
+              -33.0259
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "290 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 540293595",
+          "path": [
+            [
+              -71.56286,
+              -33.02624
+            ],
+            [
+              -71.56284,
+              -33.0265
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "380 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 357901511",
+          "path": [
+            [
+              -71.60597,
+              -33.04279
+            ],
+            [
+              -71.60593,
+              -33.04281
+            ],
+            [
+              -71.60587,
+              -33.04284
+            ],
+            [
+              -71.60584,
+              -33.04285
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "290 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 540293595",
+          "path": [
+            [
+              -71.56283,
+              -33.02656
+            ],
+            [
+              -71.56281,
+              -33.02672
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "290 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 56215424",
+          "path": [
+            [
+              -71.56285,
+              -33.0256
+            ],
+            [
+              -71.56287,
+              -33.0258
+            ],
+            [
+              -71.56288,
+              -33.02593
+            ],
+            [
+              -71.56288,
+              -33.02605
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "525 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 550469789",
+          "path": [
+            [
+              -71.6047,
+              -33.04519
+            ],
+            [
+              -71.60473,
+              -33.04511
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "535 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 333210789",
+          "path": [
+            [
+              -71.6043,
+              -33.04616
+            ],
+            [
+              -71.60437,
+              -33.04602
+            ],
+            [
+              -71.60438,
+              -33.04599
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "245 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 357901511",
+          "path": [
+            [
+              -71.60584,
+              -33.04285
+            ],
+            [
+              -71.60609,
+              -33.04318
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "330 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 493353686",
+          "path": [
+            [
+              -71.60644,
+              -33.04146
+            ],
+            [
+              -71.60638,
+              -33.04131
+            ],
+            [
+              -71.60631,
+              -33.04122
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "250 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 554296201",
+          "path": [
+            [
+              -71.60139,
+              -33.0381
+            ],
+            [
+              -71.60122,
+              -33.03808
+            ],
+            [
+              -71.6011,
+              -33.0381
+            ],
+            [
+              -71.60097,
+              -33.03814
+            ],
+            [
+              -71.60081,
+              -33.03818
+            ],
+            [
+              -71.60064,
+              -33.03822
+            ],
+            [
+              -71.60046,
+              -33.03824
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "245 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 550280268",
+          "path": [
+            [
+              -71.59987,
+              -33.03811
+            ],
+            [
+              -71.59824,
+              -33.0376
+            ],
+            [
+              -71.5982,
+              -33.03757
+            ],
+            [
+              -71.59816,
+              -33.03753
+            ],
+            [
+              -71.59812,
+              -33.0375
+            ],
+            [
+              -71.59809,
+              -33.03745
+            ],
+            [
+              -71.59807,
+              -33.03741
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "245 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 550280268",
+          "path": [
+            [
+              -71.59826,
+              -33.03682
+            ],
+            [
+              -71.59833,
+              -33.03668
+            ],
+            [
+              -71.59845,
+              -33.03637
+            ],
+            [
+              -71.59846,
+              -33.03629
+            ],
+            [
+              -71.59848,
+              -33.03617
+            ],
+            [
+              -71.59845,
+              -33.03608
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "350 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 45228688",
+          "path": [
+            [
+              -71.59233,
+              -33.03284
+            ],
+            [
+              -71.59143,
+              -33.0326
+            ],
+            [
+              -71.59119,
+              -33.03254
+            ],
+            [
+              -71.59106,
+              -33.0325
+            ],
+            [
+              -71.59095,
+              -33.03247
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "405 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 485026257",
+          "path": [
+            [
+              -71.58535,
+              -33.02678
+            ],
+            [
+              -71.58543,
+              -33.02686
+            ],
+            [
+              -71.58551,
+              -33.02694
+            ],
+            [
+              -71.58557,
+              -33.02702
+            ],
+            [
+              -71.58564,
+              -33.0271
+            ],
+            [
+              -71.58569,
+              -33.02719
+            ],
+            [
+              -71.58574,
+              -33.02728
+            ],
+            [
+              -71.5862,
+              -33.02824
+            ],
+            [
+              -71.58653,
+              -33.02889
+            ],
+            [
+              -71.5868,
+              -33.02927
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "320 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1033374587",
+          "path": [
+            [
+              -71.57209,
+              -33.02496
+            ],
+            [
+              -71.57219,
+              -33.02499
+            ],
+            [
+              -71.57269,
+              -33.02513
+            ],
+            [
+              -71.57308,
+              -33.02529
+            ],
+            [
+              -71.5735,
+              -33.02554
+            ],
+            [
+              -71.57406,
+              -33.02596
+            ],
+            [
+              -71.57519,
+              -33.02679
+            ],
+            [
+              -71.57544,
+              -33.02696
+            ]
+          ],
+          "titulo": "Flujo alto"
+        },
+        {
+          "linea1": "305 conteos (7dic - 17hrs a 8dic - 20hrs)",
+          "linea2": "OSM 1057764394",
+          "path": [
+            [
+              -71.57078,
+              -33.02456
+            ],
+            [
+              -71.57116,
+              -33.02469
+            ],
+            [
+              -71.57209,
+              -33.02496
+            ]
+          ],
+          "titulo": "Flujo alto"
+        }
+      ],
+      "getColor": [
+        255,
+        0,
+        0
+      ],
+      "getPath": "@@=path",
+      "getWidth": 32,
+      "id": "capa_red",
+      "pickable": true,
+      "widthMinPixels": 3
+    },
+    {
+      "@@type": "ScatterplotLayer",
+      "data": [
+        {
+          "linea1": "Estación Barón, Valparaíso.",
+          "linea2": "Referencia",
+          "position": [
+            -71.6057593,
+            -33.041875
+          ],
+          "titulo": "Nodo Barón"
+        },
+        {
+          "linea1": "Viña del Mar.",
+          "linea2": "Referencia ",
+          "position": [
+            -71.5671785,
+            -33.0232875
+          ],
+          "titulo": "Reloj de Flores"
+        }
+      ],
+      "getFillColor": [
+        0,
+        114,
+        178,
+        230
+      ],
+      "getLineColor": [
+        255,
+        255,
+        255
+      ],
+      "getPosition": "@@=position",
+      "getRadius": 120,
+      "id": "puntos",
+      "lineWidthMinPixels": 2,
+      "pickable": true,
+      "radiusMinPixels": 6,
+      "stroked": true
+    }
+  ],
+  "mapProvider": "carto",
+  "mapStyle": "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+  "views": [
+    {
+      "@@type": "MapView",
+      "controller": true
+    }
+  ]
+};
+    const tooltip = {'html': "<b>{titulo}</b><br/>{linea1}<br/><span style='color:#666'>{linea2}</span>", 'style': {'backgroundColor': 'white', 'color': '#222', 'fontFamily': 'system-ui, sans-serif', 'fontSize': '12px', 'padding': '6px 9px', 'borderRadius': '6px', 'boxShadow': '0 1px 5px rgba(0,0,0,.35)', 'maxWidth': '300px'}};
+    const customLibraries = null;
+    const configuration = null;
+
+    const deckInstance = createDeck({
+                  container,
+      jsonInput,
+      tooltip,
+      customLibraries,
+      configuration,
+          });
+
+  </script>
+<div id="panel">
+<button id="collapseBtn">−</button>
+<h1>Barón – Reloj de Flores</h1>
+<p class="sub">478 segmentos del corredor (muestra Strava)</p>
+<div class="body" id="panelBody">
+<h2>Capas</h2>
+<label><input type="checkbox" id="cb-r" checked> <span class='sw' style='background:rgb(255,0,0)'></span>Flujo alto</label>
+<label><input type="checkbox" id="cb-o" checked> <span class='sw' style='background:rgb(255,165,0)'></span>Flujo medio</label>
+<label><input type="checkbox" id="cb-p" checked> Puntos de referencia</label>
+<div class="warn"><b>Importante:</b> conteos totales por segmento.</div>
+</div></div>
+<script>
+(function(){
+  function $(id){return document.getElementById(id);}
+  var MAPA={"cb-r":"capa_red","cb-o":"capa_orange","cb-p":"puntos"};
+  function apply(){try{var layers=deckInstance.props.layers.map(function(l){for(var k in MAPA){if(l.id===MAPA[k])return l.clone({visible:$(k).checked});}return l;});deckInstance.setProps({layers:layers});}catch(e){console.error(e);}}
+  Object.keys(MAPA).forEach(function(k){$(k).addEventListener("change",apply);});
+  $("collapseBtn").addEventListener("click",function(){var b=$("panelBody");var h=b.classList.toggle("collapsed");$("collapseBtn").textContent=h?"+":"−";});
+})();
+</script>
+<div id="maptools" role="toolbar" aria-label="Controles del mapa">
+<button data-tb="zin" title="Acercar (+)">+</button>
+<button data-tb="zout" title="Alejar (−)">−</button>
+<div class="tb-sep"></div>
+<button data-tb="rotl" title="Rotar izquierda">⟲</button>
+<button data-tb="rotr" title="Rotar derecha">⟳</button>
+<button data-tb="pitch" title="Cambiar ángulo (0°/45°)">⛰</button>
+<button data-tb="north" title="Norte arriba">N</button>
+<div class="tb-sep"></div>
+<button data-tb="fs" title="Pantalla completa">⛶</button>
+<button data-tb="cap" title="Capturar mapa (PNG)">📷</button>
+<div class="tb-msg" id="tb-msg"></div>
+</div>
+<script>
+(function(){
+  function msg(t, ms){
+    try{
+      var m = document.getElementById('tb-msg');
+      m.textContent = t; m.style.display = 'block';
+      setTimeout(function(){ m.style.display = 'none'; }, ms || 3500);
+    }catch(e){}
+  }
+  function cur(){
+    var d = {longitude: -71.53, latitude: -33.14, zoom: 9, pitch: 0, bearing: 0};
+    try{
+      var vs = (typeof deckInstance !== 'undefined') &&
+        (deckInstance.viewState || deckInstance.props.initialViewState) || null;
+      if (vs && typeof vs === 'object' && !('longitude' in vs)) {
+        var ks = Object.keys(vs);
+        for (var i = 0; i < ks.length; i++) {
+          var v = vs[ks[i]];
+          if (v && typeof v === 'object' && ('longitude' in v)) { vs = v; break; }
+        }
+      }
+      if (vs && typeof vs === 'object' && ('longitude' in vs)) {
+        if (isFinite(+vs.longitude)) d.longitude = +vs.longitude;
+        if (isFinite(+vs.latitude)) d.latitude = +vs.latitude;
+        if (vs.zoom != null && isFinite(+vs.zoom)) d.zoom = +vs.zoom;
+        if (vs.pitch != null && isFinite(+vs.pitch)) d.pitch = +vs.pitch;
+        if (vs.bearing != null && isFinite(+vs.bearing)) d.bearing = +vs.bearing;
+      }
+    }catch(e){}
+    return d;
+  }
+  function go(patch){
+    try{
+      if (typeof deckInstance === 'undefined') return;
+      var vs = cur();
+      for (var k in patch) vs[k] = patch[k];
+      if (vs.zoom < 0) vs.zoom = 0;
+      if (vs.zoom > 20) vs.zoom = 20;
+      if (vs.pitch < 0) vs.pitch = 0;
+      if (vs.pitch > 60) vs.pitch = 60;
+      deckInstance.setProps({initialViewState: vs});
+    }catch(e){ console.error('maptools:', e); }
+  }
+  function toggleFS(){
+    try{
+      if (document.fullscreenElement) { document.exitFullscreen(); }
+      else {
+        var el = document.documentElement;
+        var f = el.requestFullscreen || el.webkitRequestFullscreen;
+        if (f) f.call(el); else msg('Pantalla completa no disponible aquí');
+      }
+    }catch(e){ console.error('maptools:', e); }
+  }
+  function capture(){
+    try{
+      if (typeof deckInstance === 'undefined') return;
+      var done = false;
+      deckInstance.setProps({onAfterRender: function(){
+        if (done) return; done = true;
+        try{
+          var cv = deckInstance.canvas;
+          if (!cv || !cv.toBlob) { msg('Captura no disponible en este navegador'); return; }
+          cv.toBlob(function(blob){
+            if (!blob) { msg('No se pudo capturar (lienzo vacío)'); return; }
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = "mapa-baron-reloj.png";
+            document.body.appendChild(a); a.click();
+            setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+            msg('Captura descargada');
+          }, 'image/png');
+        }catch(err){ console.error('maptools:', err); msg('Captura bloqueada por el navegador'); }
+      }});
+      if (deckInstance.redraw) deckInstance.redraw(true);
+    }catch(e){ console.error('maptools:', e); }
+  }
+  document.addEventListener('fullscreenchange', function(){
+    var b = document.querySelector('#maptools [data-tb="fs"]');
+    if (b) b.textContent = document.fullscreenElement ? '✕' : '⛶';
+  });
+  document.querySelectorAll('#maptools [data-tb]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var a = b.getAttribute('data-tb'), v = cur();
+      if (a === 'zin') go({zoom: v.zoom + 1});
+      else if (a === 'zout') go({zoom: v.zoom - 1});
+      else if (a === 'rotl') go({bearing: v.bearing - 15});
+      else if (a === 'rotr') go({bearing: v.bearing + 15});
+      else if (a === 'pitch') go({pitch: v.pitch > 20 ? 0 : 45});
+      else if (a === 'north') go({bearing: 0, pitch: 0});
+      else if (a === 'fs') toggleFS();
+      else if (a === 'cap') capture();
+    });
+  });
+})();
+</script>
+<script>
+(function(){
+  var p = document.getElementById('panel');
+  var b = document.createElement('button');
+  b.id = 'capasBtn'; b.textContent = 'Capas ▾';
+  b.setAttribute('aria-expanded', 'false');
+  b.addEventListener('click', function(){
+    var open = p.classList.toggle('open');
+    b.textContent = open ? 'Capas ▴' : 'Capas ▾';
+    b.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  document.body.appendChild(b);
+})();
+</script>
+</html>

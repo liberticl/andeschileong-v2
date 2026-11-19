@@ -1,0 +1,2251 @@
+---
+title: "Peregrinación Lo Vásquez en bicicleta"
+description: "A dónde van los ciclistas que aprovechan el cierre de la Ruta 68, entre el 7 y el 8 de diciembre de 2025."
+date: 2026-11-09
+layout: "lo-vasquez"
+#(hidden) El estudio se publica en su URL pero no aparece en el listado de
+# /estudios/: `list: never` lo saca de cualquier colección .Pages sin quitarlo
+# de la web. Para volver a mostrarlo en el listado, borra este bloque _build.
+_build:
+  list: never
+  render: always
+  publishResources: true
+---
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap"
+  rel="stylesheet">
+<style>
+  .bb-container {
+    max-width: 800px;
+    text-align: center;
+    margin: 40px auto;
+    background-color: rgba(255, 255, 255, 0.67);
+    border-radius: 1rem;
+    padding: 2rem;
+  }
+
+  .bb-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .bb-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #333;
+    margin-bottom: 0.3rem;
+  }
+
+  .bb-header p {
+    font-size: 1rem;
+    color: #6c757d;
+  }
+
+  .bb-header a {
+    color: #2241a8;
+    text-decoration: none;
+  }
+
+  .bb-header a:hover {
+    color: #2b22a8;
+  }
+
+  .map-wrapper {
+    width: 95%;
+    margin: 0 auto 1.5rem;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 20px 27px 0 rgba(0, 0, 0, 0.05);
+    background: #fff;
+  }
+
+  .map-wrapper iframe {
+    width: 100%;
+    height: 500px;
+    border: none;
+    display: block;
+  }
+
+  .map-wrapper.tall iframe {
+    height: 640px;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+    color: #555;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .legend-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .stat-card {
+    position: relative;
+    background-color: #fff;
+    border-radius: 1rem;
+    padding: 1.2rem 1rem;
+    box-shadow: 0 20px 27px 0 rgba(0, 0, 0, 0.05);
+    border: 0 solid rgba(0, 0, 0, 0.125);
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .stat-card .card-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #2241a8;
+  }
+
+  .stat-card .card-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+  }
+
+  .stat-card.green .card-value {
+    color: #4CAF50;
+  }
+
+  .stat-card.orange .card-value {
+    color: #f97316;
+  }
+
+  .section-title {
+    text-align: left;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 1rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 2px solid #333;
+  }
+
+  .content-section {
+    background: #fff;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 20px 27px 0 rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.5rem;
+    text-align: left;
+  }
+
+  /* en este estudio todos los títulos (h2/h3) comparten el mismo color #333:
+     una sola línea gráfica; el azul #2241a8 queda para acentos interactivos */
+  .content-section h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #333;
+    margin: 1.2rem 0 0.5rem;
+  }
+
+  .content-section p,
+  .content-section li {
+    font-size: 1rem;
+    color: #555;
+    line-height: 1.7;
+    margin-bottom: 0.5rem;
+  }
+
+  .content-section ul {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .table-section {
+    background: #fff;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 20px 27px 0 rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+  }
+
+  .ac-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    margin: 0;
+  }
+
+  .ac-table thead {
+    background-color: #2241a8;
+    color: #fff;
+  }
+
+  .ac-table thead th {
+    padding: 12px 14px;
+    font-weight: 600;
+    border: none !important;
+    text-align: left;
+  }
+
+  .ac-table td {
+    padding: 10px 14px;
+    border: none !important;
+    border-bottom: 1px solid #eee !important;
+    vertical-align: middle;
+  }
+
+  .ac-table tbody tr:nth-child(even) {
+    background-color: rgba(34, 65, 168, 0.02);
+  }
+
+  .ac-table tbody tr:hover {
+    background-color: rgba(34, 65, 168, 0.06);
+  }
+
+  .highlight-box {
+    background: rgba(34, 65, 168, 0.05);
+    border-left: 4px solid #2241a8;
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 0 0.5rem 0.5rem 0;
+    font-size: 1rem;
+    color: #333;
+    line-height: 1.7;
+    text-align: left;
+  }
+
+  .highlight-box strong {
+    color: #2241a8;
+  }
+
+  .pipeline-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .pipeline-step .step-number {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #2241a8;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pipeline-step .step-content {
+    flex: 1;
+  }
+
+  .pipeline-step .step-content h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 0.3rem;
+  }
+
+  .pipeline-step .step-content p {
+    font-size: 0.95rem;
+    color: #666;
+    margin: 0;
+  }
+
+  .map-section {
+    margin-bottom: 2rem;
+  }
+
+  .map-section .map-desc {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 1rem;
+    text-align: left;
+  }
+
+  .code-block {
+    background: #f5f5f5;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+    text-align: left;
+    color: #333;
+  }
+
+  :root {
+    --c1: #2241a8;
+  }
+
+  /* jerarquía del sitio: h1 página → h2 sección (section-title) → h3 gráfico */
+  .gbloque h3.chart-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 .7rem;
+    line-height: 1.3;
+  }
+
+  .gbloque h4 {
+    font-size: .95rem;
+    font-weight: 600;
+    color: #555;
+    margin: .4rem 0 .6rem;
+  }
+
+  .gbloque .cap {
+    font-size: .95rem;
+    color: #666;
+    margin: 0 0 .8rem;
+    text-align: left;
+  }
+
+  canvas.chart {
+    width: 100%;
+    height: 300px;
+    display: block;
+    cursor: crosshair;
+  }
+
+  .chart-wrap {
+    position: relative;
+  }
+
+  .chart-tip {
+    position: absolute;
+    pointer-events: none;
+    background: rgba(20, 35, 50, .93);
+    color: #fff;
+    font-size: 11.5px;
+    padding: 6px 9px;
+    border-radius: 6px;
+    display: none;
+    z-index: 5;
+    max-width: 260px;
+    line-height: 1.4;
+  }
+
+  .chart-tip b {
+    color: #ffd97a;
+  }
+
+  .fsbtn {
+    float: right;
+    font-size: .75rem;
+    padding: 4px 10px;
+    border-radius: 7px;
+    border: 1px solid var(--c1);
+    background: #fff;
+    color: var(--c1);
+    cursor: pointer;
+    margin-left: 8px;
+  }
+
+  .gbloque.fs-full {
+    position: fixed;
+    inset: 12px;
+    z-index: 60;
+    overflow: auto;
+    background: #fff;
+    margin: 0;
+    max-height: none;
+    padding: 20px;
+  }
+
+  .gbloque.fs-full canvas.chart {
+    height: 70vh;
+  }
+
+  .gbloque:fullscreen {
+    background: #fff;
+    overflow: auto;
+    padding: 20px;
+  }
+
+  .gbloque:fullscreen canvas.chart {
+    height: 60vh;
+  }
+
+  .legend i {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    margin-right: 5px;
+    vertical-align: -1px;
+  }
+
+  details {
+    margin-top: 8px;
+  }
+
+  summary {
+    cursor: pointer;
+    color: #2241a8;
+    font-size: .88rem;
+  }
+</style>
+
+<div class="bb-container">
+  <div class="bb-header">
+    <h1>Peregrinación Lo Vásquez en bicicleta</h1>
+    <p>A dónde van los que aprovecharon el cierre de la Ruta 68 — 7 al 8 de diciembre de 2025, datos de Strava Metro</p>
+  </div>
+
+  <div class="cards-grid">
+    <div class="stat-card">
+      <div class="card-value">527.645</div>
+      <div class="card-label">Viajes por segmento</div>
+    </div>
+    <div class="stat-card orange">
+      <div class="card-value">44.315</div>
+      <div class="card-label">Viajes en horario peak</div>
+    </div>
+    <div class="stat-card green">
+      <div class="card-value">270/h</div>
+      <div class="card-label">Casablanca a las 3AM</div>
+    </div>
+    <div class="stat-card">
+      <div class="card-value">~1/3</div>
+      <div class="card-label">Sigue desde Lo Vásquez</div>
+    </div>
+  </div>
+
+  <!-- INTRODUCCIÓN -->
+  <div class="content-section">
+    <h2 class="section-title">Introducción</h2>
+    <p>Cada 8 de diciembre la Ruta 68 se cierra a los autos entre Santiago y Valparaíso por la peregrinación al
+      Santuario de Lo Vásquez, y miles de personas aprovechan para hacer el recorrido en bicicleta. Este estudio
+      responde una pregunta simple que hasta ahora se respondía al ojo: <strong>¿a dónde van esos ciclistas, a qué hora,
+        y cuántos siguen viaje más allá del santuario?</strong></p>
+    <p>Para responderla usamos los conteos por segmento y hora de <strong>Strava Metro</strong> entre el 7 y el 8 de
+      diciembre de 2025. El análisis cubre la tarde del 7 (cuando empieza a subir el flujo), toda la madrugada de la
+      peregrinación y el retorno del 8 hasta las 14h, más la dispersión en la región. Se generaron dos mapas
+      interactivos y un conjunto de gráficos que permiten recorrer el fenómeno hora por hora.</p>
+
+    <h3>Fuentes de datos</h3>
+    <ul>
+      <li><strong>Strava Metro:</strong> 49.774 registros de segmentos por hora procesados y 8.149 segmentos con
+        actividad.</li>
+      <li><strong>OpenStreetMap:</strong> geometría y etiquetas viales (vía API y Overpass) para distinguir tipos de
+        calle.</li>
+      <li><strong>Comunas de Chile:</strong> geometría de comunas chilenas desde el Geoportal de Chile (<a
+          target="_blank"
+          href="https://geoportal.cl/geoportal/catalog/36391/division-politica-administrativa-2023">revisar</a>).</li>
+      <li><strong>Puntos de referencia:</strong> georreferenciados con <a target="_blank"
+          href="https://nominatim.org/">Nominatim</a>.</li>
+    </ul>
+
+    <h3>Base espacial</h3>
+    <p>Los datos cubren solo la <strong>Región de Valparaíso</strong> (el tramo Santiago–Casablanca no viene en la
+      muestra), con foco en el eje Casablanca – Lo Vásquez – Placilla – Valparaíso y la conurbación costera.</p>
+  </div>
+
+  <!-- CONCEPTO CLAVE -->
+  <div class="content-section">
+    <h2 class="section-title">Antes de leer: ¿qué estamos contando?</h2>
+    <p>Strava no entrega personas ni viajes únicos, sino <strong>viajes por cada segmento en una hora</strong>: cada
+      viaje suma +1 en cada segmento que pisa, en cada hora que pedalea. Un ciclista que recorre Avenida España completa
+      cruza unos 55 micro-segmentos y genera ~55 conteos en esa hora. Por eso un total horario de 2.170 no son 2.170
+      personas o viajes únicos.</p>
+    <div class="highlight-box">
+      <strong>Cómo se evita el sobredimensionamiento:</strong> con <strong>screenlines</strong>, líneas de conteo en un
+      solo punto del camino (un segmento troncal por calzada). Quien cruza cuenta una sola vez, así que el valor sí
+      aproxima ciclistas por hora en ese punto. Es la única medición del estudio que habla de gente y no de conteos.
+    </div>
+  </div>
+
+  <!-- MAPA 1 -->
+  <div class="map-section">
+    <h2 class="section-title">Mapa 1: El corredor de la peregrinación (Ruta 68)</h2>
+    <p class="map-desc">Los 1.306 segmentos del eje Casablanca – Lo Vásquez – Placilla – Valparaíso (53,5% de la
+      ventana). Toca una línea para ver su flujo; las casillas prenden y apagan tramos, comunas y puntos.</p>
+    <div class="map-wrapper">
+      <iframe src="mapa_peregrinacion_lo_vasquez.html" allowfullscreen allow="fullscreen"></iframe>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:#E69F00"></span> T1 llegada</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#D55E00"></span> T2 santuario</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#0072B2"></span> T3a paso a Placilla</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#009E73"></span> Comunas (peak)</div>
+    </div>
+  </div>
+
+  <div class="content-section">
+    <h2 class="section-title">Lógica de obtención — Mapa 1</h2>
+    <h3>Los cuatro tramos (y la corrección del tercero)</h3>
+    <p>El eje se dividió en:
+    <ul>
+      <li>T1: Casablanca – Lo Vásquez</li>
+      <li>T2: núcleo del santuario</li>
+      <li>T3: descenso a Placilla</li>
+      <li>T4: Placilla – Valparaíso</li>
+    </ul>
+    Al revisar el terreno, el cruce en Y cerca de Pitama – Tapihue (que a primera vista parecía descenso) resultó ser el
+    enlace con la Ruta F-50 a Tapihue, además de otros desvíos (F-718, F-844, Vía Las Palmas, calles de servicio). Por
+    eso T3 se separó en <strong>T3a</strong> (autopista Ruta 68), <strong>T3b</strong> (rampas de acceso/salida) y
+    <strong>T3c</strong> (otros caminos).</p>
+    <h3>Direcciones</h3>
+    <p>Cada segmento se orientó por geometría hacia la costa (oeste). La tarde del 7 de diciembre, los ciclistas de
+      Placilla suben al santuario (este); de las 05 a las 10 del 8 de diciembre, el flujo baja a la costa en ~90% de los
+      casos. T1 cambia de sentido al este desde las 10h, indicando un grupo retornando a Santiago.</p>
+    <h3>Conclusiones del Mapa 1</h3>
+    <div class="highlight-box">
+      <strong>1.</strong> La noche es de Casablanca (43–54% del flujo hasta las 05h); la mañana del peak es de
+      Valparaíso (hasta 50% a las 07h); el mediodía es de Viña (hasta 61%).<br>
+      <strong>2.</strong> Comparando bordes máximos por tramo, del orden de <strong>un tercio sigue a la costa</strong>
+      y dos tercios se quedan o retornan en Lo Vásquez.<br>
+      <strong>3.</strong> El 9 de diciembre el fenómeno ya terminó: volúmenes dos órdenes bajo el peak, repartidos en la
+      costa.
+    </div>
+  </div>
+
+  <!-- SERIE HORARIA -->
+  <div class="content-section">
+    <h2 class="section-title">La oleada, hora por hora</h2>
+    <p>Conteos totales por hora del 7dic 14h al 8dic 14h (24 horas exactas). El flujo parte la tarde del 7 de diciembre,
+      sosteniendo entre 21 y 24 mil personas viajando con Strava activo por cada hora toda la noche, con un peak entre
+      las 05 y las 10 del 8 de diciembre con un máximo de <strong>44.315 a las 07h</strong> para desplomarse después del
+      mediodía.</p>
+    <!--G:FIG:1:START-->
+    <div class="gbloque">
+      <h3 class="chart-title">Serie horaria total</h3>
+      <canvas class="chart" id="fig1" width="900" height="300" role="img"
+        aria-label="Serie horaria total de trips"></canvas>
+      <div class="legend"><span><i style="background:#0072B2"></i>Total trips (solo costa en Figs. 2 y 2c; Fig. 4
+          muestra ambas direcciones)</span></div>
+    </div>
+    <details>
+      <summary>Ver datos (tabla)</summary>
+      <div style="overflow:auto">
+        <table class="ac-table">
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>Total trips</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>7dic - 14hrs</td>
+              <td style='text-align:right'>4.575</td>
+            </tr>
+            <tr>
+              <td>7dic - 15hrs</td>
+              <td style='text-align:right'>2.365</td>
+            </tr>
+            <tr>
+              <td>7dic - 16hrs</td>
+              <td style='text-align:right'>4.260</td>
+            </tr>
+            <tr>
+              <td>7dic - 17hrs</td>
+              <td style='text-align:right'>11.960</td>
+            </tr>
+            <tr>
+              <td>7dic - 18hrs</td>
+              <td style='text-align:right'>13.970</td>
+            </tr>
+            <tr>
+              <td>7dic - 19hrs</td>
+              <td style='text-align:right'>15.590</td>
+            </tr>
+            <tr>
+              <td>7dic - 20hrs</td>
+              <td style='text-align:right'>17.965</td>
+            </tr>
+            <tr>
+              <td>7dic - 21hrs</td>
+              <td style='text-align:right'>21.330</td>
+            </tr>
+            <tr>
+              <td>7dic - 22hrs</td>
+              <td style='text-align:right'>23.635</td>
+            </tr>
+            <tr>
+              <td>7dic - 23hrs</td>
+              <td style='text-align:right'>21.485</td>
+            </tr>
+            <tr>
+              <td>8dic - 00hrs</td>
+              <td style='text-align:right'>24.220</td>
+            </tr>
+            <tr>
+              <td>8dic - 01hrs</td>
+              <td style='text-align:right'>23.535</td>
+            </tr>
+            <tr>
+              <td>8dic - 02hrs</td>
+              <td style='text-align:right'>21.725</td>
+            </tr>
+            <tr>
+              <td>8dic - 03hrs</td>
+              <td style='text-align:right'>21.040</td>
+            </tr>
+            <tr>
+              <td>8dic - 04hrs</td>
+              <td style='text-align:right'>23.780</td>
+            </tr>
+            <tr>
+              <td>8dic - 05hrs</td>
+              <td style='text-align:right'>29.130</td>
+            </tr>
+            <tr>
+              <td>8dic - 06hrs</td>
+              <td style='text-align:right'>36.785</td>
+            </tr>
+            <tr>
+              <td>8dic - 07hrs</td>
+              <td style='text-align:right'>44.315</td>
+            </tr>
+            <tr>
+              <td>8dic - 08hrs</td>
+              <td style='text-align:right'>40.655</td>
+            </tr>
+            <tr>
+              <td>8dic - 09hrs</td>
+              <td style='text-align:right'>38.990</td>
+            </tr>
+            <tr>
+              <td>8dic - 10hrs</td>
+              <td style='text-align:right'>33.665</td>
+            </tr>
+            <tr>
+              <td>8dic - 11hrs</td>
+              <td style='text-align:right'>28.815</td>
+            </tr>
+            <tr>
+              <td>8dic - 12hrs</td>
+              <td style='text-align:right'>20.695</td>
+            </tr>
+            <tr>
+              <td>8dic - 13hrs</td>
+              <td style='text-align:right'>9.075</td>
+            </tr>
+            <tr>
+              <td>8dic - 14hrs</td>
+              <td style='text-align:right'>5.285</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+    <!--G:FIG:1:END-->
+  </div>
+
+  <!-- MAPA 2 -->
+  <div class="map-section">
+    <h2 class="section-title">Mapa 2: Barón – Reloj de Flores</h2>
+    <p class="map-desc">Se visualizan los 478 segmentos del corredor costero entre el nodo Barón y el Reloj de Flores,
+      jerarquizados con el clasificador general de Ciudades Pendientes (<a target="_blank"
+        href="/recursos/ciudadespendientes/">recurso</a> de Andes Chile ONG).</p>
+    <p class="map-desc">Se visualizan 181 (rojo: flujo alto, naranjo: medio); los 297 de flujo bajo se excluyen del mapa
+      para no tapar la red principal.</p>
+    <div class="map-wrapper">
+      <iframe src="mapa_baron_reloj.html" allowfullscreen allow="fullscreen"></iframe>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:#ff0000"></span> Flujo alto (&gt;236)</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#ffa500"></span> Flujo medio (&gt;109)</div>
+    </div>
+  </div>
+
+  <div class="content-section">
+    <h2 class="section-title">Lógica de obtención — Mapa 2</h2>
+    <p><strong>Fuente:</strong> segmentos de Strava, recortados a un buffer de ±600 m de Avenida España entre Barón y
+      Reloj de Flores, con sus conteos acumulados entre las 17h 7dic y las 20h 8dic.</p>
+    <h3>Fórmula de clasificación (clasificador general)</h3>
+    <p>Se calculan media y desviación estándar de las conteos por segmento (media = 109, desv = 127) y se clasifica:</p>
+    <div class="code-block">
+      si conteos &gt; media + desv. estandar → ROJO &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# flujo alto<br>
+      si conteos &gt; media
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ NARANJA
+      &nbsp;&nbsp;# flujo medio<br>
+      en otro caso
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→
+      VERDE &nbsp;&nbsp;&nbsp;&nbsp;# flujo bajo</div>
+    <h3>Conclusiones del Mapa 2</h3>
+    <div class="highlight-box">
+      <strong>1.</strong> Paseo Wheelwright está marcada en Rojo, indicando la preferencia de los ciclistas.<br>
+      <strong>2.</strong> La mayoría de los ciclistas utiliza la vereda en la parte costera de la Avenida España.<br>
+      <strong>3.</strong> Aproximadamente 70% de los viajes contabilizados prefieren Paseo Wheelwright.
+    </div>
+  </div>
+
+  <!-- GRÁFICOS -->
+  <div class="map-section">
+    <h2 class="section-title">Gráficos: la peregrinación hora a hora</h2>
+  </div>
+
+  <div class="content-section">
+    <h2 class="section-title">El pulso por tramo: primero la ida, después el retorno</h2>
+    <p>Medir con screenlines (segmento troncal por tramo, que cada ciclista cruza una sola vez) cambia la escala pero no
+      la historia: la ida a Lo Vásquez se concentra entre las 20h y las 04h con peak de <strong>270 ciclistas/hora a las
+        03h en T1</strong>, mientras el santuario (T2) marca 115 con retorno permanente. El descenso despierta a las 05h
+      y a las 06–07h pasan <strong>170 por T3a y 130 por T4</strong> hacia la costa. La caída entre T1 y T2 delata a
+      quienes se devuelven sin llegar; la que hay entre T2 y T3a, a quienes se quedan en el santuario.</p>
+    <!--G:FIG:2:START-->
+    <div class="gbloque">
+      <h3 class="chart-title">Screenline por tramo (ciclistas/hora)</h3>
+      <canvas class="chart" id="fig2" width="900" height="300" role="img"
+        aria-label="Series por tramo T1 a T4"></canvas>
+      <div class="legend"><span><i style="background:#0072B2"></i>T1 Casablanca–Lo Vásquez</span><span><i
+            style="background:#E69F00"></i>T2 núcleo</span><span><i style="background:#009E73"></i>T3a Ruta
+          68–Placilla</span><span><i style="background:#CC79A7"></i>T4 Placilla–Valparaíso</span></div>
+    </div>
+    <details>
+      <summary>Ver datos (tabla)</summary>
+      <div style="overflow:auto">
+        <table class="ac-table">
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>T1 o.</th>
+              <th>T1 e.</th>
+              <th>T2 o.</th>
+              <th>T2 e.</th>
+              <th>T3a o.</th>
+              <th>T3a e.</th>
+              <th>T4 o.</th>
+              <th>T4 e.</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>7dic - 14hrs</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>10</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>7dic - 15hrs</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>7dic - 16hrs</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>7dic - 17hrs</td>
+              <td style='text-align:right'>20</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>10</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>10</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>5</td>
+            </tr>
+            <tr>
+              <td>7dic - 18hrs</td>
+              <td style='text-align:right'>40</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>15</td>
+              <td style='text-align:right'>20</td>
+              <td style='text-align:right'>10</td>
+              <td style='text-align:right'>25</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>5</td>
+            </tr>
+            <tr>
+              <td>7dic - 19hrs</td>
+              <td style='text-align:right'>75</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>40</td>
+              <td style='text-align:right'>25</td>
+              <td style='text-align:right'>15</td>
+              <td style='text-align:right'>45</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>15</td>
+            </tr>
+            <tr>
+              <td>7dic - 20hrs</td>
+              <td style='text-align:right'>125</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>70</td>
+              <td style='text-align:right'>35</td>
+              <td style='text-align:right'>35</td>
+              <td style='text-align:right'>15</td>
+              <td style='text-align:right'>10</td>
+              <td style='text-align:right'>15</td>
+            </tr>
+            <tr>
+              <td>7dic - 21hrs</td>
+              <td style='text-align:right'>155</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>110</td>
+              <td style='text-align:right'>45</td>
+              <td style='text-align:right'>50</td>
+              <td style='text-align:right'>30</td>
+              <td style='text-align:right'>10</td>
+              <td style='text-align:right'>15</td>
+            </tr>
+            <tr>
+              <td>7dic - 22hrs</td>
+              <td style='text-align:right'>170</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>105</td>
+              <td style='text-align:right'>50</td>
+              <td style='text-align:right'>35</td>
+              <td style='text-align:right'>20</td>
+              <td style='text-align:right'>20</td>
+              <td style='text-align:right'>10</td>
+            </tr>
+            <tr>
+              <td>7dic - 23hrs</td>
+              <td style='text-align:right'>170</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>90</td>
+              <td style='text-align:right'>60</td>
+              <td style='text-align:right'>45</td>
+              <td style='text-align:right'>30</td>
+              <td style='text-align:right'>10</td>
+              <td style='text-align:right'>5</td>
+            </tr>
+            <tr>
+              <td>8dic - 00hrs</td>
+              <td style='text-align:right'>175</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>110</td>
+              <td style='text-align:right'>65</td>
+              <td style='text-align:right'>65</td>
+              <td style='text-align:right'>15</td>
+              <td style='text-align:right'>25</td>
+              <td style='text-align:right'>10</td>
+            </tr>
+            <tr>
+              <td>8dic - 01hrs</td>
+              <td style='text-align:right'>170</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>75</td>
+              <td style='text-align:right'>55</td>
+              <td style='text-align:right'>55</td>
+              <td style='text-align:right'>10</td>
+              <td style='text-align:right'>25</td>
+              <td style='text-align:right'>5</td>
+            </tr>
+            <tr>
+              <td>8dic - 02hrs</td>
+              <td style='text-align:right'>200</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>115</td>
+              <td style='text-align:right'>35</td>
+              <td style='text-align:right'>50</td>
+              <td style='text-align:right'>10</td>
+              <td style='text-align:right'>25</td>
+              <td style='text-align:right'>10</td>
+            </tr>
+            <tr>
+              <td>8dic - 03hrs</td>
+              <td style='text-align:right'>270</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>90</td>
+              <td style='text-align:right'>35</td>
+              <td style='text-align:right'>75</td>
+              <td style='text-align:right'>15</td>
+              <td style='text-align:right'>25</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>8dic - 04hrs</td>
+              <td style='text-align:right'>265</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>115</td>
+              <td style='text-align:right'>25</td>
+              <td style='text-align:right'>90</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>40</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>8dic - 05hrs</td>
+              <td style='text-align:right'>195</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>110</td>
+              <td style='text-align:right'>15</td>
+              <td style='text-align:right'>145</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>60</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>8dic - 06hrs</td>
+              <td style='text-align:right'>130</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>85</td>
+              <td style='text-align:right'>25</td>
+              <td style='text-align:right'>170</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>110</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>8dic - 07hrs</td>
+              <td style='text-align:right'>65</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>50</td>
+              <td style='text-align:right'>10</td>
+              <td style='text-align:right'>150</td>
+              <td style='text-align:right'>10</td>
+              <td style='text-align:right'>130</td>
+              <td style='text-align:right'>10</td>
+            </tr>
+            <tr>
+              <td>8dic - 08hrs</td>
+              <td style='text-align:right'>55</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>30</td>
+              <td style='text-align:right'>10</td>
+              <td style='text-align:right'>105</td>
+              <td style='text-align:right'>15</td>
+              <td style='text-align:right'>115</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>8dic - 09hrs</td>
+              <td style='text-align:right'>55</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>45</td>
+              <td style='text-align:right'>20</td>
+              <td style='text-align:right'>60</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>75</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>8dic - 10hrs</td>
+              <td style='text-align:right'>25</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>25</td>
+              <td style='text-align:right'>25</td>
+              <td style='text-align:right'>35</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>40</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>8dic - 11hrs</td>
+              <td style='text-align:right'>15</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>15</td>
+              <td style='text-align:right'>25</td>
+              <td style='text-align:right'>25</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>20</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>8dic - 12hrs</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>15</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>10</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>8dic - 13hrs</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>8dic - 14hrs</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+    <!--G:FIG:2:END-->
+  </div>
+
+  <div class="content-section">
+    <h2 class="section-title">Tres puntos fijos: santuario, refugio y reloj</h2>
+    <p>En el santuario el peak llega a las <strong>04h (≈116/h)</strong>, en el refugio INSUCO de Avenida
+      Argentina a las <strong>07h (≈120/h)</strong> y en el Reloj de Flores a las <strong>08h (≈9/h)</strong>. Es una
+      <strong>estimación de viajes por hora</strong></p>
+    <p>Se puede notar el flujo de ciclistas y las preferencias de viaje. El peak en Lo Vásquez a las 04h se mueve hacia
+      Valparaíso donde se genera el máximo a las 07h, es decir, una media de 3 horas en bicicleta entre ambos puntos. El Reloj de Flores hace su peak
+      <strong>una hora después</strong> del que ocurre en Valparaíso, lo cual indica que la mayoría de los ciclistas llega a Viña del Mar <strong>desde Valparaíso,
+      por Av. España</strong> (el corredor evaluado en el Mapa 2).</p>
+    <!--G:FIG:567:START-->
+    <div class="gbloque">
+      <h3 class="chart-title">Puntos fijos: santuario, refugio y reloj (ciclistas/hora est.)</h3>
+      <canvas class="chart" id="fig5" width="900" height="260" role="img" aria-label="Serie santuario"></canvas>
+      <div class="legend"><span><i style="background:#D55E00"></i>Santuario Lo Vásquez (ciclistas/hora est., cordón ÷ 6)</span></div>
+      <canvas class="chart" id="fig6" width="900" height="260" role="img" aria-label="Serie refugio"></canvas>
+      <div class="legend"><span><i style="background:#0072B2"></i>Refugio INSUCO (ciclistas/hora est., cordón ÷ 6)</span></div>
+      <canvas class="chart" id="fig7" width="900" height="220" role="img" aria-label="Serie reloj"></canvas>
+      <div class="legend"><span><i style="background:#CC79A7"></i>Reloj de Flores, Viña (ciclistas/hora est., cordón ÷ 6; escala
+          menor, paseo diurno, peak 8dic - 08hrs con 9)</span></div>
+    </div>
+    <details>
+      <summary>Ver datos (tabla)</summary>
+      <div style="overflow:auto">
+        <table class="ac-table">
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>Santuario (ciclistas/hora est.)</th>
+              <th>Refugio (ciclistas/hora est.)</th>
+              <th>Reloj (ciclistas/hora est.)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>7dic - 14hrs</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>7dic - 15hrs</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>7dic - 16hrs</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>2</td>
+            </tr>
+            <tr>
+              <td>7dic - 17hrs</td>
+              <td style='text-align:right'>10</td>
+              <td style='text-align:right'>2</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>7dic - 18hrs</td>
+              <td style='text-align:right'>17</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>7dic - 19hrs</td>
+              <td style='text-align:right'>43</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>7dic - 20hrs</td>
+              <td style='text-align:right'>69</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>1</td>
+            </tr>
+            <tr>
+              <td>7dic - 21hrs</td>
+              <td style='text-align:right'>106</td>
+              <td style='text-align:right'>10</td>
+              <td style='text-align:right'>1</td>
+            </tr>
+            <tr>
+              <td>7dic - 22hrs</td>
+              <td style='text-align:right'>108</td>
+              <td style='text-align:right'>15</td>
+              <td style='text-align:right'>1</td>
+            </tr>
+            <tr>
+              <td>7dic - 23hrs</td>
+              <td style='text-align:right'>92</td>
+              <td style='text-align:right'>8</td>
+              <td style='text-align:right'>3</td>
+            </tr>
+            <tr>
+              <td>8dic - 00hrs</td>
+              <td style='text-align:right'>111</td>
+              <td style='text-align:right'>25</td>
+              <td style='text-align:right'>1</td>
+            </tr>
+            <tr>
+              <td>8dic - 01hrs</td>
+              <td style='text-align:right'>73</td>
+              <td style='text-align:right'>25</td>
+              <td style='text-align:right'>1</td>
+            </tr>
+            <tr>
+              <td>8dic - 02hrs</td>
+              <td style='text-align:right'>105</td>
+              <td style='text-align:right'>22</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>8dic - 03hrs</td>
+              <td style='text-align:right'>93</td>
+              <td style='text-align:right'>20</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>8dic - 04hrs</td>
+              <td style='text-align:right'>116</td>
+              <td style='text-align:right'>30</td>
+              <td style='text-align:right'>3</td>
+            </tr>
+            <tr>
+              <td>8dic - 05hrs</td>
+              <td style='text-align:right'>103</td>
+              <td style='text-align:right'>55</td>
+              <td style='text-align:right'>3</td>
+            </tr>
+            <tr>
+              <td>8dic - 06hrs</td>
+              <td style='text-align:right'>90</td>
+              <td style='text-align:right'>95</td>
+              <td style='text-align:right'>4</td>
+            </tr>
+            <tr>
+              <td>8dic - 07hrs</td>
+              <td style='text-align:right'>49</td>
+              <td style='text-align:right'>120</td>
+              <td style='text-align:right'>5</td>
+            </tr>
+            <tr>
+              <td>8dic - 08hrs</td>
+              <td style='text-align:right'>30</td>
+              <td style='text-align:right'>98</td>
+              <td style='text-align:right'>9</td>
+            </tr>
+            <tr>
+              <td>8dic - 09hrs</td>
+              <td style='text-align:right'>45</td>
+              <td style='text-align:right'>92</td>
+              <td style='text-align:right'>8</td>
+            </tr>
+            <tr>
+              <td>8dic - 10hrs</td>
+              <td style='text-align:right'>28</td>
+              <td style='text-align:right'>40</td>
+              <td style='text-align:right'>8</td>
+            </tr>
+            <tr>
+              <td>8dic - 11hrs</td>
+              <td style='text-align:right'>13</td>
+              <td style='text-align:right'>17</td>
+              <td style='text-align:right'>4</td>
+            </tr>
+            <tr>
+              <td>8dic - 12hrs</td>
+              <td style='text-align:right'>6</td>
+              <td style='text-align:right'>13</td>
+              <td style='text-align:right'>2</td>
+            </tr>
+            <tr>
+              <td>8dic - 13hrs</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>3</td>
+              <td style='text-align:right'>1</td>
+            </tr>
+            <tr>
+              <td>8dic - 14hrs</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>1</td>
+              <td style='text-align:right'>3</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+    <!--G:FIG:567:END-->
+  </div>
+
+  <div class="content-section">
+    <h2 class="section-title">Acumulación de ciclistas por hora</h2>
+    <p>La siguiente composición muestra, por comuna, la cantidad de conteos que se registran hora a hora. Esto permite apreciar, por ejemplo,
+      la permanencia extendida de ciclistas en Casablanca, donde se encuentra Lo Vásquez. Por otro lado, muestra que hay una base siempre
+      en Valparaíso, lo cual se explica por un grupo de ciclistas que sube al santuario desde la ciudad puerto, pero también muestra que hay
+      otro grupo proveniente de Santiago que no se detiene en Lo Vásquez, sino que sigue de largo hasta la costa. Por otro lado, un efecto similar,
+      pero a menor escala, ocurre en Viña del Mar, sin embargo, se puede notar que la mayoría de los registros en la ciudad jardín ocurre llegando
+      la luz del sol y posterior al peak registrado en Valparaíso, respaldando lo indicado previamente.
+    </p>
+    <p>Otro elemento interesante es que hay destinos registrados como "otros" con tiempos de llegada similares a los de Valparaíso y Viña del Mar,
+      que representa un ~30% de los viajes que aún se encuentran activos por la mañana del 8 de diciembre.
+    </p>
+    <!--G:FIG:3:START-->
+    <div class="gbloque">
+      <h3 class="chart-title">Composición por comuna y hora</h3>
+      <canvas class="chart" id="fig3" width="900" height="300" role="img"
+        aria-label="Barras apiladas por comuna"></canvas>
+      <div
+        style="margin:6px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:.82rem;color:var(--mut)">
+        <span>Vista:</span>
+        <button id="fig3-mode-pct"
+          style="padding:4px 12px;border-radius:7px;border:1px solid var(--c1);background:#eef5fc;color:var(--c1);cursor:pointer;font-weight:700">%
+          Porcentaje</button>
+        <button id="fig3-mode-abs"
+          style="padding:4px 12px;border-radius:7px;border:1px solid var(--c1);background:#fff;color:var(--c1);cursor:pointer">Absoluto</button>
+        <span>Pasa el mouse sobre una barra para ver comuna, trips y %.</span>
+      </div>
+      <div class="legend"><span><i style="background:#0072B2"></i>Valparaíso</span><span><i
+            style="background:#E69F00"></i>Casablanca</span><span><i style="background:#56B4E9"></i>Viña del
+          Mar</span><span><i style="background:#D55E00"></i>Quilpué</span><span><i
+            style="background:#999999"></i>Otros</span></div>
+    </div>
+    <details>
+      <summary>Ver datos (tabla %)</summary>
+      <div style="overflow:auto">
+        <table class="ac-table">
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>Valparaíso</th>
+              <th>Casablanca</th>
+              <th>Viña del Mar</th>
+              <th>Quilpué</th>
+              <th>Otros</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>7dic - 17hrs</td>
+              <td style='text-align:right'>23.1%</td>
+              <td style='text-align:right'>12.5%</td>
+              <td style='text-align:right'>26.0%</td>
+              <td style='text-align:right'>24.8%</td>
+              <td style='text-align:right'>13.6%</td>
+            </tr>
+            <tr>
+              <td>7dic - 18hrs</td>
+              <td style='text-align:right'>29.2%</td>
+              <td style='text-align:right'>26.0%</td>
+              <td style='text-align:right'>16.3%</td>
+              <td style='text-align:right'>14.6%</td>
+              <td style='text-align:right'>14.0%</td>
+            </tr>
+            <tr>
+              <td>7dic - 19hrs</td>
+              <td style='text-align:right'>26.8%</td>
+              <td style='text-align:right'>42.8%</td>
+              <td style='text-align:right'>16.1%</td>
+              <td style='text-align:right'>8.0%</td>
+              <td style='text-align:right'>6.3%</td>
+            </tr>
+            <tr>
+              <td>7dic - 20hrs</td>
+              <td style='text-align:right'>30.1%</td>
+              <td style='text-align:right'>45.1%</td>
+              <td style='text-align:right'>8.8%</td>
+              <td style='text-align:right'>12.2%</td>
+              <td style='text-align:right'>3.8%</td>
+            </tr>
+            <tr>
+              <td>7dic - 21hrs</td>
+              <td style='text-align:right'>29.3%</td>
+              <td style='text-align:right'>45.7%</td>
+              <td style='text-align:right'>10.4%</td>
+              <td style='text-align:right'>12.6%</td>
+              <td style='text-align:right'>2.0%</td>
+            </tr>
+            <tr>
+              <td>7dic - 22hrs</td>
+              <td style='text-align:right'>22.8%</td>
+              <td style='text-align:right'>43.8%</td>
+              <td style='text-align:right'>12.3%</td>
+              <td style='text-align:right'>19.2%</td>
+              <td style='text-align:right'>2.0%</td>
+            </tr>
+            <tr>
+              <td>7dic - 23hrs</td>
+              <td style='text-align:right'>23.5%</td>
+              <td style='text-align:right'>49.6%</td>
+              <td style='text-align:right'>10.0%</td>
+              <td style='text-align:right'>9.8%</td>
+              <td style='text-align:right'>7.1%</td>
+            </tr>
+            <tr>
+              <td>8dic - 00hrs</td>
+              <td style='text-align:right'>27.5%</td>
+              <td style='text-align:right'>45.0%</td>
+              <td style='text-align:right'>12.9%</td>
+              <td style='text-align:right'>7.9%</td>
+              <td style='text-align:right'>6.6%</td>
+            </tr>
+            <tr>
+              <td>8dic - 01hrs</td>
+              <td style='text-align:right'>29.2%</td>
+              <td style='text-align:right'>45.4%</td>
+              <td style='text-align:right'>14.2%</td>
+              <td style='text-align:right'>8.1%</td>
+              <td style='text-align:right'>3.1%</td>
+            </tr>
+            <tr>
+              <td>8dic - 02hrs</td>
+              <td style='text-align:right'>25.3%</td>
+              <td style='text-align:right'>46.1%</td>
+              <td style='text-align:right'>13.5%</td>
+              <td style='text-align:right'>8.3%</td>
+              <td style='text-align:right'>6.8%</td>
+            </tr>
+            <tr>
+              <td>8dic - 03hrs</td>
+              <td style='text-align:right'>25.9%</td>
+              <td style='text-align:right'>54.2%</td>
+              <td style='text-align:right'>11.1%</td>
+              <td style='text-align:right'>4.0%</td>
+              <td style='text-align:right'>4.8%</td>
+            </tr>
+            <tr>
+              <td>8dic - 04hrs</td>
+              <td style='text-align:right'>31.6%</td>
+              <td style='text-align:right'>51.3%</td>
+              <td style='text-align:right'>12.2%</td>
+              <td style='text-align:right'>3.3%</td>
+              <td style='text-align:right'>1.5%</td>
+            </tr>
+            <tr>
+              <td>8dic - 05hrs</td>
+              <td style='text-align:right'>39.7%</td>
+              <td style='text-align:right'>39.9%</td>
+              <td style='text-align:right'>14.9%</td>
+              <td style='text-align:right'>2.5%</td>
+              <td style='text-align:right'>3.0%</td>
+            </tr>
+            <tr>
+              <td>8dic - 06hrs</td>
+              <td style='text-align:right'>47.6%</td>
+              <td style='text-align:right'>30.3%</td>
+              <td style='text-align:right'>15.5%</td>
+              <td style='text-align:right'>3.2%</td>
+              <td style='text-align:right'>3.4%</td>
+            </tr>
+            <tr>
+              <td>8dic - 07hrs</td>
+              <td style='text-align:right'>49.5%</td>
+              <td style='text-align:right'>21.2%</td>
+              <td style='text-align:right'>21.4%</td>
+              <td style='text-align:right'>1.9%</td>
+              <td style='text-align:right'>5.9%</td>
+            </tr>
+            <tr>
+              <td>8dic - 08hrs</td>
+              <td style='text-align:right'>47.9%</td>
+              <td style='text-align:right'>17.1%</td>
+              <td style='text-align:right'>21.6%</td>
+              <td style='text-align:right'>5.9%</td>
+              <td style='text-align:right'>7.5%</td>
+            </tr>
+            <tr>
+              <td>8dic - 09hrs</td>
+              <td style='text-align:right'>39.9%</td>
+              <td style='text-align:right'>16.7%</td>
+              <td style='text-align:right'>22.1%</td>
+              <td style='text-align:right'>8.2%</td>
+              <td style='text-align:right'>13.0%</td>
+            </tr>
+            <tr>
+              <td>8dic - 10hrs</td>
+              <td style='text-align:right'>23.9%</td>
+              <td style='text-align:right'>21.9%</td>
+              <td style='text-align:right'>27.4%</td>
+              <td style='text-align:right'>5.3%</td>
+              <td style='text-align:right'>21.5%</td>
+            </tr>
+            <tr>
+              <td>8dic - 11hrs</td>
+              <td style='text-align:right'>18.7%</td>
+              <td style='text-align:right'>13.6%</td>
+              <td style='text-align:right'>24.7%</td>
+              <td style='text-align:right'>7.5%</td>
+              <td style='text-align:right'>35.5%</td>
+            </tr>
+            <tr>
+              <td>8dic - 12hrs</td>
+              <td style='text-align:right'>19.2%</td>
+              <td style='text-align:right'>7.6%</td>
+              <td style='text-align:right'>34.9%</td>
+              <td style='text-align:right'>7.8%</td>
+              <td style='text-align:right'>30.6%</td>
+            </tr>
+            <tr>
+              <td>8dic - 13hrs</td>
+              <td style='text-align:right'>15.9%</td>
+              <td style='text-align:right'>8.1%</td>
+              <td style='text-align:right'>45.7%</td>
+              <td style='text-align:right'>6.8%</td>
+              <td style='text-align:right'>23.6%</td>
+            </tr>
+            <tr>
+              <td>8dic - 14hrs</td>
+              <td style='text-align:right'>17.8%</td>
+              <td style='text-align:right'>6.0%</td>
+              <td style='text-align:right'>60.9%</td>
+              <td style='text-align:right'>6.1%</td>
+              <td style='text-align:right'>9.3%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+    <!--G:FIG:3:END-->
+  </div>
+
+  <div class="content-section">
+    <h2 class="section-title">Ida y vuelta en dos colores</h2>
+    <p>Se sabe que el cierre de la Ruta 68 es un momento muy apreciado por la comunidad ciclista, sin embargo, poco se sabe del comportamiento
+      de los mismos respecto del sentido de los viajes. En este gráfico se puede observar que pese a la gran cantidad de ciclistas moviéndose por
+      la autopista, entre las 18h del 7 de diciembre y las 04h del 8 de diciembre hay un volumen importante moviéndose desde la costa hacia el santuario,
+      sumándose luego al retorno junto a aquellos que viajan pedaleando desde la capital. Por otro lado, luego de este horario se siguen viendo pedaleros
+      alejándose de la costa, lo cual se explica por algunos que salen de madrugada hacia el santuario, pero también porque existe un grupo cada vez mayor
+      de deportistas que pedalea a través de la Ruta 68 de regreso a la capital.
+    </p>
+    <!--G:FIG:4:START-->
+    <div class="gbloque">
+      <h3 class="chart-title">Sentido de pedaleo entre Lo Vásquez y Valparaíso</h3>
+      <canvas class="chart" id="fig4" width="900" height="300" role="img" aria-label="Area oeste este T3 T4"></canvas>
+      <div class="legend"><span><i style="background:#0072B2"></i>Oeste (hacia costa)</span><span><i
+            style="background:#E69F00"></i>Este (hacia Lo Vásquez)</span></div>
+    </div>
+    <details>
+      <summary>Ver datos (tabla)</summary>
+      <div style="overflow:auto">
+        <table class="ac-table">
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>Oeste (T3+T4)</th>
+              <th>Este (T3+T4)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>7dic - 14hrs</td>
+              <td style='text-align:right'>115</td>
+              <td style='text-align:right'>430</td>
+            </tr>
+            <tr>
+              <td>7dic - 15hrs</td>
+              <td style='text-align:right'>195</td>
+              <td style='text-align:right'>105</td>
+            </tr>
+            <tr>
+              <td>7dic - 16hrs</td>
+              <td style='text-align:right'>115</td>
+              <td style='text-align:right'>495</td>
+            </tr>
+            <tr>
+              <td>7dic - 17hrs</td>
+              <td style='text-align:right'>955</td>
+              <td style='text-align:right'>1.895</td>
+            </tr>
+            <tr>
+              <td>7dic - 18hrs</td>
+              <td style='text-align:right'>1.670</td>
+              <td style='text-align:right'>2.995</td>
+            </tr>
+            <tr>
+              <td>7dic - 19hrs</td>
+              <td style='text-align:right'>1.890</td>
+              <td style='text-align:right'>3.855</td>
+            </tr>
+            <tr>
+              <td>7dic - 20hrs</td>
+              <td style='text-align:right'>3.810</td>
+              <td style='text-align:right'>3.530</td>
+            </tr>
+            <tr>
+              <td>7dic - 21hrs</td>
+              <td style='text-align:right'>4.275</td>
+              <td style='text-align:right'>3.585</td>
+            </tr>
+            <tr>
+              <td>7dic - 22hrs</td>
+              <td style='text-align:right'>4.680</td>
+              <td style='text-align:right'>2.965</td>
+            </tr>
+            <tr>
+              <td>7dic - 23hrs</td>
+              <td style='text-align:right'>4.455</td>
+              <td style='text-align:right'>2.890</td>
+            </tr>
+            <tr>
+              <td>8dic - 00hrs</td>
+              <td style='text-align:right'>5.885</td>
+              <td style='text-align:right'>2.460</td>
+            </tr>
+            <tr>
+              <td>8dic - 01hrs</td>
+              <td style='text-align:right'>5.720</td>
+              <td style='text-align:right'>2.470</td>
+            </tr>
+            <tr>
+              <td>8dic - 02hrs</td>
+              <td style='text-align:right'>5.060</td>
+              <td style='text-align:right'>1.845</td>
+            </tr>
+            <tr>
+              <td>8dic - 03hrs</td>
+              <td style='text-align:right'>6.125</td>
+              <td style='text-align:right'>1.780</td>
+            </tr>
+            <tr>
+              <td>8dic - 04hrs</td>
+              <td style='text-align:right'>8.485</td>
+              <td style='text-align:right'>1.705</td>
+            </tr>
+            <tr>
+              <td>8dic - 05hrs</td>
+              <td style='text-align:right'>12.445</td>
+              <td style='text-align:right'>2.045</td>
+            </tr>
+            <tr>
+              <td>8dic - 06hrs</td>
+              <td style='text-align:right'>17.255</td>
+              <td style='text-align:right'>3.225</td>
+            </tr>
+            <tr>
+              <td>8dic - 07hrs</td>
+              <td style='text-align:right'>18.755</td>
+              <td style='text-align:right'>4.355</td>
+            </tr>
+            <tr>
+              <td>8dic - 08hrs</td>
+              <td style='text-align:right'>14.920</td>
+              <td style='text-align:right'>4.305</td>
+            </tr>
+            <tr>
+              <td>8dic - 09hrs</td>
+              <td style='text-align:right'>11.035</td>
+              <td style='text-align:right'>3.305</td>
+            </tr>
+            <tr>
+              <td>8dic - 10hrs</td>
+              <td style='text-align:right'>6.210</td>
+              <td style='text-align:right'>2.550</td>
+            </tr>
+            <tr>
+              <td>8dic - 11hrs</td>
+              <td style='text-align:right'>3.780</td>
+              <td style='text-align:right'>1.425</td>
+            </tr>
+            <tr>
+              <td>8dic - 12hrs</td>
+              <td style='text-align:right'>2.440</td>
+              <td style='text-align:right'>845</td>
+            </tr>
+            <tr>
+              <td>8dic - 13hrs</td>
+              <td style='text-align:right'>800</td>
+              <td style='text-align:right'>160</td>
+            </tr>
+            <tr>
+              <td>8dic - 14hrs</td>
+              <td style='text-align:right'>215</td>
+              <td style='text-align:right'>240</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+    <!--G:FIG:4:END-->
+  </div>
+
+  <div class="content-section">
+    <h2 class="section-title">Avenida España, persona por persona</h2>
+    <p>En el punto central de la avenida, dos calzadas cuentan a cada ciclista una sola vez al cruzar: el peak ocurre 
+      <strong>a las 09h</strong>.</p>
+    <p>Cabe destacar que las cantidades son referenciales, ya que los usuarios de Strava son una población considerablemente menor
+      que aquella población ciclista que circula sin activar esta aplicación. Lo que se destaca en este punto es la tendencia de desplazamiento
+      entre Valparaíso y Viña del Mar durante la noche y la mañana del 8 de diciembre.
+    </p>
+    <!--G:FIG:8:START-->
+    <div class="gbloque">
+      <h3 class="chart-title">Avenida España (screenline)</h3>
+      <canvas class="chart" id="fig8" width="900" height="300" role="img"
+        aria-label="Serie Avenida España norte sur"></canvas>
+      <div class="legend"><span><i style="background:#0072B2"></i>Viajes con Strava en Avenida España</span></div>
+    </div>
+    <details>
+      <summary>Ver datos (tabla)</summary>
+      <div style="overflow:auto">
+        <table class="ac-table">
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>Norte → Viña</th>
+              <th>Sur → Valpo</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>7dic - 17hrs</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>7dic - 18hrs</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>7dic - 19hrs</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>7dic - 20hrs</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>5</td>
+            </tr>
+            <tr>
+              <td>7dic - 21hrs</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>7dic - 22hrs</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>10</td>
+            </tr>
+            <tr>
+              <td>7dic - 23hrs</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>8dic - 00hrs</td>
+              <td style='text-align:right'>10</td>
+              <td style='text-align:right'>10</td>
+              <td style='text-align:right'>20</td>
+            </tr>
+            <tr>
+              <td>8dic - 01hrs</td>
+              <td style='text-align:right'>15</td>
+              <td style='text-align:right'>15</td>
+              <td style='text-align:right'>30</td>
+            </tr>
+            <tr>
+              <td>8dic - 02hrs</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>10</td>
+            </tr>
+            <tr>
+              <td>8dic - 03hrs</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>10</td>
+            </tr>
+            <tr>
+              <td>8dic - 04hrs</td>
+              <td style='text-align:right'>10</td>
+              <td style='text-align:right'>10</td>
+              <td style='text-align:right'>20</td>
+            </tr>
+            <tr>
+              <td>8dic - 05hrs</td>
+              <td style='text-align:right'>25</td>
+              <td style='text-align:right'>30</td>
+              <td style='text-align:right'>55</td>
+            </tr>
+            <tr>
+              <td>8dic - 06hrs</td>
+              <td style='text-align:right'>25</td>
+              <td style='text-align:right'>25</td>
+              <td style='text-align:right'>50</td>
+            </tr>
+            <tr>
+              <td>8dic - 07hrs</td>
+              <td style='text-align:right'>30</td>
+              <td style='text-align:right'>30</td>
+              <td style='text-align:right'>60</td>
+            </tr>
+            <tr>
+              <td>8dic - 08hrs</td>
+              <td style='text-align:right'>35</td>
+              <td style='text-align:right'>35</td>
+              <td style='text-align:right'>70</td>
+            </tr>
+            <tr>
+              <td>8dic - 09hrs</td>
+              <td style='text-align:right'>45</td>
+              <td style='text-align:right'>40</td>
+              <td style='text-align:right'>85</td>
+            </tr>
+            <tr>
+              <td>8dic - 10hrs</td>
+              <td style='text-align:right'>15</td>
+              <td style='text-align:right'>15</td>
+              <td style='text-align:right'>30</td>
+            </tr>
+            <tr>
+              <td>8dic - 11hrs</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>10</td>
+            </tr>
+            <tr>
+              <td>8dic - 12hrs</td>
+              <td style='text-align:right'>10</td>
+              <td style='text-align:right'>10</td>
+              <td style='text-align:right'>20</td>
+            </tr>
+            <tr>
+              <td>8dic - 13hrs</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>8dic - 14hrs</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>8dic - 15hrs</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>8dic - 16hrs</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>5</td>
+              <td style='text-align:right'>10</td>
+            </tr>
+            <tr>
+              <td>8dic - 17hrs</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>8dic - 18hrs</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>8dic - 19hrs</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+            <tr>
+              <td>8dic - 20hrs</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+              <td style='text-align:right'>0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+    <!--G:FIG:8:END-->
+  </div>
+
+  <!-- ESTIMACIÓN -->
+  <div class="content-section">
+    <h2 class="section-title">Estimación de ciclistas</h2>
+    <p>Los mapas muestran una fracción del flujo real: Strava la usa una minoría deportizada de quienes pedalean. Sin un
+      conteo de terreno para calibrar no se puede expandir la muestra a población, así que este estudio no inventa un
+      factor: <strong>indica tendencias</strong>.</p>
+  </div>
+
+  <!-- CONCLUSIONES -->
+  <div class="content-section">
+    <h2 class="section-title">Conclusiones generales</h2>
+    <div class="highlight-box">
+      <strong>1. Hacia dónde se desplaza la gente:</strong> Casablanca, la comuna del santuario, muestra una
+      permanencia extendida, y Valparaíso sostiene una base activa toda la noche: los que suben desde el puerto y los
+      que vienen de Santiago sin detenerse en Lo Vásquez. Viña del Mar repite el efecto a menor escala, y los
+      destinos no individualizados ("otros") equivalen a cerca de 30% de los viajes que siguen activos la mañana del 8
+      de diciembre.
+    </div>
+    <div class="highlight-box">
+      <strong>2. Las horas que ordenan el fenómeno:</strong> el flujo parte la tarde del 7 de diciembre (11.960 conteos a las 17h) y
+      se sostiene entre 21 y 24 mil por hora toda la noche. El peak de ida a la altura de Casablanca es de 270/h a las 03h, el santuario
+      llega a su máximo a las 04h (≈116/h, estimado) y el descenso a Valparaíso comienza de forma masiva a las 05h. Valparaíso hace su máximo
+      a esa hora, cuando la red registra 44.315 conteos.
+    </div>
+    <div class="highlight-box">
+      <strong>3. Avenida España se usa de verdad:</strong> el punto central registra 85/h a las 09h, con un uso durante parte importante de la jornada. La cifra es referencial,
+      porque en la calzada norte hay ciclistas que circulan por la vereda hacia Viña.
+    </div>
+    <div class="highlight-box">
+      <strong>4. El cierre se usa en ambos sentidos:</strong> entre las 18h del 7 y las 04h del 8 sube el volumen desde
+      la costa hacia el santuario. En Casablanca – Lo Vásquez cambia de sentido al este desde las
+      10h, lo que indica un grupo retornando a Santiago.
+    </div>
+  </div>
+
+  <!-- FICHA TÉCNICA -->
+  <div class="content-section">
+    <h2 class="section-title">Ficha técnica</h2>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+      <div class="highlight-box" style="margin: 0;">
+        <strong>Visualización</strong><br>pydeck 0.9.3 + Leaflet (tablero)
+      </div>
+      <div class="highlight-box" style="margin: 0;">
+        <strong>Proyección</strong><br>WGS84 (EPSG:4326), centroides en EPSG:3857
+      </div>
+      <div class="highlight-box" style="margin: 0;">
+        <strong>Datos Strava</strong><br>Metro 7–9 dic 2025, 49.774 filas
+      </div>
+      <div class="highlight-box" style="margin: 0;">
+        <strong>Comunas</strong><br>346 polígonos oficiales, join por centroide
+      </div>
+      <div class="highlight-box" style="margin: 0;">
+        <strong>Vialidad</strong><br>OpenStreetMap + Overpass + Nominatim
+      </div>
+      <div class="highlight-box" style="margin: 0;">
+        <strong>Basemap</strong><br>CartoDB Positron (light theme)
+      </div>
+      <div class="highlight-box" style="margin: 0;">
+        <strong>Clasificador</strong><br>General Ciudades Pendientes (Andes Chile ONG)
+      </div>
+      <div class="highlight-box" style="margin: 0;">
+        <strong>Lenguaje</strong><br>Python (GeoPandas) + JavaScript
+      </div>
+    </div>
+  </div>
+
+
+  <!--G:SCRIPTS:START-->
+  <script type="application/json"
+    id="data-g1">{"hours": ["2025-12-07T14", "2025-12-07T15", "2025-12-07T16", "2025-12-07T17", "2025-12-07T18", "2025-12-07T19", "2025-12-07T20", "2025-12-07T21", "2025-12-07T22", "2025-12-07T23", "2025-12-08T00", "2025-12-08T01", "2025-12-08T02", "2025-12-08T03", "2025-12-08T04", "2025-12-08T05", "2025-12-08T06", "2025-12-08T07", "2025-12-08T08", "2025-12-08T09", "2025-12-08T10", "2025-12-08T11", "2025-12-08T12", "2025-12-08T13", "2025-12-08T14"], "trips": [4575, 2365, 4260, 11960, 13970, 15590, 17965, 21330, 23635, 21485, 24220, 23535, 21725, 21040, 23780, 29130, 36785, 44315, 40655, 38990, 33665, 28815, 20695, 9075, 5285], "gaps": []}</script>
+  <script type="application/json"
+    id="data-g2">{"hours": ["2025-12-07T14", "2025-12-07T15", "2025-12-07T16", "2025-12-07T17", "2025-12-07T18", "2025-12-07T19", "2025-12-07T20", "2025-12-07T21", "2025-12-07T22", "2025-12-07T23", "2025-12-08T00", "2025-12-08T01", "2025-12-08T02", "2025-12-08T03", "2025-12-08T04", "2025-12-08T05", "2025-12-08T06", "2025-12-08T07", "2025-12-08T08", "2025-12-08T09", "2025-12-08T10", "2025-12-08T11", "2025-12-08T12", "2025-12-08T13", "2025-12-08T14"], "series": {"T1": [0, 5, 5, 20, 40, 75, 125, 155, 170, 170, 175, 170, 200, 270, 265, 195, 130, 65, 55, 55, 25, 15, 5, 0, 5], "T2": [0, 0, 0, 10, 15, 40, 70, 110, 105, 90, 110, 75, 115, 90, 115, 110, 85, 50, 30, 45, 25, 15, 5, 0, 0], "T3a": [0, 0, 0, 5, 10, 15, 35, 50, 35, 45, 65, 55, 50, 75, 90, 145, 170, 150, 105, 60, 35, 25, 15, 5, 0], "T4": [0, 0, 0, 5, 0, 0, 10, 10, 20, 10, 25, 25, 25, 25, 40, 60, 110, 130, 115, 75, 40, 20, 10, 5, 0]}}</script>
+  <script type="application/json"
+    id="data-g3">{"hours": ["2025-12-07T17", "2025-12-07T18", "2025-12-07T19", "2025-12-07T20", "2025-12-07T21", "2025-12-07T22", "2025-12-07T23", "2025-12-08T00", "2025-12-08T01", "2025-12-08T02", "2025-12-08T03", "2025-12-08T04", "2025-12-08T05", "2025-12-08T06", "2025-12-08T07", "2025-12-08T08", "2025-12-08T09", "2025-12-08T10", "2025-12-08T11", "2025-12-08T12", "2025-12-08T13", "2025-12-08T14"], "groups": ["Valparaíso", "Casablanca", "Viña del Mar", "Quilpué", "Otros"], "matrix": [[2765, 4075, 4180, 5400, 6260, 5380, 5040, 6670, 6865, 5505, 5455, 7515, 11575, 17525, 21940, 19470, 15575, 8050, 5375, 3965, 1440, 940], [1495, 3630, 6680, 8105, 9740, 10345, 10665, 10905, 10680, 10015, 11395, 12210, 11620, 11140, 9405, 6955, 6530, 7360, 3925, 1570, 735, 315], [3105, 2280, 2510, 1575, 2210, 2905, 2140, 3135, 3345, 2930, 2340, 2910, 4340, 5690, 9500, 8790, 8600, 9220, 7130, 7215, 4145, 3220], [2965, 2035, 1245, 2200, 2695, 4530, 2105, 1920, 1910, 1795, 845, 790, 725, 1170, 840, 2380, 3210, 1790, 2165, 1620, 615, 320], [1630, 1950, 975, 685, 425, 475, 1535, 1590, 735, 1480, 1005, 355, 870, 1260, 2630, 3060, 5075, 7245, 10220, 6325, 2140, 490]]}</script>
+  <script type="application/json"
+    id="data-g4">{"hours": ["2025-12-07T14", "2025-12-07T15", "2025-12-07T16", "2025-12-07T17", "2025-12-07T18", "2025-12-07T19", "2025-12-07T20", "2025-12-07T21", "2025-12-07T22", "2025-12-07T23", "2025-12-08T00", "2025-12-08T01", "2025-12-08T02", "2025-12-08T03", "2025-12-08T04", "2025-12-08T05", "2025-12-08T06", "2025-12-08T07", "2025-12-08T08", "2025-12-08T09", "2025-12-08T10", "2025-12-08T11", "2025-12-08T12", "2025-12-08T13", "2025-12-08T14"], "oeste": [115, 195, 115, 955, 1670, 1890, 3810, 4275, 4680, 4455, 5885, 5720, 5060, 6125, 8485, 12445, 17255, 18755, 14920, 11035, 6210, 3780, 2440, 800, 215], "este": [430, 105, 495, 1895, 2995, 3855, 3530, 3585, 2965, 2890, 2460, 2470, 1845, 1780, 1705, 2045, 3225, 4355, 4305, 3305, 2550, 1425, 845, 160, 240]}</script>
+  <script type="application/json"
+    id="data-g5">{"hours": ["2025-12-07T14", "2025-12-07T15", "2025-12-07T16", "2025-12-07T17", "2025-12-07T18", "2025-12-07T19", "2025-12-07T20", "2025-12-07T21", "2025-12-07T22", "2025-12-07T23", "2025-12-08T00", "2025-12-08T01", "2025-12-08T02", "2025-12-08T03", "2025-12-08T04", "2025-12-08T05", "2025-12-08T06", "2025-12-08T07", "2025-12-08T08", "2025-12-08T09", "2025-12-08T10", "2025-12-08T11", "2025-12-08T12", "2025-12-08T13", "2025-12-08T14"], "series": [{"name": "Santuario Lo Vásquez (ciclistas/hora est.)", "data": [0, 0, 0, 10, 17, 43, 69, 106, 108, 92, 111, 73, 105, 93, 116, 103, 90, 49, 30, 45, 28, 13, 6, 0, 0]}]}</script>
+  <script type="application/json"
+    id="data-g6">{"hours": ["2025-12-07T14", "2025-12-07T15", "2025-12-07T16", "2025-12-07T17", "2025-12-07T18", "2025-12-07T19", "2025-12-07T20", "2025-12-07T21", "2025-12-07T22", "2025-12-07T23", "2025-12-08T00", "2025-12-08T01", "2025-12-08T02", "2025-12-08T03", "2025-12-08T04", "2025-12-08T05", "2025-12-08T06", "2025-12-08T07", "2025-12-08T08", "2025-12-08T09", "2025-12-08T10", "2025-12-08T11", "2025-12-08T12", "2025-12-08T13", "2025-12-08T14"], "series": [{"name": "Refugio INSUCO (ciclistas/hora est.)", "data": [0, 0, 0, 2, 0, 0, 5, 10, 15, 8, 25, 25, 22, 20, 30, 55, 95, 120, 98, 92, 40, 17, 13, 3, 1]}]}</script>
+  <script type="application/json"
+    id="data-g7">{"hours": ["2025-12-07T14", "2025-12-07T15", "2025-12-07T16", "2025-12-07T17", "2025-12-07T18", "2025-12-07T19", "2025-12-07T20", "2025-12-07T21", "2025-12-07T22", "2025-12-07T23", "2025-12-08T00", "2025-12-08T01", "2025-12-08T02", "2025-12-08T03", "2025-12-08T04", "2025-12-08T05", "2025-12-08T06", "2025-12-08T07", "2025-12-08T08", "2025-12-08T09", "2025-12-08T10", "2025-12-08T11", "2025-12-08T12", "2025-12-08T13", "2025-12-08T14"], "series": [{"name": "Reloj de Flores (ciclistas/hora est.)", "data": [0, 0, 2, 0, 0, 0, 1, 1, 1, 3, 1, 1, 0, 0, 3, 3, 4, 5, 9, 8, 8, 4, 2, 1, 3]}]}</script>
+  <script type="application/json"
+    id="data-g8">{"hours": ["2025-12-07T17", "2025-12-07T18", "2025-12-07T19", "2025-12-07T20", "2025-12-07T21", "2025-12-07T22", "2025-12-07T23", "2025-12-08T00", "2025-12-08T01", "2025-12-08T02", "2025-12-08T03", "2025-12-08T04", "2025-12-08T05", "2025-12-08T06", "2025-12-08T07", "2025-12-08T08", "2025-12-08T09", "2025-12-08T10", "2025-12-08T11", "2025-12-08T12", "2025-12-08T13", "2025-12-08T14", "2025-12-08T15", "2025-12-08T16", "2025-12-08T17", "2025-12-08T18", "2025-12-08T19", "2025-12-08T20"], "series": [{"name": "Total Avenida España (ambas calzadas)", "data": [0, 0, 0, 5, 0, 10, 0, 20, 30, 10, 10, 20, 55, 50, 60, 70, 85, 30, 10, 20, 0, 0, 0, 10, 0, 0, 0, 0]}]}</script>
+  <script>
+
+    (function () {
+      "use strict";
+      var OBITO = ["#0072B2", "#E69F00", "#009E73", "#CC79A7", "#56B4E9", "#D55E00", "#999999"];
+      function $(id) { return document.getElementById(id); }
+      function ctx2d(cv, h) {
+        var dpr = window.devicePixelRatio || 1, w = cv.clientWidth || 600;
+        var W = Math.round(w * dpr), H = Math.round(h * dpr);
+        if (cv.width !== W || cv.height !== H || !cv._czinit) { cv.width = W; cv.height = H; cv._czinit = true; }
+        cv.style.height = h + "px";
+        var c = cv.getContext("2d"); c.setTransform(dpr, 0, 0, dpr, 0, 0); return [c, w, h];
+      }
+      function ticks(mx, n) {
+        var step = Math.pow(10, Math.floor(Math.log10(mx / n || 1))), m = (mx / n) / step, s = step;
+        if (m > 5) s = step * 10; else if (m > 2) s = step * 5; else if (m > 1) s = step * 2;
+        var t = [], v = 0, guard = 0; while (v <= mx * 1.08 && guard < 50) { t.push(v); v += s; guard++; }
+        if (!t.length || t[t.length - 1] < mx) t.push((t.length ? t[t.length - 1] : 0) + s);
+        return t;
+      }
+      function axes(c, W, H, pad, ys) {
+        c.strokeStyle = "#9aa7b4"; c.fillStyle = "#5b6b7a"; c.font = "10px system-ui"; c.lineWidth = 1;
+        ys.forEach(function (y) {
+          var yy = H - pad.b - (y / ys[ys.length - 1]) * (H - pad.t - pad.b);
+          c.globalAlpha = .25; c.beginPath(); c.moveTo(pad.l, yy); c.lineTo(W - pad.r, yy); c.stroke(); c.globalAlpha = 1;
+          c.fillText(y >= 1000 ? (y / 1000) + "k" : ("" + y), 4, yy + 3);
+        });
+      }
+      function fmtT(h) { try { var p = h.split("T"); return (+p[0].slice(8)) + "dic - " + p[1] + "hrs"; } catch (e) { return h; } }
+      function xlabels(c, W, H, pad, labs, every) {
+        c.fillStyle = "#5b6b7a"; c.font = "10px system-ui"; c.textAlign = "right";
+        labs.forEach(function (l, i) {
+          if (i % every !== 0) return;
+          var x = pad.l + i * (W - pad.l - pad.r) / ((labs.length - 1) || 1);
+          c.save(); c.translate(x, H - 44); c.rotate(-.55); c.fillText(fmtT(l), 0, 0); c.restore();
+        });
+        c.textAlign = "left";
+      }
+      var SYNC = { idx: -1, members: [] };
+      /* Capa DOM para la guía vertical del hover: NO redibuja el canvas (se mantiene
+         la regla "hover sin redibujo"), pero la línea y los puntos sí se ven.
+         Todo con estilos inline para no depender del CSS de cada página. */
+      function mkOverlay(cv) {
+        var w = cv.parentElement; if (!w) return null;
+        var ov = w.querySelector(".chart-overlay");
+        if (ov) return ov;
+        ov = document.createElement("div"); ov.className = "chart-overlay";
+        ov.style.cssText = "position:absolute;inset:0;pointer-events:none;z-index:4;display:none;";
+        var gl = document.createElement("div"); gl.className = "chart-guide";
+        gl.style.cssText = "position:absolute;top:10px;height:246px;width:1px;background:#333;opacity:.6;";
+        ov.appendChild(gl); w.appendChild(ov);
+        return ov;
+      }
+      function mkDot(ov) {
+        var d = document.createElement("div"); d.className = "chart-dot";
+        d.style.cssText = "position:absolute;width:7px;height:7px;border-radius:50%;border:1px solid #fff;box-sizing:border-box;";
+        ov.appendChild(d); return d;
+      }
+      function line(g, ids, colors, fillGap, group) {
+        var cv = $(ids); if (!cv) return;
+        var hov = -1;
+        var self = { group: group || null, ids: ids, set: function (i) { hov = i; paintTip(i); setGuide(i); } };
+        if (group) { SYNC.members.push(self); }
+        function geom() {
+          var r = ctx2d(cv, 300), W = r[1], H = r[2], pad = { l: 44, r: 8, t: 10, b: 44 };
+          var n = g.hours.length, mx = 1; g.series.forEach(function (s) { s.data.forEach(function (v) { if (v > mx) mx = v; }); });
+          var ys = ticks(mx, 5); mx = ys[ys.length - 1] || 1;
+          return {
+            W: W, H: H, pad: pad, n: n, mx: mx, ys: ys,
+            X: function (i) { return pad.l + i * (W - pad.l - pad.r) / ((n - 1) || 1); },
+            Y: function (v) { return H - pad.b - (v / mx) * (H - pad.t - pad.b); }
+          };
+        }
+        function draw() {
+          var r = ctx2d(cv, 300), c = r[0], gm = geom(), W = gm.W, H = gm.H, pad = gm.pad;
+          c.clearRect(0, 0, W, H);
+          if (fillGap && g.gapsIdx && g.gapsIdx.length) {
+            c.fillStyle = "rgba(204,121,167,.18)";
+            var gi = g.gapsIdx, a = gi[0], b = gi[gi.length - 1];
+            c.fillRect(gm.X(a), pad.t, gm.X(b) - gm.X(a), H - pad.t - pad.b);
+          }
+          axes(c, W, H, pad, gm.ys); xlabels(c, W, H, pad, g.hours, Math.ceil(n0(g) / 12));
+          g.series.forEach(function (s, si) {
+            c.strokeStyle = colors[si % colors.length]; c.lineWidth = 1.8; c.beginPath();
+            s.data.forEach(function (v, i) { i ? c.lineTo(gm.X(i), gm.Y(v)) : c.moveTo(gm.X(i), gm.Y(v)); }); c.stroke();
+          });
+          // la guía vertical del hover NO se pinta en el canvas: vive en la capa DOM
+          // (setGuide), para no redibujar el gráfico al mover el mouse
+        }
+        function xAt(i) {
+          var W = cv.clientWidth || 600, n = g.hours.length;
+          return 44 + i * (W - 44 - 8) / ((n - 1) || 1);
+        }
+        function yAt(v) {
+          var H = 300, pad = { t: 10, b: 44 }, mx = 1;
+          g.series.forEach(function (s) { s.data.forEach(function (x) { if (x > mx) mx = x; }); });
+          var ys = ticks(mx, 5); mx = ys[ys.length - 1] || 1;
+          return H - pad.b - (v / mx) * (H - pad.t - pad.b);
+        }
+        function setGuide(i) {
+          var ov = mkOverlay(cv); if (!ov) return;
+          if (i < 0 || i >= g.hours.length) { ov.style.display = "none"; return; }
+          var x = xAt(i);
+          ov.style.display = "block";
+          ov.querySelector(".chart-guide").style.left = x + "px";
+          var dots = ov.querySelectorAll(".chart-dot");
+          g.series.forEach(function (s, si) {
+            var d = dots[si];
+            if (!d) { d = mkDot(ov); dots = ov.querySelectorAll(".chart-dot"); }
+            d.style.display = "block";
+            d.style.left = (x - 3.5) + "px";
+            d.style.top = (yAt(s.data[i]) - 3.5) + "px";
+            d.style.background = colors[si % colors.length];
+          });
+          for (var k = g.series.length; k < dots.length; k++)dots[k].style.display = "none";
+        }
+        function n0(gg) { return gg.hours.length; }
+        function tip() { return cv.parentElement.querySelector(".chart-tip"); }
+        function placeTip(t, e) {
+          var wr = t.parentElement.getBoundingClientRect();
+          var tw = t.offsetWidth || 200;
+          var L = (e && e.clientX) ? (e.clientX - wr.left + 14) : (wr.width - tw - 8);
+          L = Math.min(L, wr.width - tw - 8);
+          t.style.left = Math.max(4, L) + "px";
+          t.style.top = (e && e.clientY) ? Math.max(e.clientY - wr.top - 10, 4) + "px" : "8px";
+        }
+        function paintTip(i) {
+          var t = tip(); if (!t) return;
+          if (i < 0 || i >= g.hours.length) { t.style.display = "none"; return; }
+          var htm = "<b>" + fmtT(g.hours[i]) + "</b>";
+          g.series.forEach(function (s, si) {
+            htm += "<br><span style='color:" + colors[si % colors.length] + "'>●</span> " + esc(s.name || ("Serie " + (si + 1))) + ": <b>" + fmtN(s.data[i]) + "</b>";
+          });
+          t.innerHTML = htm; t.style.display = "block"; placeTip(t, null);
+        }
+        cv.addEventListener("mousemove", function (e) {
+          var gm = geom(), rect = cv.getBoundingClientRect();
+          var mx = e.clientX - rect.left, best = 0, bd = 1e9;
+          for (var i = 0; i < gm.n; i++) { var d = Math.abs(gm.X(i) - mx); if (d < bd) { bd = d; best = i; } }
+          if (group) {
+            SYNC.idx = best;
+            SYNC.members.forEach(function (m) {
+              if (m === self) { hov = best; }
+              else { m.set(best); }
+            });
+          } else { hov = best; }
+          setGuide(best);
+          paintTipAt(self, best, e);
+        });
+        function paintTipAt(m, i, e) {
+          var t = tip(); if (!t) return;
+          var htm = "<b>" + fmtT(g.hours[i]) + "</b>";
+          g.series.forEach(function (s, si) {
+            htm += "<br><span style='color:" + colors[si % colors.length] + "'>●</span> " + esc(s.name || ("Serie " + (si + 1))) + ": <b>" + fmtN(s.data[i]) + "</b>";
+          });
+          t.innerHTML = htm; t.style.display = "block"; placeTip(t, e);
+        }
+        cv.addEventListener("mouseleave", function () {
+          if (group) {
+            SYNC.idx = -1;
+            SYNC.members.forEach(function (m) { m.set(-1); });
+          } else { hov = -1; setGuide(-1); var t = tip(); if (t) t.style.display = "none"; }
+        });
+        function esc(x) { return String(x).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+        function fmtN(v) { return (+v).toLocaleString("es-CL"); }
+        draw(); window.addEventListener("resize", function () { draw(); if (hov >= 0) setGuide(hov); });
+      }
+      function stackedBar(g, ids, colors) {
+        var cv = $(ids); if (!cv) return;
+        var mode = "pct", hov = -1;
+        function tots() { var t = []; for (var i = 0; i < g.hours.length; i++) { var q = 0; for (var j = 0; j < g.matrix.length; j++)q += g.matrix[j][i]; t.push(q); } return t; }
+        function draw() {
+          var r = ctx2d(cv, 300), c = r[0], W = r[1], H = r[2], pad = { l: 46, r: 10, t: 18, b: 62 };
+          c.clearRect(0, 0, W, H);
+          var n = g.hours.length, bw = (W - pad.l - pad.r) / n, tt = tots();
+          var ys, sc;
+          if (mode === "pct") { ys = [0, 50, 100]; sc = 100; }
+          else { var mmax = 1, k; for (k = 0; k < tt.length; k++)if (tt[k] > mmax) mmax = tt[k]; ys = ticks(mmax, 5); sc = ys[ys.length - 1] || 1; }
+          function Y(v) { return H - pad.b - (v / sc) * (H - pad.t - pad.b); }
+          c.fillStyle = "#5b6b7a"; c.font = "10px system-ui";
+          ys.forEach(function (y) {
+            var yy = Y(y);
+            c.globalAlpha = .3; c.strokeStyle = "#9aa7b4"; c.beginPath(); c.moveTo(pad.l, yy); c.lineTo(W - pad.r, yy); c.stroke(); c.globalAlpha = 1;
+            c.fillText(mode === "pct" ? (y + "%") : (y >= 1000 ? (y / 1000) + "k" : ("" + y)), 4, yy + 3);
+          });
+          for (var i = 0; i < n; i++) {
+            var tot = tt[i] || 1, acc = 0;
+            for (var j = 0; j < g.matrix.length; j++) {
+              var v = g.matrix[j][i];
+              var hgt = (mode === "pct" ? (v / tot * 100) : v) / sc * (H - pad.t - pad.b);
+              c.fillStyle = colors[j % colors.length];
+              c.fillRect(pad.l + i * bw + 1, H - pad.b - acc - hgt, Math.max(bw - 2, 1), hgt); acc += hgt;
+            }
+          }
+          // el recuadro de la barra bajo el mouse va en la capa DOM (setHL), no en el canvas
+          c.textAlign = "right";
+          g.hours.forEach(function (l, i) {
+            if (i % Math.ceil(n / 8)) return;
+            var x = pad.l + i * bw + bw / 2; c.save(); c.translate(x, H - 44); c.rotate(-.55); c.fillText(fmtT(l), 0, 0); c.restore();
+          });
+          c.textAlign = "left";
+        }
+        function tip() { return cv.parentElement.querySelector(".chart-tip"); }
+        function setHL(i) {
+          var ov = mkOverlay(cv); if (!ov) return;
+          var gl = ov.querySelector(".chart-guide");
+          if (gl) gl.style.display = "none";   // en barras apiladas no hay guía vertical
+          var hl = ov.querySelector(".chart-hl");
+          if (!hl) {
+            hl = document.createElement("div"); hl.className = "chart-hl";
+            hl.style.cssText = "position:absolute;border:1.5px solid #222;box-sizing:border-box;display:none;";
+            ov.appendChild(hl);
+          }
+          if (i < 0 || i >= g.hours.length) { ov.style.display = "none"; return; };
+          var rect = cv.getBoundingClientRect(), cssW = rect.width, padL = 46, padR = 10;
+          var bw = (cssW - padL - padR) / g.hours.length;
+          ov.style.display = "block";
+          hl.style.display = "block";
+          hl.style.left = (padL + i * bw) + "px";
+          hl.style.width = bw + "px";
+          hl.style.top = "18px";
+          hl.style.height = (300 - 18 - 62) + "px";
+        }
+        function esc(x) { return String(x).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+        cv.addEventListener("mousemove", function (e) {
+          var rect = cv.getBoundingClientRect();
+          var cssW = rect.width, padL = 46, padR = 10;
+          var bw = (cssW - padL - padR) / g.hours.length;
+          var i = Math.floor((e.clientX - rect.left - padL) / bw);
+          i = Math.max(0, Math.min(g.hours.length - 1, i));
+          hov = i; setHL(i);
+          var t = tip(); if (!t) return;
+          var tot = 0, j; for (j = 0; j < g.matrix.length; j++)tot += g.matrix[j][i];
+          var rows = []; for (j = 0; j < g.matrix.length; j++)rows.push({ gi: j, v: g.matrix[j][i] });
+          rows.sort(function (a, b) { return b.v - a.v; });
+          var htm = "<b>" + fmtT(g.hours[i]) + "</b> · total " + tot.toLocaleString("es-CL");
+          rows.forEach(function (R) {
+            htm += "<br><span style='color:" + colors[R.gi % colors.length] + "'>●</span> " + esc(g.groups[R.gi]) + ": <b>" + R.v.toLocaleString("es-CL") + "</b> (" + (tot ? (100 * R.v / tot).toFixed(1) : "0.0") + "%)";
+          });
+          t.innerHTML = htm; t.style.display = "block";
+          var wr = cv.parentElement.getBoundingClientRect();
+          var tw = t.offsetWidth || 240;
+          t.style.left = Math.max(4, Math.min(e.clientX - wr.left + 14, wr.width - tw - 8)) + "px";
+          t.style.top = Math.max(e.clientY - wr.top - 10, 4) + "px";
+        });
+        cv.addEventListener("mouseleave", function () { hov = -1; setHL(-1); var t = tip(); if (t) t.style.display = "none"; });
+        var bp = document.getElementById("fig3-mode-pct"), ba = document.getElementById("fig3-mode-abs");
+        function setMode(m) {
+          mode = m;
+          if (bp) { bp.style.fontWeight = (m === "pct" ? "700" : "400"); bp.style.background = (m === "pct" ? "#eef5fc" : "#fff"); }
+          if (ba) { ba.style.fontWeight = (m === "abs" ? "700" : "400"); ba.style.background = (m === "abs" ? "#eef5fc" : "#fff"); }
+          draw();
+        }
+        if (bp) bp.addEventListener("click", function () { setMode("pct"); });
+        if (ba) ba.addEventListener("click", function () { setMode("abs"); });
+        draw(); window.addEventListener("resize", function () { draw(); if (hov >= 0) setHL(hov); });
+      }
+      function area2(g, ids, colors) {
+        var cv = $(ids); if (!cv) return;
+        var hov = -1;
+        function draw() {
+          var r = ctx2d(cv, 300), c = r[0], W = r[1], H = r[2], pad = { l: 46, r: 10, t: 18, b: 62 };
+          c.clearRect(0, 0, W, H);
+          var n = g.hours.length, mx = 1, i;
+          for (i = 0; i < n; i++)mx = Math.max(mx, g.oeste[i] + g.este[i]);
+          var ys = ticks(mx, 5); mx = ys[ys.length - 1] || 1;
+          function X(i) { return pad.l + i * (W - pad.l - pad.r) / ((n - 1) || 1); }
+          function Y(v) { return H - pad.b - (v / mx) * (H - pad.t - pad.b); }
+          axes(c, W, H, pad, ys); xlabels(c, W, H, pad, g.hours, Math.ceil(n / 8));
+          c.fillStyle = "rgba(0,114,178,.45)"; c.beginPath(); c.moveTo(X(0), Y(0));
+          for (i = 0; i < n; i++)c.lineTo(X(i), Y(g.oeste[i]));
+          for (i = n - 1; i >= 0; i--)c.lineTo(X(i), Y(0)); c.closePath(); c.fill();
+          c.fillStyle = "rgba(230,159,0,.5)"; c.beginPath();
+          for (i = 0; i < n; i++) { var y = g.oeste[i] + g.este[i]; i ? c.lineTo(X(i), Y(y)) : c.moveTo(X(i), Y(y)); }
+          for (i = n - 1; i >= 0; i--)c.lineTo(X(i), Y(g.oeste[i])); c.closePath(); c.fill();
+          c.strokeStyle = colors[0]; c.lineWidth = 1.6; c.beginPath();
+          for (i = 0; i < n; i++) { i ? c.lineTo(X(i), Y(g.oeste[i])) : c.moveTo(X(i), Y(g.oeste[i])); } c.stroke();
+        }
+        /* hover: guía vertical + tooltip en la capa DOM (sin redibujar el canvas) */
+        function xAt(i) {
+          var W = cv.clientWidth || 600, n = g.hours.length;
+          return 46 + i * (W - 46 - 10) / ((n - 1) || 1);
+        }
+        function setGuide(i) {
+          var ov = mkOverlay(cv); if (!ov) return;
+          var gl = ov.querySelector(".chart-guide");
+          if (!gl) {
+            gl = document.createElement("div"); gl.className = "chart-guide";
+            gl.style.cssText = "position:absolute;top:18px;height:220px;width:1px;background:#333;opacity:.6;";
+            ov.appendChild(gl);
+          }
+          gl.style.top = "18px"; gl.style.height = "220px";
+          if (i < 0 || i >= g.hours.length) { ov.style.display = "none"; return; }
+          ov.style.display = "block";
+          gl.style.left = xAt(i) + "px";
+        }
+        cv.addEventListener("mousemove", function (e) {
+          var rect = cv.getBoundingClientRect(), cssW = rect.width, padL = 46, padR = 10;
+          var n = g.hours.length, bw = (cssW - padL - padR) / ((n - 1) || 1);
+          var i = Math.round((e.clientX - rect.left - padL) / bw);
+          i = Math.max(0, Math.min(n - 1, i));
+          hov = i; setGuide(i);
+          var t = cv.parentElement.querySelector(".chart-tip"); if (!t) return;
+          var o = g.oeste[i], ee = g.este[i];
+          t.innerHTML = "<b>" + fmtT(g.hours[i]) + "</b>"
+            + "<br><span style='color:" + colors[0] + "'>●</span> Oeste (costa): <b>" + (+o).toLocaleString("es-CL") + "</b>"
+            + "<br><span style='color:" + colors[1] + "'>●</span> Este (Lo Vásquez): <b>" + (+ee).toLocaleString("es-CL") + "</b>";
+          t.style.display = "block";
+          var wr = cv.parentElement.getBoundingClientRect(), tw = t.offsetWidth || 200;
+          t.style.left = Math.max(4, Math.min(e.clientX - wr.left + 14, wr.width - tw - 8)) + "px";
+          t.style.top = Math.max(e.clientY - wr.top - 10, 4) + "px";
+        });
+        cv.addEventListener("mouseleave", function () {
+          hov = -1; setGuide(-1);
+          var t = cv.parentElement.querySelector(".chart-tip"); if (t) t.style.display = "none";
+        });
+        draw(); window.addEventListener("resize", function () { draw(); if (hov >= 0) setGuide(hov); });
+      }
+      try {
+        // fullscreen por tarjeta + wrap para tooltip
+        document.querySelectorAll("div.gbloque").forEach(function (sec) {
+          var cvs = sec.querySelectorAll("canvas.chart");
+          if (!cvs.length) return;
+          cvs.forEach(function (cv) {
+            if (!cv.parentElement.classList.contains("chart-wrap")) {
+              var w = document.createElement("div"); w.className = "chart-wrap";
+              cv.parentNode.insertBefore(w, cv); w.appendChild(cv);
+              var tip = document.createElement("div"); tip.className = "chart-tip"; w.appendChild(tip);
+            }
+          });
+          if (!sec.querySelector(".fsbtn")) {
+            // el botón ⛶ va al encabezado del bloque (h3 en el estudio, h2 en el tablero)
+            var hh = sec.querySelector("h3, h2");
+            var b = document.createElement("button"); b.className = "fsbtn"; b.textContent = "⛶ Pantalla completa";
+            b.addEventListener("click", function () {
+              if (document.fullscreenElement) { document.exitFullscreen(); }
+              else if (sec.requestFullscreen) { sec.requestFullscreen(); }
+            });
+            document.addEventListener("fullscreenchange", function () {
+              b.textContent = document.fullscreenElement ? "✕ Salir" : "⛶ Pantalla completa";
+            });
+            if (hh) hh.appendChild(b);
+          }
+        });
+        var g1 = JSON.parse($("data-g1").textContent);
+        var present = {}; g1.hours.forEach(function (h) { present[h] = 1; });
+        var gi = []; g1.gaps.forEach(function () { });
+        // indices del gap sobre el eje de g1: entre 8T20 y 9T06
+        var ia = g1.hours.indexOf("2025-12-08T20"), ib = g1.hours.indexOf("2025-12-09T06");
+        var gapsIdx = (ia >= 0 && ib >= 0) ? [ia, ib] : [];
+        line({ hours: g1.hours, series: [{ data: g1.trips }], gapsIdx: gapsIdx }, "fig1", [OBITO[0]], true);
+        var g2 = JSON.parse($("data-g2").textContent);
+        line({ hours: g2.hours, series: ["T1", "T2", "T3a", "T4"].map(function (k) { return { name: k, data: g2.series[k] }; }) },
+          "fig2", [OBITO[0], OBITO[1], OBITO[2], OBITO[3]], false);
+        var g3 = JSON.parse($("data-g3").textContent);
+        stackedBar(g3, "fig3", [OBITO[0], OBITO[1], OBITO[4], OBITO[5], OBITO[6]]);
+        var g4 = JSON.parse($("data-g4").textContent);
+        area2(g4, "fig4", [OBITO[0], OBITO[1]]);
+        var g5 = JSON.parse($("data-g5").textContent);
+        line({ hours: g5.hours, series: g5.series }, "fig5", ["#D55E00"], false, "puntos");
+        var g6 = JSON.parse($("data-g6").textContent);
+        line({ hours: g6.hours, series: g6.series }, "fig6", ["#0072B2"], false, "puntos");
+        var g7 = JSON.parse($("data-g7").textContent);
+        line({ hours: g7.hours, series: g7.series }, "fig7", ["#CC79A7"], false, "puntos");
+        var g8 = JSON.parse($("data-g8").textContent);
+        line({ hours: g8.hours, series: g8.series }, "fig8", [OBITO[0], OBITO[1]], false);
+      } catch (e) { console.warn("charts:", e); }
+    })();
+
+  </script>
+  <!--G:SCRIPTS:END-->
+</div>
